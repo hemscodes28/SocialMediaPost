@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Pilot.ai — AI Social Media Command Center</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/public-theme.css?v=5">
+</head>
+
+<body>
+    <div class="mesh-bg" aria-hidden="true">
+        <div class="mesh-circle circle-1"></div>
+        <div class="mesh-circle circle-2"></div>
+        <div class="mesh-circle circle-3"></div>
+    </div>
+
+    <nav class="pp-nav">
+        <a href="landing.html" class="pp-logo">
+            <i class="fas fa-paper-plane"></i>
+            <span>Post Pilot.ai</span>
+        </a>
+        <div class="pp-nav-links">
+            <a href="#features">Features</a>
+            <a href="#platforms">Platforms</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#faq">FAQ</a>
+        </div>
+        <div class="pp-nav-actions">
+            <a href="login.html" class="btn btn-glass btn-sm">Sign In</a>
+            <a href="signup.html" class="btn btn-primary btn-sm">Get Started</a>
+        </div>
+        <button type="button" class="pp-menu-btn" id="ppMenuBtn" aria-label="Open menu">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <div class="pp-mobile-menu" id="ppMobileMenu">
+        <a href="#features">Features</a>
+        <a href="#platforms">Platforms</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="login.html">Sign In</a>
+        <a href="signup.html" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+
+    <div class="pp-page">
+        <section class="pp-hero">
+            <div class="pp-hero-inner">
+                <div>
+                    <div class="pp-badge"><i class="fas fa-wand-magic-sparkles"></i> AI-Powered Social Automation</div>
+                    <h1 class="outfit">Command Your <span class="gradient-text">Social Presence</span> From One Place</h1>
+                    <p class="pp-hero-lead">Create stunning posts, generate platform-perfect captions with AI, publish instantly or schedule ahead — across Instagram and LinkedIn with enterprise-grade reliability.</p>
+                    <div class="pp-hero-actions">
+                        <a href="signup.html" class="btn btn-primary">
+                            Start Free <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="login.html" class="btn btn-glass">
+                            <i class="fas fa-sign-in-alt"></i> Sign In
+                        </a>
+                    </div>
+                    <div class="pp-hero-stats">
+                        <div class="pp-stat"><strong data-count="2" data-suffix="+">0+</strong><span>Platforms</span></div>
+                        <div class="pp-stat"><strong data-count="10" data-suffix="">0</strong><span>Images per post</span></div>
+                        <div class="pp-stat"><strong>24/7</strong><span>Scheduler</span></div>
+                    </div>
+                </div>
+                <div class="pp-hero-visual">
+                    <div class="pp-mock-panel">
+                        <div class="pp-mock-header">
+                            <span class="pp-mock-dot"></span>
+                            <span class="pp-mock-dot"></span>
+                            <span class="pp-mock-dot"></span>
+                        </div>
+                        <div class="pp-mock-row">
+                            <div class="pp-mock-chip"></div>
+                            <div class="pp-mock-chip"></div>
+                        </div>
+                        <div class="pp-mock-preview"><i class="fas fa-wand-magic-sparkles"></i></div>
+                        <div class="pp-mock-btn"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section" id="features">
+            <div class="pp-container">
+                <div class="pp-section-header reveal">
+                    <div class="pp-badge">Everything You Need</div>
+                    <h2 class="outfit">Built for Creators, Teams &amp; Brands</h2>
+                    <p>Post Pilot.ai combines intelligent content tools with multi-account publishing — the same polished experience you get inside the dashboard.</p>
+                </div>
+                <div class="pp-grid-3">
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(79,70,229,0.1); color: var(--primary);">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3>AI Magic Captions</h3>
+                        <p>Upload your media and let AI craft engaging, hashtag-rich captions tailored for Instagram and LinkedIn culture.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(16,185,129,0.1); color: var(--success);">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>Smart Scheduling</h3>
+                        <p>Queue posts for the perfect moment. Our persistent scheduler ensures your content goes live exactly when planned.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(124,58,237,0.1); color: var(--accent);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Multi-Account Control</h3>
+                        <p>Connect multiple Instagram and LinkedIn profiles. Switch targets instantly when creating or publishing content.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(225,48,108,0.1); color: #e1306c;">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <h3>Instagram Publishing</h3>
+                        <p>Single images and carousels with cloud-hosted media. Real-time previews before you hit publish.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(10,102,194,0.1); color: #0a66c2;">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <h3>LinkedIn Publishing</h3>
+                        <p>Share professional updates with text or rich image posts. Manage member accounts from one command center.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                    <article class="pp-card reveal">
+                        <div class="pp-card-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3>Profile Dashboard</h3>
+                        <p>Track published, scheduled, and failed posts. View connected accounts and posting history at a glance.</p>
+                        <span class="pp-card-link">Learn more <i class="fas fa-arrow-right"></i></span>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section" id="platforms" style="background: var(--surface-lighter);">
+            <div class="pp-container">
+                <div class="pp-section-header reveal">
+                    <div class="pp-badge">Integrated Platforms</div>
+                    <h2 class="outfit">Publish Where Your Audience Lives</h2>
+                    <p>Seamlessly connect and post to the platforms that matter most for your brand.</p>
+                </div>
+                <div class="pp-platform-row reveal">
+                    <div class="pp-platform-pill insta">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram — Feed &amp; Carousel</span>
+                    </div>
+                    <div class="pp-platform-pill linkedin">
+                        <i class="fab fa-linkedin-in"></i>
+                        <span>LinkedIn — Text &amp; Image Posts</span>
+                    </div>
+                </div>
+                <div class="pp-grid-2" style="margin-top: 48px;">
+                    <div class="pp-card reveal">
+                        <h3><i class="fab fa-instagram" style="color:#e1306c; margin-right:10px;"></i> Instagram Workflow</h3>
+                        <p style="margin-top:12px;">Connect via Meta/Facebook Login, link Business or Creator accounts, upload media, generate AI captions, preview your post, then publish or schedule — including multi-image carousels.</p>
+                    </div>
+                    <div class="pp-card reveal">
+                        <h3><i class="fab fa-linkedin-in" style="color:#0a66c2; margin-right:10px;"></i> LinkedIn Workflow</h3>
+                        <p style="margin-top:12px;">OAuth-connect professional profiles, craft thought-leadership copy with AI assistance, attach images when needed, and publish to selected member accounts instantly.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section">
+            <div class="pp-container reveal">
+                <div class="pp-stats-band">
+                    <div><span class="num" data-count="100" data-suffix="%">0%</span><span class="lbl">Dashboard Theme Match</span></div>
+                    <div><span class="num" data-count="6" data-suffix="">0</span><span class="lbl">Core Modules</span></div>
+                    <div><span class="num" data-count="1" data-suffix="">0</span><span class="lbl">Unified Command Center</span></div>
+                    <div><span class="num">∞</span><span class="lbl">Creative Possibilities</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section" id="how-it-works">
+            <div class="pp-container">
+                <div class="pp-section-header reveal">
+                    <div class="pp-badge">Simple Workflow</div>
+                    <h2 class="outfit">From Idea to Published in Four Steps</h2>
+                    <p>No complex setup. Connect, create, and command your social feed in minutes.</p>
+                </div>
+                <div class="pp-steps">
+                    <div class="pp-step reveal">
+                        <div class="pp-step-num">1</div>
+                        <h4>Create Account</h4>
+                        <p>Sign up free and access your personal command center.</p>
+                    </div>
+                    <div class="pp-step reveal">
+                        <div class="pp-step-num">2</div>
+                        <h4>Connect Accounts</h4>
+                        <p>Link Instagram and LinkedIn profiles securely via OAuth.</p>
+                    </div>
+                    <div class="pp-step reveal">
+                        <div class="pp-step-num">3</div>
+                        <h4>Create Content</h4>
+                        <p>Upload media, use AI Magic for captions, preview posts live.</p>
+                    </div>
+                    <div class="pp-step reveal">
+                        <div class="pp-step-num">4</div>
+                        <h4>Publish or Schedule</h4>
+                        <p>Post instantly or queue for the perfect time slot.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section" style="background: var(--surface-lighter);">
+            <div class="pp-container">
+                <div class="pp-section-header reveal">
+                    <div class="pp-badge">Inside the App</div>
+                    <h2 class="outfit">Your Complete Toolkit</h2>
+                    <p>Every section in Post Pilot.ai is designed with the same premium light theme and intuitive navigation.</p>
+                </div>
+                <div class="pp-grid-4">
+                    <a href="signup.html" class="pp-card reveal" style="text-decoration:none;">
+                        <div class="pp-card-icon" style="background:#F0F4FF; color:var(--primary);"><i class="fas fa-user-circle"></i></div>
+                        <h3>My Profile</h3>
+                        <p>Welcome dashboard with connected accounts, stats, and post history.</p>
+                    </a>
+                    <a href="signup.html" class="pp-card reveal" style="text-decoration:none;">
+                        <div class="pp-card-icon" style="background:#F0F4FF; color:var(--primary);"><i class="fas fa-paint-brush"></i></div>
+                        <h3>Create &amp; Post</h3>
+                        <p>Multi-platform publisher with live previews and AI caption tools.</p>
+                    </a>
+                    <a href="signup.html" class="pp-card reveal" style="text-decoration:none;">
+                        <div class="pp-card-icon" style="background:#F0F4FF; color:var(--primary);"><i class="fas fa-link"></i></div>
+                        <h3>My Accounts</h3>
+                        <p>Connect and manage Instagram &amp; LinkedIn profiles in one place.</p>
+                    </a>
+                    <a href="signup.html" class="pp-card reveal" style="text-decoration:none;">
+                        <div class="pp-card-icon" style="background:#F0F4FF; color:var(--primary);"><i class="fas fa-calendar-alt"></i></div>
+                        <h3>My Schedule</h3>
+                        <p>View, track, and cancel scheduled posts with status updates.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section" id="faq">
+            <div class="pp-container" style="max-width: 720px;">
+                <div class="pp-section-header reveal">
+                    <div class="pp-badge">FAQ</div>
+                    <h2 class="outfit">Common Questions</h2>
+                </div>
+                <div class="pp-faq-item reveal">
+                    <button type="button" class="pp-faq-q">Is Post Pilot.ai free to start? <i class="fas fa-chevron-down"></i></button>
+                    <div class="pp-faq-a"><div class="pp-faq-a-inner">Yes — create an account and explore the full dashboard. Connect your social accounts and start publishing right away.</div></div>
+                </div>
+                <div class="pp-faq-item reveal">
+                    <button type="button" class="pp-faq-q">Which platforms are supported? <i class="fas fa-chevron-down"></i></button>
+                    <div class="pp-faq-a"><div class="pp-faq-a-inner">Instagram (single image and carousel) and LinkedIn (text and image posts). More platforms may be added in future updates.</div></div>
+                </div>
+                <div class="pp-faq-item reveal">
+                    <button type="button" class="pp-faq-q">How does AI caption generation work? <i class="fas fa-chevron-down"></i></button>
+                    <div class="pp-faq-a"><div class="pp-faq-a-inner">Upload your media in Create &amp; Post, then click AI Magic. Our AI analyzes your content and generates platform-appropriate captions with relevant hashtags.</div></div>
+                </div>
+                <div class="pp-faq-item reveal">
+                    <button type="button" class="pp-faq-q">Can I schedule posts in advance? <i class="fas fa-chevron-down"></i></button>
+                    <div class="pp-faq-a"><div class="pp-faq-a-inner">Absolutely. Use the Schedule button when creating content, pick your date and time, and our persistent scheduler handles the rest.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pp-section">
+            <div class="pp-container reveal">
+                <div class="pp-cta">
+                    <h2 class="outfit">Ready to Pilot Your Social Strategy?</h2>
+                    <p>Join Post Pilot.ai today and experience the same elegant dashboard your team will love — from first post to full automation.</p>
+                    <a href="signup.html" class="btn btn-primary" style="font-size:1.05rem; padding:16px 36px;">
+                        Create Free Account <i class="fas fa-rocket"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <footer class="pp-footer">
+            <div class="pp-footer-inner">
+                <a href="landing.html" class="pp-logo" style="font-size:1.2rem;">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Post Pilot.ai</span>
+                </a>
+                <div class="pp-footer-links">
+                    <a href="#features">Features</a>
+                    <a href="/privacy.html">Privacy</a>
+                    <a href="/terms.html">Terms</a>
+                    <a href="/delete-data.html">Delete Data</a>
+                    <a href="login.html">Sign In</a>
+                    <a href="signup.html">Sign Up</a>
+                </div>
+                <p style="color:var(--text-dim); font-size:0.88rem;">&copy; 2026 Post Pilot.ai. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/public-pages.js?v=5"></script>
+    <script src="js/auth-utils.js?v=6"></script>
+</body>
+
+</html>

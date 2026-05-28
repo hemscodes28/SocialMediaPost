@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Failed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 560px;
+            width: 100%;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .card-header i {
+            font-size: 2rem;
+            color: #fca5a5;
+        }
+        h1 { color: #fca5a5; margin: 0; font-size: 1.4rem; }
+        .error-msg {
+            color: #94a3b8;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+        .steps {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .steps h3 {
+            color: #f1f5f9;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+        .step-num {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            min-width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .step-text {
+            color: #cbd5e1;
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+        .step-text a {
+            color: #818cf8;
+            text-decoration: none;
+        }
+        .step-text a:hover { text-decoration: underline; }
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.2s ease;
+        }
+        .btn-close {
+            background: #334155;
+            color: white;
+        }
+        .btn-close:hover { background: #475569; }
+        .btn-retry {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        .btn-retry:hover { background: rgba(99, 102, 241, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-exclamation-circle"></i>
+            <h1 id="title">Connection Failed</h1>
+        </div>
+        <p class="error-msg" id="message">Something went wrong while connecting your account.</p>
+        
+        <div class="steps" id="stepsBox">
+            <h3>📋 Setup Steps Required:</h3>
+            <div id="stepsList"></div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-close" onclick="notifyAndClose()">Close</button>
+            <button class="btn btn-retry" id="retryBtn" style="display:none" onclick="window.close()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+        </div>
+    </div>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const platform = params.get('platform') || 'account';
+        const rawMessage = params.get('message') || 'Unknown error';
+        const message = decodeURIComponent(rawMessage);
+        
+        document.getElementById('title').textContent = 
+            platform.charAt(0).toUpperCase() + platform.slice(1) + ' connection failed';
+        
+        // Parse numbered steps from the error message (e.g. "1) ... 2) ... 3) ...")
+        const stepPattern = /(\d+)\)\s*([^0-9]*?)(?=\s*\d+\)|$)/g;
+        let steps = [];
+        let match;
+        while ((match = stepPattern.exec(message)) !== null) {
+            steps.push(match[2].trim().replace(/,\s*$/, ''));
+        }
+        
+        if (steps.length > 0) {
+            // Show the preamble (text before "1)")
+            const preamble = message.split(/\d+\)/)[0].trim().replace(/:\s*$/, '');
+            document.getElementById('message').textContent = preamble || 'Please complete these setup steps:';
+            
+            const stepsBox = document.getElementById('stepsBox');
+            const stepsList = document.getElementById('stepsList');
+            stepsBox.style.display = 'block';
+            
+            steps.forEach((step, i) => {
+                const div = document.createElement('div');
+                div.className = 'step';
+                
+                // Convert URLs in step text to links
+                let stepHtml = step.replace(
+                    /(facebook\.com\/pages\/create|instagram\.com[^\s]*)/gi,
+                    '<a href="https://$1" target="_blank">$1</a>'
+                );
+                
+                div.innerHTML = `<div class="step-num">${i + 1}</div><div class="step-text">${stepHtml}</div>`;
+                stepsList.appendChild(div);
+            });
+            
+            document.getElementById('retryBtn').style.display = 'block';
+        } else {
+            document.getElementById('message').textContent = message;
+        }
+        
+        function notifyAndClose() {
+            if (window.opener) {
+                window.opener.postMessage({ type: 'platform_connect_failed', platform, message }, '*');
+            }
+            window.close();
+        }
+        if (window.opener) {
+            window.opener.postMessage({ type: 'platform_connect_failed', platform, message }, '*');
+        }
+    </script>
+</body>
+</html>

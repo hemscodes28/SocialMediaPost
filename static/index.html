@@ -1,0 +1,4246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Pilot.ai — Social Media Command Center</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #F8F9FA; /* Premium off-white dashboard bg */
+            --surface-dark: #FFFFFF; /* Pure white layered cards and sidebar bg */
+            --surface-lighter: #F1F4F9; /* Subtle off-white for sub-elements */
+            --primary: #4f46e5; /* Deep Indigo primary accent */
+            --primary-glow: rgba(79, 70, 229, 0.08); /* Soft primary glow */
+            --accent: #7c3aed; /* Electric Violet accent */
+            --accent-glow: rgba(124, 58, 237, 0.08);
+            --text-main: #1A1A2E; /* Dark Charcoal for headings and readable texts */
+            --text-dim: #64748B; /* Medium Slate for secondary/body text */
+            --border: rgba(0, 0, 0, 0.06); /* Soft, barely visible elegant borders */
+            --glass-bg: rgba(255, 255, 255, 0.85); /* Premium light glassmorphism */
+            --success: #10b981;
+            --error: #ff6b6b; /* Warm coral / red for errors and failed badges */
+            --warning: #f59e0b;
+
+            --sidebar-width: 260px;
+            --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            position: relative;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* --- BACKGROUND MESH --- */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+            display: block;
+        }
+
+        .mesh-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(130px);
+            opacity: 0.35;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        .circle-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, rgba(124, 58, 237, 0.05) 100%);
+            top: -100px;
+            right: -100px;
+        }
+
+        .circle-2 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(99, 102, 241, 0.05) 100%);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 50px) scale(1.08); }
+        }
+
+        /* --- SIDEBAR --- */
+        aside {
+            width: var(--sidebar-width);
+            height: 100%;
+            background: var(--surface-dark);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 24px;
+            z-index: 10;
+            transition: var(--transition);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.01);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.55rem;
+            font-weight: 800;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            -webkit-text-fill-color: var(--primary);
+            background: none;
+        }
+
+        nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #F0F4FF;
+            color: var(--primary);
+            transform: translateX(4px);
+            padding-left: 24px;
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            font-weight: 600;
+            padding-left: 24px;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 25%;
+            height: 50%;
+            width: 4px;
+            background-color: var(--primary);
+            border-radius: 0 4px 4px 0;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .nav-item:hover::before,
+        .nav-item.active::before {
+            opacity: 1;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 14px;
+            transition: var(--transition);
+            background: rgba(99, 102, 241, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .user-info:hover {
+            background: #F0F4FF;
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
+            padding: 40px 60px;
+            position: relative;
+            z-index: 5;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        main::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .date-badge {
+            background: var(--surface-dark);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+
+        /* --- GRID LAYOUT --- */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            height: 100%;
+            transition: var(--transition);
+            animation: fadeInUp 0.5s ease-out backwards;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.18);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--text-main);
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* --- PUBLISHER UI --- */
+        .publisher-area {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Platform Selection */
+        .platforms-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .platform-checkbox {
+            display: none;
+        }
+
+        .platform-chip {
+            flex: 1;
+            padding: 16px;
+            border-radius: 20px;
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+        }
+
+        .platform-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.12);
+        }
+
+        .platform-chip i {
+            font-size: 1.5rem;
+            transition: var(--transition);
+            color: var(--text-dim);
+        }
+
+        .platform-chip span {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        /* Custom platform colors on select */
+        #checkInsta:checked+.platform-chip {
+            border-color: #e4405f;
+            background: rgba(228, 64, 95, 0.05);
+            box-shadow: 0 8px 24px rgba(228, 64, 95, 0.08);
+        }
+
+        #checkInsta:checked+.platform-chip i {
+            color: #e4405f;
+            transform: scale(1.1);
+        }
+
+        #checkInsta:checked+.platform-chip span {
+            color: #e4405f;
+        }
+
+        #checkLinkedin:checked+.platform-chip {
+            border-color: #0a66c2;
+            background: rgba(10, 102, 194, 0.05);
+            box-shadow: 0 8px 24px rgba(10, 102, 194, 0.08);
+        }
+
+        #checkLinkedin:checked+.platform-chip i {
+            color: #0a66c2;
+            transform: scale(1.1);
+        }
+
+        #checkLinkedin:checked+.platform-chip span {
+            color: #0a66c2;
+        }
+
+        /* Upload Area */
+        .upload-vessel {
+            position: relative;
+            border: 2px dashed rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: var(--transition);
+            background: var(--surface-lighter);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .upload-vessel:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .upload-vessel i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .upload-vessel p {
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .upload-vessel.has-file {
+            padding: 0;
+            border-style: solid;
+        }
+
+        #filePreviewImg {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            display: none;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: auto;
+            height: auto;
+            background: transparent;
+            backdrop-filter: none;
+            display: flex;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .remove-media-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            opacity: 0;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .remove-media-btn i {
+            font-size: 10px;
+            line-height: 0;
+            color: white;
+            margin: 0;
+        }
+
+        .remove-media-btn:hover {
+            background: rgba(255, 107, 107, 0.9);
+            transform: scale(1.1);
+        }
+
+        .upload-vessel.has-file:hover .remove-media-btn {
+            opacity: 1;
+        }
+
+        .upload-vessel.has-file:hover .upload-overlay {
+            opacity: 1;
+        }
+
+        /* --- GALLERY GRID --- */
+        .media-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+            padding: 10px;
+            background: var(--surface-lighter);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .gallery-item:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-count-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
+        }
+
+        /* --- PREVIEW PANEL --- */
+        .preview-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .mini-preview {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px;
+            display: none;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: var(--transition);
+        }
+
+        .mini-preview.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .preview-tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-family: inherit;
+            resize: none;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            padding: 0;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        /* --- ACTIONS --- */
+        .action-zone {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            border-radius: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: inherit;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-glass {
+            background: var(--surface-dark);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+        }
+
+        .btn-glass:hover:not(:disabled) {
+            background: #F0F4FF;
+            color: var(--primary);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* --- PREVIEW MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 2000;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-shell {
+            width: min(980px, 100%);
+            max-height: min(86vh, 860px);
+            height: min(86vh, 860px);
+            overflow: hidden;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface-dark);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            gap: 14px;
+        }
+
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .modal-title h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-lighter);
+            color: var(--text-main);
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            transform: scale(1.08);
+        }
+
+        .platform-toggle {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .seg-btn {
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-lighter);
+            color: var(--text-dim);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .seg-btn:hover {
+            border-color: rgba(0,0,0,0.12);
+            color: var(--text-main);
+        }
+
+        .seg-btn[aria-pressed="true"] {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.05);
+        }
+
+        .seg-btn.insta[aria-pressed="true"] {
+            border-color: #e4405f;
+            color: #e4405f;
+            background: rgba(228, 64, 95, 0.06);
+        }
+
+        .seg-btn.linkedin[aria-pressed="true"] {
+            border-color: #0a66c2;
+            color: #0a66c2;
+            background: rgba(10, 102, 194, 0.06);
+        }
+
+        .modal-body {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 18px;
+            padding: 24px;
+            min-height: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        @media (max-width: 980px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-card-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 8px 16px;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,0.08) transparent;
+        }
+
+        .preview-card-wrap::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .preview-card-wrap::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .preview-card-wrap::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.08);
+            border-radius: 4px;
+        }
+
+        /* --- PREVIEW MOCKUP CARDS --- */
+        .post-card {
+            width: min(380px, 100%);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: #FFFFFF; /* Authentic white backgrounds for platform feeds */
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+        }
+
+        /* Instagram Mockup Specifics */
+        .post-card .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            gap: 12px;
+            background: #FFFFFF;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .ig-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .ig-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f09433, #dc2743, #cc2366);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .ig-username {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #262626;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ig-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #262626;
+        }
+
+        .ig-follow {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #0095f6;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: default;
+        }
+
+        .ig-media {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #FAFAFA;
+            display: grid;
+            place-items: center;
+            position: relative;
+            overflow: hidden;
+            border-top: 1px solid rgba(0,0,0,0.02);
+            border-bottom: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .ig-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .ig-media .placeholder-logo {
+            font-size: 3.5rem;
+            color: rgba(0, 0, 0, 0.08);
+        }
+
+        .ig-footer {
+            padding: 12px 14px;
+            background: #FFFFFF;
+        }
+
+        .ig-icon-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+            color: #262626;
+        }
+
+        .ig-left-icons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ig-like-count {
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            color: #262626;
+        }
+
+        .ig-caption-text {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #262626;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .ig-caption-text .hash {
+            color: #00376b;
+            font-weight: 600;
+        }
+
+        /* LinkedIn Mockup Specifics */
+        .li-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            gap: 12px;
+            background: #FFFFFF;
+        }
+
+        .li-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .li-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(10, 102, 194, 0.1);
+            border: 1px solid rgba(10, 102, 194, 0.2);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: #0a66c2;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .li-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: rgba(0, 0, 0, 0.9);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .li-sub {
+            font-size: 0.75rem;
+            color: rgba(0, 0, 0, 0.6);
+            margin-top: 2px;
+        }
+
+        .li-text {
+            padding: 8px 14px 12px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, 0.9);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .li-media {
+            width: 100%;
+            aspect-ratio: 1.7;
+            background: #F3F6F8;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .li-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .li-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            padding: 4px;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            background: #FFFFFF;
+        }
+
+        .li-act {
+            padding: 10px 2px;
+            border-radius: 4px;
+            color: rgba(0, 0, 0, 0.6);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .li-act:hover {
+            background: rgba(0, 0, 0, 0.04);
+            color: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Editor Panel in Modals */
+        .editor-panel {
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--surface-lighter);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .editor-panel .label {
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .editor-panel textarea {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            resize: none;
+            color: var(--text-main);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+        }
+        
+        .editor-panel textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+        }
+
+        /* Account selector inside preview modal */
+        .modal-account-select {
+            width: 100%;
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236366f1' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .modal-account-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+            outline: none;
+        }
+        .modal-account-select-label {
+            color: var(--text-dim);
+            font-weight: 700;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        .editor-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+            flex-shrink: 0;
+        }
+
+        .preview-btn-row {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* --- SCHEDULER VIEW --- */
+        .jobs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .job-item {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+            animation: slideInRight 0.6s ease-out backwards;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.01);
+        }
+
+        .job-item:hover {
+            transform: translateX(8px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08);
+        }
+
+        .job-thumbnail {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--surface-lighter);
+            border: 1px solid var(--border);
+        }
+
+        .job-content {
+            flex: 1;
+        }
+
+        .job-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .job-platform {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-dim);
+        }
+
+        .job-time {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .job-status {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        .status-published {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+
+        .status-failed {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 107, 107, 0.15);
+        }
+
+        /* --- MODALS / STATUS --- */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            padding: 20px 32px;
+            border-radius: 20px;
+            background: #1A1A2E; /* Keep high contrast dark toast */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            color: white;
+            transform: translateY(150%);
+            transition: var(--transition);
+            z-index: 3000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        /* Tab switching */
+        .tab-content {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Loader */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            padding: 24px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+        }
+
+        .stat-card .val {
+            font-size: 2.6rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 6px;
+            font-family: 'Outfit';
+        }
+
+        .stat-card .label {
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .accounts-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .acc-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            background: var(--surface-lighter);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .acc-item:hover {
+            background: var(--surface-dark);
+            border-color: rgba(99, 102, 241, 0.15);
+            transform: translateX(4px);
+        }
+
+        .acc-item i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            main {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            aside {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                position: relative;
+                padding: 24px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .logo {
+                margin-bottom: 24px;
+            }
+
+            .nav-item {
+                padding: 12px;
+            }
+
+            .sidebar-footer {
+                margin-top: 20px;
+                padding-top: 20px;
+            }
+
+            main {
+                padding: 24px;
+                height: auto;
+                overflow-y: visible;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .action-zone {
+                flex-direction: column;
+            }
+
+            .action-zone .btn {
+                width: 100%;
+            }
+        }
+
+        /* --- HOME NAVIGATION CARDS --- */
+        .home-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .home-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 28px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .home-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(99, 102, 241, 0.14);
+            border-color: rgba(99, 102, 241, 0.2);
+            background: #F8F9FF;
+        }
+
+        .home-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .home-card h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+        .home-card p  { font-size: 0.88rem; color: var(--text-dim); line-height: 1.55; margin: 0; }
+
+        /* --- PROFILE DASHBOARD --- */
+        .profile-accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .profile-account-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            transition: var(--transition);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+        }
+
+        .profile-account-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.15);
+        }
+
+        .profile-welcome-banner {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+            padding: 36px 40px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            border: 1px solid rgba(79, 70, 229, 0.15);
+        }
+
+        .profile-welcome-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px 24px;
+            flex-wrap: wrap;
+        }
+
+        .profile-welcome-title {
+            font-size: clamp(1.65rem, 3vw, 2.5rem);
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .profile-welcome-sub {
+            color: var(--text-dim);
+            margin-top: 8px;
+            font-size: 1.05rem;
+        }
+
+        .profile-account-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .profile-status-badge {
+            margin-left: auto;
+            flex-shrink: 0;
+            align-self: center;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        @media (max-width: 520px) {
+            .profile-status-badge {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .profile-pic {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .profile-pic-placeholder {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: 700; color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-meta { flex: 1; min-width: 0; }
+        .profile-meta h3 {
+            font-size: 1rem; font-weight: 700; color: var(--text-main);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .profile-meta p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-stats-row {
+            display: flex;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .profile-stat {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 3px; flex: 1; padding: 14px 8px;
+            border-right: 1px solid var(--border);
+        }
+        .profile-stat:last-child { border-right: none; }
+        .profile-stat .stat-num { font-size: 1.15rem; font-weight: 800; color: var(--text-main); }
+        .profile-stat .stat-lbl { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+        .profile-bio { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+
+        /* Stats Summary Row */
+        .stats-summary-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        @media (max-width: 768px) { .stats-summary-row { grid-template-columns: 1fr; } }
+
+        .stats-summary-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex; flex-direction: column; gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+        }
+        .stats-summary-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(99, 102, 241, 0.1); }
+        .stats-summary-card .ssc-val { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .stats-summary-card .ssc-label { font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+        /* Post History Feed */
+        .history-section { background: var(--surface-dark); border: 1px solid var(--border); border-radius: 20px; padding: 28px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04); }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stats-range-toggle {
+            display: flex; gap: 4px;
+            background: var(--surface-lighter);
+            padding: 4px; border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .range-btn {
+            padding: 6px 14px; border-radius: 7px; border: none;
+            background: transparent; color: var(--text-dim);
+            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            transition: var(--transition); font-family: inherit;
+        }
+        .range-btn.active { background: var(--surface-dark); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+        .history-feed {
+            display: flex; flex-direction: column; gap: 10px;
+            max-height: 440px; overflow-y: auto;
+            scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.06) transparent;
+            padding-right: 4px;
+        }
+        .history-feed::-webkit-scrollbar { width: 4px; }
+        .history-feed::-webkit-scrollbar-track { background: transparent; }
+        .history-feed::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 4px; }
+
+        .history-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 14px; border-radius: 14px;
+            border: 1px solid var(--border);
+            background: var(--surface-lighter);
+            cursor: pointer; transition: var(--transition);
+        }
+        .history-item:hover { background: #F0F4FF; border-color: rgba(99, 102, 241, 0.18); transform: translateX(4px); }
+
+        .history-thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: var(--surface-dark); border: 1px solid var(--border); }
+        .history-thumb-slot { width: 50px; height: 50px; flex-shrink: 0; }
+        .history-thumb-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+        .history-thumb-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .history-info { flex: 1; min-width: 0; }
+        .history-info strong { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-info span { font-size: 0.75rem; color: var(--text-dim); }
+
+        /* History Detail Modal */
+        .history-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 24px; z-index: 3000;
+        }
+        .history-modal-overlay.open { display: flex; }
+
+        .history-modal-shell {
+            width: min(640px, 100%); max-height: min(82vh, 760px);
+            overflow-y: auto; border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface-dark);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.08);
+            padding: 32px; scrollbar-width: thin;
+        }
+        .hm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .hm-img { width: 100%; border-radius: 14px; object-fit: cover; max-height: 280px; margin-bottom: 20px; border: 1px solid var(--border); }
+        .hm-caption-block { font-size: 0.9rem; color: var(--text-dim); line-height: 1.7; background: var(--surface-lighter); padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 1px solid var(--border); white-space: pre-wrap; }
+        .hm-meta-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .hm-chip { padding: 6px 14px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; background: var(--surface-lighter); color: var(--text-dim); border: 1px solid var(--border); }
+
+        /* Logout confirmation */
+        #logoutConfirmModal.logout-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 24px; z-index: 4000;
+        }
+        #logoutConfirmModal.logout-modal-overlay.open { display: flex; }
+        .logout-modal-card {
+            width: min(420px, 100%);
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 24px 64px rgba(79, 70, 229, 0.12);
+            text-align: center;
+        }
+        .logout-modal-card h3 { font-family: 'Outfit', sans-serif; font-size: 1.35rem; margin-bottom: 10px; color: var(--text-main); }
+        .logout-modal-card p { color: var(--text-dim); font-size: 0.95rem; margin-bottom: 28px; line-height: 1.5; }
+        .logout-modal-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .logout-modal-actions .btn { min-width: 120px; padding: 12px 24px; border-radius: 14px; }
+
+        .job-thumbnail-wrap {
+            width: 56px; height: 56px; flex-shrink: 0;
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--surface-lighter);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .job-thumbnail-wrap img.job-thumbnail {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+
+        /* --- SKELETON ANIMATIONS & GLOWS --- */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .skeleton-text {
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        .skeleton-card {
+            border: 1px solid var(--border);
+            background: var(--surface-dark);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+        }
+        
+        /* Premium Stats row styling */
+        .stat-card-premium {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            cursor: pointer;
+        }
+        .stat-card-premium:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08) !important;
+            border-color: rgba(99, 102, 241, 0.18) !important;
+        }
+
+        /* Action buttons styling */
+        .btn-action-premium {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 16px;
+            padding: 14px 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-action-premium:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.15) !important;
+        }
+
+        /* --- DUAL LINES ANIMATIONS (FIX 3) --- */
+        .dual-nav-container {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            margin-top: 16px;
+            padding: 10px 0;
+            z-index: 2;
+        }
+
+        .dual-card {
+            background: var(--surface-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            z-index: 5;
+            position: relative;
+        }
+
+        .dual-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(99, 102, 241, 0.12) !important;
+            border-color: rgba(99, 102, 241, 0.25) !important;
+        }
+
+        .nav-lines-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+        }
+
+        .nav-lines-svg path {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+            stroke: url(#lineGradient);
+            stroke-width: 4;
+        }
+
+        /* Hover behavior: meeting center */
+        .dual-nav-container:hover .nav-lines-svg path {
+            stroke-dashoffset: 0;
+        }
+
+        /* Click/selected persistent state highlighting */
+        .dual-nav-container.selected-left #leftPath,
+        .dual-nav-container.selected-right #rightPath {
+            stroke-dashoffset: 0 !important;
+        }
+
+        .dual-card.selected {
+            border-color: var(--primary) !important;
+            background: rgba(99, 102, 241, 0.02) !important;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.08) !important;
+        }
+
+        /* --- PREVIEW BOX GLOW (FIX 4) --- */
+        #inpagePreviewBox {
+            transition: var(--transition);
+        }
+        #inpagePreviewBox:hover {
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.25) !important;
+        }
+
+        /* --- POST GRID MINI PHOTO GRID (FIX 6) --- */
+        .history-feed-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .history-tile {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: var(--surface-lighter);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .history-tile:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+        }
+
+        .history-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .history-tile-icon-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            border: 1px solid rgba(0,0,0,0.06);
+            z-index: 2;
+        }
+
+        /* --- NEW MODAL TRANSITION RULES --- */
+        .history-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            padding: 24px; z-index: 3000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .history-modal-overlay.open {
+            display: flex;
+            opacity: 1;
+        }
+        .history-modal-shell {
+            width: min(540px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--surface-dark);
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+            padding: 32px;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .history-modal-overlay.open .history-modal-shell {
+            transform: scale(1);
+        }
+    </style>
+    <script type="module" src="js/firebase-init.js?v=7"></script>
+</head>
+
+<body>
+    <div class="mesh-bg">
+        <div class="mesh-circle circle-1"></div>
+        <div class="mesh-circle circle-2"></div>
+    </div>
+
+    <aside>
+        <div class="logo">
+            <i class="fas fa-paper-plane"></i>
+            <span>Post Pilot.ai</span>
+        </div>
+
+        <nav>
+            <div class="nav-item active" data-tab="profile">
+                <i class="fas fa-user-circle"></i>
+                <span>My Profile</span>
+            </div>
+            <div class="nav-item" data-tab="publisher">
+                <i class="fas fa-rocket"></i>
+                <span>Create &amp; Post</span>
+            </div>
+            <div class="nav-item" data-tab="accounts">
+                <i class="fas fa-link"></i>
+                <span>My Accounts</span>
+            </div>
+            <div class="nav-item" data-tab="schedule">
+                <i class="fas fa-calendar-alt"></i>
+                <span>My Schedule</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info" id="userProfile" style="display: none;">
+                <div class="avatar" id="avatarInitial">U</div>
+                <div style="flex: 1; min-width: 0;">
+                    <p id="userName"
+                        style="font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User
+                    </p>
+                    <p style="font-size: 0.75rem; color: var(--text-dim);">Enterprise Plan</p>
+                </div>
+            </div>
+            <button id="logoutBtn" class="btn btn-glass" style="width: 100%; padding: 12px;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <main>
+        <!-- CREATE & POST TAB -->
+        <div id="publisher" class="tab-content">
+            <header>
+                <div>
+                    <h2 class="outfit">Create &amp; Post</h2>
+                    <p style="color: var(--text-dim); margin-top: 4px;">Post effortlessly across all platforms</p>
+                </div>
+            </header>
+
+            <div class="content-grid">
+                <div class="glass-card">
+                    <div class="publisher-area">
+                        <section>
+                            <h4 class="section-title"><i class="fas fa-layer-group"></i> Target Platforms</h4>
+                            <div class="platforms-group">
+                                <input type="checkbox" id="checkInsta" class="platform-checkbox" checked>
+                                <label for="checkInsta" class="platform-chip">
+                                    <i class="fab fa-instagram"></i>
+                                    <span>Instagram</span>
+                                </label>
+
+                                <input type="checkbox" id="checkLinkedin" class="platform-checkbox">
+                                <label for="checkLinkedin" class="platform-chip">
+                                    <i class="fab fa-linkedin-in"></i>
+                                    <span>LinkedIn</span>
+                                </label>
+
+                                <input type="checkbox" id="checkThreads" class="platform-checkbox">
+                                <label for="checkThreads" class="platform-chip">
+                                    <i class="fab fa-threads"></i>
+                                    <span>Threads</span>
+                                </label>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4 class="section-title"><i class="fas fa-image"></i> Media Content</h4>
+                            <div class="upload-vessel" id="dropZone">
+                                <div id="uploadPlaceholder">
+                                    <i class="fas fa-images"></i>
+                                    <p>Drop media or click to browse</p>
+                                    <p style="font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;">Supports JPG, PNG (Max 10 images)</p>
+                                </div>
+                                <div id="galleryCount" class="gallery-count-badge" style="display: none;">0 Images</div>
+                                <img id="filePreviewImg" alt="Preview" style="display: none;">
+                                <div id="removeMediaBtn" class="remove-media-btn" title="Remove Media">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                                <input type="file" id="fileInput" style="display: none;" accept="image/jpeg,image/png" multiple>
+                            </div>
+                            <div id="mediaGallery" class="media-gallery" style="display: none;"></div>
+                        </section>
+
+                        <section id="captionSection" style="display: none; animation: fadeIn 0.3s; margin-top: 24px;">
+                            <h4 class="section-title"><i class="fas fa-edit"></i> Caption &amp; Hashtags</h4>
+                            
+                            <div id="instaCaptionContainer" style="display: none; margin-bottom: 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="fab fa-instagram" style="color: #e4405f;"></i>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">Instagram Caption</span>
+                                </div>
+                                <textarea id="instaCaption" rows="4" placeholder="Write caption for Instagram..."
+                                    style="width: 100%; border: 1px solid var(--border); background: var(--surface-dark); padding: 12px 16px; border-radius: 12px; color: var(--text-main); font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                                <div id="instaStatus" style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; display: none;"></div>
+                            </div>
+
+                            <div id="linkedinCaptionContainer" style="display: none; margin-bottom: 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="fab fa-linkedin-in" style="color: #0a66c2;"></i>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">LinkedIn Caption</span>
+                                </div>
+                                <textarea id="linkedinCaption" rows="4" placeholder="Write caption for LinkedIn..."
+                                    style="width: 100%; border: 1px solid var(--border); background: var(--surface-dark); padding: 12px 16px; border-radius: 12px; color: var(--text-main); font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                                <div id="linkedinStatus" style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; display: none;"></div>
+                            </div>
+
+                            <div id="threadsCaptionContainer" style="display: none; margin-bottom: 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                    <i class="fab fa-threads" style="color: #ffffff;"></i>
+                                    <span style="font-size: 0.85rem; font-weight: 600;">Threads Post Text</span>
+                                </div>
+                                <textarea id="threadsCaption" rows="4" placeholder="What's on your mind? Write for Threads..."
+                                    style="width: 100%; border: 1px solid var(--border); background: var(--surface-dark); padding: 12px 16px; border-radius: 12px; color: var(--text-main); font-family: inherit; font-size: 0.9rem; resize: vertical;"></textarea>
+                                <div id="threadsStatus" style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; display: none;"></div>
+                            </div>
+                        </section>
+
+                        <section id="scheduleSection" style="display: none; animation: fadeIn 0.3s;">
+                            <h4 class="section-title"><i class="fas fa-clock"></i> Schedule for later</h4>
+                            <input type="datetime-local" id="scheduleTime"
+                                style="width: 100%; border: 1px solid var(--border); background: var(--surface-dark); padding: 16px; border-radius: 18px; color: var(--text-main);">
+                        </section>
+
+                        <div class="action-zone">
+                            <button id="postBtn" class="btn btn-primary shine" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Publish Post</span>
+                            </button>
+                            <button id="scheduleToggle" class="btn btn-glass">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>Schedule</span>
+                            </button>
+                        </div>
+
+                        <button id="generateBtn" class="btn btn-glass"
+                            style="width: 100%; border-color: var(--primary); color: var(--primary);">
+                            <i class="fas fa-magic"></i>
+                            <span>AI Magic — Generate Captions</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="padding: 24px;" id="inpagePreviewBox">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h4 class="section-title" style="margin: 0;"><i class="fas fa-eye"></i> See How Your Post Will Look</h4>
+                        <div id="previewStatusBadge" style="display: none; background: rgba(16,185,129,0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; align-items: center; gap: 6px;">
+                            <i class="fas fa-check-circle"></i> Looks good!
+                        </div>
+                    </div>
+
+                    <div class="preview-btn-row" style="margin-bottom: 16px;">
+                        <button id="previewBtn" class="btn btn-glass" style="width: 100%; border-color: var(--primary); color: var(--primary); transition: var(--transition);">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            <span>Open Advanced Editor &amp; Preview</span>
+                        </button>
+                    </div>
+
+                    <!-- Platform Mock Frames container -->
+                    <div id="mockFramesContainer" style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Instagram Mock -->
+                        <div id="mockInstagram" style="display: none; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface-dark);">
+                            <div style="padding: 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border);">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #dc2743, #cc2366); color: white; display: grid; place-items: center;"><i class="fab fa-instagram"></i></div>
+                                <div style="font-size: 0.85rem; font-weight: 600;">Instagram Preview</div>
+                            </div>
+                            <div id="mockInstaImage" style="width: 100%; aspect-ratio: 1; background: var(--surface-lighter); display: grid; place-items: center; color: var(--text-dim); font-size: 0.85rem; overflow: hidden;">
+                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                            </div>
+                            <div style="padding: 12px; font-size: 0.85rem; color: var(--text-main); line-height: 1.5;" id="mockInstaCaption">
+                                <em style="color: var(--text-dim);">Waiting for AI caption...</em>
+                            </div>
+                        </div>
+
+                        <!-- LinkedIn Mock -->
+                        <div id="mockLinkedin" style="display: none; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface-dark);">
+                            <div style="padding: 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border);">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #0a66c2; color: white; display: grid; place-items: center;"><i class="fab fa-linkedin-in"></i></div>
+                                <div style="font-size: 0.85rem; font-weight: 600;">LinkedIn Preview</div>
+                            </div>
+                            <div style="padding: 12px; font-size: 0.85rem; color: var(--text-main); line-height: 1.5;" id="mockLinkedinCaption">
+                                <em style="color: var(--text-dim);">Waiting for AI caption...</em>
+                            </div>
+                            <div id="mockLinkedinImage" style="width: 100%; height: 200px; background: var(--surface-lighter); display: grid; place-items: center; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); overflow: hidden;">
+                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
+                            </div>
+                        </div>
+
+                        <!-- Threads Mock -->
+                        <div id="mockThreads" style="display: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; background: #0a0a0a; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                            <div style="padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06);">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #000000; border: 1px solid rgba(255,255,255,0.2); color: white; display: grid; place-items: center;"><i class="fab fa-threads" style="font-size: 0.9rem;"></i></div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;" id="mockThreadsUser">threads_user</div>
+                                        <div style="font-size: 0.7rem; color: #666;">Threads Preview</div>
+                                    </div>
+                                </div>
+                                <i class="fab fa-threads" style="color: rgba(255,255,255,0.3); font-size: 1.2rem;"></i>
+                            </div>
+                            <div style="padding: 16px 16px 12px; font-size: 0.9rem; color: #eaeaea; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;" id="mockThreadsCaption">
+                                <em style="color: var(--text-dim);">Waiting for Threads caption...</em>
+                            </div>
+                            <div id="mockThreadsImage" style="width: calc(100% - 32px); margin: 0 16px 16px; aspect-ratio: 1.91/1; border-radius: 12px; background: #151515; display: grid; place-items: center; color: #444; font-size: 0.85rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.3;"></i>
+                            </div>
+                            <!-- Micro-interactions row -->
+                            <div style="padding: 0 16px 16px; display: flex; gap: 20px; color: #666; font-size: 1rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 12px; margin-top: 8px;">
+                                <i class="far fa-heart" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#ff3040'" onmouseout="this.style.color='#666'"></i>
+                                <i class="far fa-comment" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#666'"></i>
+                                <i class="fas fa-retweet" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#00ff88'" onmouseout="this.style.color='#666'"></i>
+                                <i class="far fa-paper-plane" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#38b6ff'" onmouseout="this.style.color='#666'"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="targetSelectorsLayer" style="margin-top: 16px;">
+                        <!-- Instagram Target Info -->
+                        <div id="uiInstaTarget" style="display: none; align-items: center; gap: 12px; margin-bottom: 12px; padding: 12px; background: var(--surface-lighter); border-radius: 12px; border: 1px solid var(--border);">
+                            <i class="fab fa-instagram" style="font-size: 1.5rem; color: #e4405f;"></i>
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                                <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Instagram Target</div>
+                                <div id="instagramAccounts"
+                                    style="width: 100%; max-height: 120px; overflow-y: auto; background: var(--surface-dark); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 8px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+                                    <div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No accounts connected</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LinkedIn Target Info -->
+                        <div id="uiLinkedinTarget" style="display: none; align-items: center; gap: 12px; margin-bottom: 12px; padding: 12px; background: var(--surface-lighter); border-radius: 12px; border: 1px solid var(--border);">
+                            <i class="fab fa-linkedin" style="font-size: 1.5rem; color: #0a66c2;"></i>
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                                <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">LinkedIn Target</div>
+                                <div id="linkedinAccounts"
+                                    style="width: 100%; max-height: 120px; overflow-y: auto; background: var(--surface-dark); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 8px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+                                    <div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No profiles connected</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Threads Target Info -->
+                        <div id="uiThreadsTarget" style="display: none; align-items: center; gap: 12px; margin-bottom: 12px; padding: 12px; background: var(--surface-lighter); border-radius: 12px; border: 1px solid var(--border);">
+                            <i class="fab fa-threads" style="font-size: 1.5rem; color: #ffffff;"></i>
+                            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+                                <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Threads Target</div>
+                                <div id="threadsAccounts"
+                                    style="width: 100%; max-height: 120px; overflow-y: auto; background: var(--surface-dark); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 8px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+                                    <div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No accounts connected</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+                        <h4 class="section-title" style="font-size: 1rem;"><i class="fas fa-server" style="color: var(--primary);"></i> System Status</h4>
+                        <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                <span style="color: var(--text-dim);"><i class="fas fa-robot" style="width: 20px;"></i> AI Generator</span>
+                                <span style="color: var(--success); font-weight: 800; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 6px;">Online</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                <span style="color: var(--text-dim);"><i class="fas fa-image" style="width: 20px;"></i> Media Storage</span>
+                                <span style="color: var(--success); font-weight: 800; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 6px;">Connected</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                <span style="color: var(--text-dim);"><i class="fas fa-broadcast-tower" style="width: 20px;"></i> Publisher API</span>
+                                <span style="color: var(--primary); font-weight: 800; background: rgba(79,70,229,0.1); padding: 4px 8px; border-radius: 6px;">Ready</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                                <span style="color: var(--text-dim);"><i class="fab fa-threads" style="width: 20px;"></i> Threads API</span>
+                                <span style="color: var(--success); font-weight: 800; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 6px;">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCOUNTS TAB -->
+        <div id="accounts" class="tab-content">
+            <header>
+                <div>
+                    <h2 class="outfit">My Accounts</h2>
+                    <p style="color: var(--text-dim); margin-top: 4px;">Connect and manage your social profiles</p>
+                </div>
+            </header>
+
+            <div class="content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+                <!-- Instagram Connection Card -->
+                <div class="glass-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                        <div
+                            style="width: 60px; height: 60px; border-radius: 20px; background: linear-gradient(45deg, #f09433, #dc2743, #cc2366); display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span id="instaBadge" class="job-status status-failed">Disconnected</span>
+                    </div>
+                    <h3 style="margin-bottom: 12px;">Instagram Accounts</h3>
+                    <p id="instaUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
+                        Connect a professional (Business or Creator) Instagram linked to a Facebook Page. Tap below to open Facebook login—use an existing Meta account or sign in and link your Page and Instagram.</p>
+                    <button id="addInstaAccount" class="btn btn-primary" style="width: 100%;">Add Instagram Account</button>
+                    <button id="refreshInstagram" class="btn btn-glass"
+                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
+                        connection</button>
+                    <div id="instagramAccountsList" class="accounts-list"></div>
+                </div>
+
+                <!-- LinkedIn Connection Card -->
+                <div class="glass-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                        <div
+                            style="width: 60px; height: 60px; border-radius: 20px; background: #0a66c2; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <span class="job-status status-published">OAuth v2</span>
+                    </div>
+                    <h3 style="margin-bottom: 12px;">LinkedIn Profiles</h3>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">Manage personal profiles
+                        or brand pages on the professional network.</p>
+                    <button id="addLinkedinAccount" class="btn btn-glass" style="width: 100%;">Add LinkedIn
+                        Profile</button>
+                    <button id="refreshLinkedIn" class="btn btn-glass"
+                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
+                        Account List</button>
+
+                    <div id="linkedInAccountsList" class="accounts-list"></div>
+                </div>
+
+                <!-- Threads Connection Card -->
+                <div class="glass-card" style="border-color: rgba(255,255,255,0.08); background: rgba(0,0,0,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                        <div
+                            style="width: 60px; height: 60px; border-radius: 20px; background: #000000; border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #ffffff; box-shadow: 0 0 15px rgba(255,255,255,0.1);">
+                            <i class="fab fa-threads"></i>
+                        </div>
+                        <span id="threadsBadge" class="job-status status-failed">Disconnected</span>
+                    </div>
+                    <h3 style="margin-bottom: 12px; color: #ffffff;">Threads Accounts</h3>
+                    <p id="threadsUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
+                        Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.</p>
+                    <button id="addThreadsAccount" class="btn btn-primary" style="width: 100%; background: #ffffff; color: #000000; border: none; font-weight: 700; transition: 0.3s;" onmouseover="this.style.background='#e5e5e5'" onmouseout="this.style.background='#ffffff'">Add Threads Account</button>
+                    <button id="refreshThreads" class="btn btn-glass"
+                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: #ffffff; opacity: 0.8;">Refresh
+                        connection</button>
+
+                    <div id="threadsAccountsList" class="accounts-list"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MY PROFILE TAB (default landing after sign in) -->
+        <div id="profile" class="tab-content active">
+            <div class="profile-welcome-banner">
+                <div class="profile-welcome-inner">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h2 class="outfit profile-welcome-title">Welcome back, <span id="welcomeName" class="skeleton-text" style="display:inline-block; width:120px; height:28px; border-radius:6px; vertical-align:middle; background:rgba(0,0,0,0.05);"></span> 👋</h2>
+                        <p class="profile-welcome-sub">Here's what's happening with your posts today.</p>
+                    </div>
+                    <div class="date-badge" id="profileCurrentDate">Loading date…</div>
+                </div>
+            </div>
+
+            <!-- Account Overview Cards -->
+            <div class="profile-accounts-grid">
+                <!-- Instagram Account Card -->
+                <div class="profile-account-card">
+                    <div class="profile-account-header">
+                        <div class="profile-pic-placeholder" id="igProfilePic" style="background: linear-gradient(135deg, #f09433, #dc2743, #cc2366);">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <div class="profile-meta">
+                            <h3 id="igProfileName">Not Connected</h3>
+                            <p id="igProfileHandle">Connect Instagram to view profile</p>
+                        </div>
+                        <span class="job-status status-failed profile-status-badge" id="igProfileBadge">Disconnected</span>
+                    </div>
+                    <div class="profile-stats-row" id="igProfileStatsRow" style="display: none;">
+                        <div class="profile-stat">
+                            <span class="stat-num" id="igFollowers">—</span>
+                            <span class="stat-lbl">Followers</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-num" id="igFollowing">—</span>
+                            <span class="stat-lbl">Following</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-num" id="igMediaCount">—</span>
+                            <span class="stat-lbl">Posts</span>
+                        </div>
+                    </div>
+                    <p class="profile-bio" id="igBio">Link your Instagram Business or Creator account to view live profile data.</p>
+                </div>
+
+                <!-- LinkedIn Account Card -->
+                <div class="profile-account-card">
+                    <div class="profile-account-header">
+                        <div class="profile-pic-placeholder" id="liProfilePic" style="background: #0a66c2;">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="profile-meta">
+                            <h3 id="liProfileName">Not Connected</h3>
+                            <p id="liProfileHandle">Connect LinkedIn to view profile</p>
+                        </div>
+                        <span class="job-status status-failed profile-status-badge" id="liProfileBadge">Disconnected</span>
+                    </div>
+                    <div class="profile-quote" id="liProfileQuote">
+                        <p>Grow your professional presence with AI-powered LinkedIn publishing.</p>
+                    </div>
+                    <p class="profile-bio" id="liBio">Professional Member &amp; Content Creator. Connect your LinkedIn profile to discover smarter publishing.</p>
+                </div>
+            </div>
+
+            <!-- Stats Summary -->
+            <div class="stats-summary-row">
+                <div class="stats-summary-card">
+                    <span class="ssc-val" id="profileStatPublished" style="color: var(--success);">0</span>
+                    <span class="ssc-label">Posts Published</span>
+                </div>
+                <div class="stats-summary-card">
+                    <span class="ssc-val" id="profileStatScheduled" style="color: var(--primary);">0</span>
+                    <span class="ssc-label">Posts Scheduled</span>
+                </div>
+                <div class="stats-summary-card">
+                    <span class="ssc-val" id="profileStatRate" style="color: var(--warning);">0%</span>
+                    <span class="ssc-label">Success Rate</span>
+                </div>
+            </div>
+
+            <!-- Post History -->
+            <div class="history-section">
+                <div class="history-header">
+                    <h3 class="outfit" style="font-size: 1.1rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-history" style="color: var(--primary);"></i> Post History
+                    </h3>
+                    <div class="stats-range-toggle">
+                        <button class="range-btn active" id="rangeWeek" onclick="setHistoryRange('week')">This Week</button>
+                        <button class="range-btn" id="rangeMonth" onclick="setHistoryRange('month')">This Month</button>
+                    </div>
+                </div>
+                <div class="history-feed" id="profilePostHistory">
+                    <div style="text-align: center; padding: 60px; color: var(--text-dim);">
+                        <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 16px; opacity: 0.3; display: block;"></i>
+                        <p>No post history yet. Publish a post to get started!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCHEDULE TAB -->
+        <div id="schedule" class="tab-content">
+            <header>
+                <div>
+                    <h2 class="outfit">My Schedule</h2>
+                    <p style="color: var(--text-dim); margin-top: 4px;">Monitor and manage your scheduled posts</p>
+                </div>
+                <button id="refreshJobs" class="btn btn-glass" style="padding: 10px 20px;">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Refresh Queue</span>
+                </button>
+            </header>
+
+            <div class="glass-card" style="min-height: 500px;">
+                <div id="jobsList" class="jobs-list">
+                    <!-- Jobs will be injected here -->
+                    <div style="text-align: center; padding: 100px; color: var(--text-dim);">
+                        <i class="fas fa-calendar-alt" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
+                        <p>No active missions in the queue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast" class="toast">
+        <i id="toastIcon" class="fas fa-check-circle" style="font-size: 1.25rem;"></i>
+        <span id="toastMsg">Action completed successfully</span>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
+        <div class="modal-shell">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-eye" style="color: var(--primary);"></i>
+                    <h3 id="previewModalTitle" class="outfit">Post Preview</h3>
+                </div>
+
+                <div class="platform-toggle" aria-label="Preview platform">
+                    <button id="segInsta" class="seg-btn insta" type="button" aria-pressed="true">
+                        <i class="fab fa-instagram" style="color:#e4405f;"></i>
+                        <span>Instagram</span>
+                    </button>
+                    <button id="segLinkedin" class="seg-btn linkedin" type="button" aria-pressed="false">
+                        <i class="fab fa-linkedin-in" style="color:#0a66c2;"></i>
+                        <span>LinkedIn</span>
+                    </button>
+                </div>
+
+                <button class="modal-close" id="previewCloseBtn" type="button" aria-label="Close preview">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="preview-card-wrap">
+                    <!-- Instagram Card -->
+                    <div id="igCard" class="post-card">
+                        <div class="topbar">
+                            <div class="ig-user">
+                                <div class="ig-avatar" id="igAvatar">U</div>
+                                <div style="min-width:0;">
+                                    <div class="ig-username" id="igUsername">user_name</div>
+                                </div>
+                            </div>
+                            <div class="ig-actions">
+                                <div class="ig-follow">FOLLOW</div>
+                                <i class="fas fa-ellipsis-h" style="opacity:0.75;"></i>
+                            </div>
+                        </div>
+                        <div class="ig-media">
+                            <img id="igPreviewImg" alt="Instagram preview image" style="display:none;">
+                            <i class="fab fa-instagram placeholder-logo" id="igPlaceholder"></i>
+                        </div>
+                        <div class="ig-footer">
+                            <div class="ig-icon-row">
+                                <div class="ig-left-icons">
+                                    <i class="far fa-heart"></i>
+                                    <i class="far fa-comment"></i>
+                                    <i class="far fa-paper-plane"></i>
+                                </div>
+                                <i class="far fa-bookmark"></i>
+                            </div>
+                            <div class="ig-like-count" id="igLikeCount">362 likes</div>
+                            <div class="ig-caption-text" id="igCaptionRender"></div>
+                        </div>
+                    </div>
+
+                    <!-- LinkedIn Card -->
+                    <div id="liCard" class="post-card" style="display:none;">
+                        <div class="li-topbar">
+                            <div class="li-user">
+                                <div class="li-avatar" id="liAvatar">in</div>
+                                <div style="min-width:0;">
+                                    <div class="li-name" id="liName">Your LinkedIn</div>
+                                    <div class="li-sub">Sponsored · 1h</div>
+                                </div>
+                            </div>
+                            <i class="fas fa-ellipsis-h" style="opacity:0.75;"></i>
+                        </div>
+                        <div class="li-text" id="liCaptionRender"></div>
+                        <div class="li-media">
+                            <img id="liPreviewImg" alt="LinkedIn preview image" style="display:none;">
+                            <i class="fab fa-linkedin-in" style="font-size:3rem; color:rgba(234,242,255,0.75);" id="liPlaceholder"></i>
+                        </div>
+                        <div class="li-actions">
+                            <div class="li-act">Like</div>
+                            <div class="li-act">Comment</div>
+                            <div class="li-act">Repost</div>
+                            <div class="li-act">Send</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="modal-account-select-label" id="modalAccountSelectLabel">Preview as account</div>
+                    <select id="modalAccountSelect" class="modal-account-select" aria-label="Select account to preview as">
+                        <option value="">— No accounts connected —</option>
+                    </select>
+                    <div class="label" id="editorLabel">Edit Instagram caption</div>
+                    <textarea id="modalCaption" placeholder="Write your caption..."></textarea>
+
+                    <div class="editor-actions">
+                        <button id="previewCancelBtn" class="btn btn-glass" type="button" style="padding: 14px 18px;">
+                            <i class="fas fa-undo"></i>
+                            <span>Cancel</span>
+                        </button>
+                        <button id="previewSaveBtn" class="btn btn-primary" type="button" style="padding: 14px 18px;">
+                            <i class="fas fa-check"></i>
+                            <span>Save</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout confirmation -->
+    <div id="logoutConfirmModal" class="logout-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="logoutConfirmTitle">
+        <div class="logout-modal-card">
+            <h3 id="logoutConfirmTitle" class="outfit">Sign out?</h3>
+            <p>Are you sure you want to logout?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn btn-glass" id="logoutCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-primary" id="logoutConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Detail Modal -->
+    <div id="historyDetailModal" class="history-modal-overlay" role="dialog" aria-modal="true">
+        <div class="history-modal-shell">
+            <div class="hm-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-history" style="color: var(--primary); font-size: 1.1rem;"></i>
+                    <h3 class="outfit" style="font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0;">Post Details</h3>
+                </div>
+                <button class="modal-close" id="historyCloseBtn" type="button" aria-label="Close history modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <img id="hmImage" class="hm-img" alt="Post image" style="display: none;">
+            <div class="hm-caption-block" id="hmCaption">No caption available.</div>
+            <div class="hm-meta-row" id="hmMeta"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- AUTH & INITIALIZATION ---
+        function checkAuth() {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/static/login.html';
+                return null;
+            }
+            return token;
+        }
+
+        function resolveJobThumbUrl(imageUrl) {
+            if (!imageUrl || String(imageUrl).trim() === '') return null;
+            let u = String(imageUrl).trim();
+            if (u.startsWith('http://') || u.startsWith('https://')) return u;
+            const origin = window.location.origin;
+            if (u.startsWith('/')) return origin + u;
+            if (u.startsWith('uploads/')) return origin + '/' + u;
+            return origin + '/uploads/' + u.replace(/^\/+/, '');
+        }
+
+        function buildJobThumbHtml(job) {
+            const url = resolveJobThumbUrl(job.image_url);
+            let platformIcon = '<i class="fab fa-instagram"></i>';
+            let platformBg = 'linear-gradient(135deg, #f09433, #dc2743, #cc2366)';
+            if (job.platform === 'linkedin') {
+                platformIcon = '<i class="fab fa-linkedin-in"></i>';
+                platformBg = '#0a66c2';
+            } else if (job.platform === 'instagram_carousel') {
+                platformIcon = '<i class="fas fa-images"></i>';
+                platformBg = 'linear-gradient(135deg, #8a3ab9, #e95950)';
+            } else if (job.platform === 'threads') {
+                platformIcon = '<i class="fab fa-threads"></i>';
+                platformBg = '#000000';
+            }
+            if (url) {
+                const safeUrl = url.replace(/"/g, '&quot;');
+                const plat = (job.platform || 'instagram').replace(/"/g, '');
+                return `<div class="job-thumbnail-wrap" data-platform="${plat}"><img src="${safeUrl}" class="job-thumbnail" alt="" onerror="handleThumbError(this)"></div>`;
+            }
+            return `<div class="job-thumbnail-wrap"><div class="history-thumb-icon" style="background:${platformBg};color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${platformIcon}</div></div>`;
+        }
+        window.handleThumbError = function (img) {
+            const platform = img.closest('.job-thumbnail-wrap')?.dataset?.platform || 'instagram';
+            img.parentElement.innerHTML = window.getJobThumbFallbackHtml(platform);
+        };
+        window.getJobThumbFallbackHtml = function (platform) {
+            if (platform === 'linkedin') {
+                return '<div class="history-thumb-icon" style="background:#0a66c2;color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-linkedin-in"></i></div>';
+            } else if (platform === 'threads') {
+                return '<div class="history-thumb-icon" style="background:#000000;color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-threads"></i></div>';
+            }
+            return '<div class="history-thumb-icon" style="background:linear-gradient(135deg,#f09433,#dc2743);color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-instagram"></i></div>';
+        };
+
+        async function fetchWithAuth(url, options = {}) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/static/login.html';
+                return null;
+            }
+            options.headers = options.headers || {};
+            options.headers['Authorization'] = `Bearer ${token}`;
+            const response = await fetch(url, options);
+            if (response.status === 401) {
+                localStorage.removeItem('access_token');
+                window.location.href = '/static/login.html';
+                return null;
+            }
+            return response;
+        }
+
+        let currentUserId = null;
+        let globalInstagramAccounts = [];
+        let globalLinkedInAccounts = [];
+        let globalThreadsAccounts = [];
+        window.addEventListener('message', (ev) => {
+            if (ev.data === 'platform_connected') {
+                fetchInstagramAccount();
+                updateProfileDashboard();
+                showToast('Instagram account connected!', 'success');
+            }
+            if (ev.data?.type === 'platform_connect_failed' && ev.data.platform === 'instagram') {
+                showToast('Instagram connection failed. Check the popup for setup steps.', 'error');
+            }
+        });
+
+        async function init() {
+            const token = checkAuth();
+            if (!token) return;
+
+            // Set Date
+            const now = new Date();
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            const dateEl = document.getElementById('profileCurrentDate');
+            if (dateEl) {
+                dateEl.textContent = now.toLocaleDateString('en-US', options);
+            }
+
+            try {
+                const resp = await fetchWithAuth('/api/auth/me');
+                if (resp && resp.ok) {
+                    const user = await resp.json();
+                    currentUserId = user.id;
+                    const fullName = user.full_name || user.email || 'User';
+                    const firstName = fullName.split(' ')[0];
+                    document.getElementById('userName').textContent = fullName;
+                    document.getElementById('avatarInitial').textContent = fullName.charAt(0).toUpperCase();
+                    document.getElementById('userProfile').style.display = 'flex';
+                    
+                    const welcomeNameEl = document.getElementById('welcomeName');
+                    if (welcomeNameEl) {
+                        welcomeNameEl.textContent = firstName;
+                        welcomeNameEl.classList.remove('skeleton-text');
+                        welcomeNameEl.style.background = 'transparent';
+                        welcomeNameEl.style.width = 'auto';
+                        welcomeNameEl.style.height = 'auto';
+                    }
+                } else {
+                    console.error("fetchWithAuth('/api/auth/me') returned non-ok", resp);
+                }
+            } catch (e) {
+                console.error("Error fetching me:", e);
+            }
+
+            await Promise.all([
+                fetchLinkedInAccounts(),
+                fetchInstagramAccount(),
+                fetchThreadsAccounts(),
+                fetchScheduledJobs(),
+                updateProfileDashboard()
+            ]);
+
+            const tabParam = new URLSearchParams(window.location.search).get('tab');
+            switchTab(tabParam && document.getElementById(tabParam) ? tabParam : 'profile');
+
+            // Real-time caption listeners
+            document.getElementById('instaCaption').addEventListener('input', updateInpagePreview);
+            document.getElementById('linkedinCaption').addEventListener('input', updateInpagePreview);
+            document.getElementById('threadsCaption').addEventListener('input', updateInpagePreview);
+        }
+
+        // --- TAB MANAGEMENT ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-item').forEach(n => {
+                if (n.dataset.tab === tabId) {
+                    n.classList.add('active');
+                } else {
+                    n.classList.remove('active');
+                }
+            });
+            document.querySelectorAll('.tab-content').forEach(t => {
+                if (t.id === tabId) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            if (tabId === 'profile') {
+                updateProfileDashboard();
+            }
+        }
+        window.switchTab = switchTab;
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                switchTab(item.dataset.tab);
+            });
+        });
+
+        // Profile Wing Navigation
+        document.getElementById('userProfile').onclick = () => {
+            switchTab('profile');
+        };
+
+        // --- PLATFORM LOGIC ---
+        async function fetchInstagramAccount() {
+            try {
+                const resp = await fetchWithAuth('/api/platforms/instagram/accounts');
+                if (!resp) return;
+                const accounts = await resp.json();
+                globalInstagramAccounts = accounts || [];
+                const badge = document.getElementById('instaBadge');
+                const label = document.getElementById('instaUserLabel');
+                const btn = document.getElementById('addInstaAccount');
+                const select = document.getElementById('instagramAccounts');
+                const selectedIgAccounts = JSON.parse(localStorage.getItem('selected_instagram_accounts') || '[]');
+
+                if (select) {
+                    select.innerHTML = '';
+                }
+
+                const listContainer = document.getElementById('instagramAccountsList');
+                if (listContainer) {
+                    listContainer.innerHTML = '';
+                }
+
+                if (accounts && accounts.length > 0) {
+                    badge.textContent = 'Active';
+                    badge.className = 'job-status status-published';
+                    label.textContent = `${accounts.length} Instagram account(s) connected`;
+                    btn.textContent = 'Add Instagram Account';
+                    btn.className = 'btn btn-glass';
+
+                    accounts.forEach(acc => {
+                        // Checkbox
+                        if (select) {
+                            const div = document.createElement('div');
+                            div.style.display = 'flex';
+                            div.style.alignItems = 'center';
+                            div.style.gap = '8px';
+                            div.style.padding = '4px 0';
+                            const checked = selectedIgAccounts.some(id => id == acc.instagram_account_id) ? 'checked' : '';
+                            div.innerHTML = `
+                                <input type="checkbox" name="instagramAccountsCheckbox" value="${acc.instagram_account_id}" id="ig_chk_${acc.instagram_account_id}_${acc.username.replace(/\./g, '_')}" style="cursor: pointer; accent-color: var(--primary);" ${checked}>
+                                <label for="ig_chk_${acc.instagram_account_id}_${acc.username.replace(/\./g, '_')}" style="cursor: pointer; font-size: 0.85rem; color: var(--text-main);">@${acc.username}</label>
+                            `;
+                            select.appendChild(div);
+                        }
+
+                        // Connection List Card with Disconnect/Trash Button
+                        if (listContainer) {
+                            const item = document.createElement('div');
+                            item.className = 'acc-item';
+                            item.style.display = 'flex';
+                            item.style.justifyContent = 'space-between';
+                            item.style.alignItems = 'center';
+                            item.style.margin = '4px 0';
+                            item.innerHTML = `
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+                                    <span>@${acc.username}</span>
+                                </div>
+                                <button class="btn-disconnect-insta" data-id="${acc.instagram_account_id}" data-username="${acc.username}" style="background: none; border: none; color: #ff5252; cursor: pointer; padding: 4px 8px; font-size: 0.85rem; display: flex; align-items: center;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            `;
+                            listContainer.appendChild(item);
+                        }
+                    });
+
+                    // Add click handlers for delete buttons
+                    if (listContainer) {
+                        listContainer.querySelectorAll('.btn-disconnect-insta').forEach(btnEl => {
+                            btnEl.onclick = async (e) => {
+                                e.stopPropagation();
+                                const accountId = btnEl.getAttribute('data-id');
+                                const username = btnEl.getAttribute('data-username');
+                                const confirmDelete = confirm(`Disconnect Instagram account @${username}?`);
+                                if (confirmDelete) {
+                                    try {
+                                        const delResp = await fetchWithAuth(`/api/platforms/instagram/accounts/${accountId}?username=${encodeURIComponent(username)}`, { method: 'DELETE' });
+                                        if (delResp && delResp.ok) {
+                                            showToast('Instagram account disconnected.', 'success');
+                                            fetchInstagramAccount();
+                                            updateProfileDashboard();
+                                        } else {
+                                            showToast('Failed to disconnect account.', 'error');
+                                        }
+                                    } catch (err) {
+                                        showToast('Error disconnecting account.', 'error');
+                                    }
+                                }
+                            };
+                        });
+                    }
+                } else {
+                    badge.textContent = 'Disconnected';
+                    badge.className = 'job-status status-failed';
+                    label.textContent = 'Connect a Business or Creator Instagram via Facebook (Meta). Use Add Instagram Account to sign in.';
+                    btn.textContent = 'Add Instagram Account';
+                    btn.className = 'btn btn-primary';
+                    if (select) {
+                        select.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No accounts connected</div>';
+                    }
+                }
+
+                if (select) {
+                    select.querySelectorAll('input[name="instagramAccountsCheckbox"]').forEach(box => {
+                        box.addEventListener('change', () => {
+                            const selected = Array.from(select.querySelectorAll('input[name="instagramAccountsCheckbox"]:checked')).map(b => b.value);
+                            localStorage.setItem('selected_instagram_accounts', JSON.stringify(selected));
+                        });
+                    });
+                }
+            } catch (e) {
+                console.error("Instagram load failed:", e);
+            }
+        }
+
+        async function fetchLinkedInAccounts() {
+            try {
+                const resp = await fetchWithAuth('/api/platforms/linkedin/accounts');
+                if (!resp) return;
+                const accounts = await resp.json();
+                globalLinkedInAccounts = Array.isArray(accounts) ? accounts : (accounts.accounts || []);
+                const selectedLiAccounts = JSON.parse(localStorage.getItem('selected_linkedin_accounts') || '[]');
+
+                // Select in Publisher
+                const select = document.getElementById('linkedinAccounts');
+                if (select) {
+                    select.innerHTML = '';
+                }
+
+                // List in Connections Tab
+                const listContainer = document.getElementById('linkedInAccountsList');
+                listContainer.innerHTML = '';
+
+                const list = Array.isArray(accounts) ? accounts : (accounts.accounts || []);
+                if (list.length > 0) {
+                    list.forEach(acc => {
+                        // Checkbox
+                        if (select) {
+                            const div = document.createElement('div');
+                            div.style.display = 'flex';
+                            div.style.alignItems = 'center';
+                            div.style.gap = '8px';
+                            div.style.padding = '4px 0';
+                            const liId = acc.member_urn.replace(/:/g, '_');
+                            const checked = selectedLiAccounts.includes(acc.member_urn) ? 'checked' : '';
+                            div.innerHTML = `
+                                <input type="checkbox" name="linkedinAccountsCheckbox" value="${acc.member_urn}" id="li_chk_${liId}" style="cursor: pointer; accent-color: var(--primary);" ${checked}>
+                                <label for="li_chk_${liId}" style="cursor: pointer; font-size: 0.85rem; color: var(--text-main);">${acc.name}</label>
+                            `;
+                            select.appendChild(div);
+                        }
+
+                        // Connection List Card with delete action
+                        const item = document.createElement('div');
+                        item.className = 'acc-item';
+                        const urnSafe = encodeURIComponent(acc.member_urn);
+                        item.innerHTML = `
+                            <i class="fas fa-check-circle"></i>
+                            <span style="flex:1">${acc.name}</span>
+                            <button class="btn btn-ghost btn-sm li-delete" data-urn="${urnSafe}" style="margin-left:8px">Remove</button>
+                        `;
+                        listContainer.appendChild(item);
+                        // Attach delete handler
+                        item.querySelectorAll('.li-delete').forEach(btn => {
+                            btn.addEventListener('click', async (ev) => {
+                                ev.preventDefault();
+                                const urn = decodeURIComponent(btn.dataset.urn);
+                                if (!confirm('Remove this LinkedIn profile from your account?')) return;
+                                try {
+                                    const res = await fetchWithAuth(`/api/platforms/linkedin/accounts/${encodeURIComponent(urn)}`, { method: 'DELETE' });
+                                    if (res && res.ok) {
+                                        showToast('LinkedIn account removed', 'success');
+                                        fetchLinkedInAccounts();
+                                        updateProfileDashboard();
+                                    } else {
+                                        const body = res ? await res.json().catch(() => ({})) : {};
+                                        showToast((body.detail || 'Failed to remove LinkedIn account'), 'error');
+                                    }
+                                } catch (err) {
+                                    console.error('Delete LinkedIn account failed', err);
+                                    showToast('Failed to remove LinkedIn account', 'error');
+                                }
+                            });
+                        });
+                    });
+                } else {
+                    if (select) {
+                        select.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No profiles connected</div>';
+                    }
+                }
+
+                if (select) {
+                    select.querySelectorAll('input[name="linkedinAccountsCheckbox"]').forEach(box => {
+                        box.addEventListener('change', () => {
+                            const selected = Array.from(select.querySelectorAll('input[name="linkedinAccountsCheckbox"]:checked')).map(b => b.value);
+                            localStorage.setItem('selected_linkedin_accounts', JSON.stringify(selected));
+                        });
+                    });
+                }
+            } catch (e) {
+                console.error("LinkedIn load failed:", e);
+            }
+        }
+
+        // --- ANALYTICS & DASHBOARD STATS ---
+        let globalJobs = [];
+        let historyRange = 'week';
+
+        async function updateProfileDashboard() {
+            try {
+                // 1. Fetch Instagram Account Details
+                let igAccs = [];
+                try {
+                    const igResp = await fetchWithAuth('/api/platforms/instagram/accounts/detailed');
+                    if (igResp && igResp.ok) {
+                        igAccs = await igResp.json();
+                    }
+                } catch (err) {
+                    console.error("Error loading detailed Instagram account info:", err);
+                }
+
+                // 2. Fetch LinkedIn Account Details
+                let liAccs = [];
+                try {
+                    const liResp = await fetchWithAuth('/api/platforms/linkedin/accounts/detailed');
+                    if (liResp && liResp.ok) {
+                        const res = await liResp.json();
+                        liAccs = Array.isArray(res) ? res : (res.accounts || []);
+                    }
+                } catch (err) {
+                    console.error("Error loading LinkedIn account info:", err);
+                }
+
+                // 2.5 Fetch Threads Account Details
+                let threadsAccs = [];
+                try {
+                    const threadsResp = await fetchWithAuth('/api/platforms/threads/accounts/detailed');
+                    if (threadsResp && threadsResp.ok) {
+                        threadsAccs = await threadsResp.json();
+                    }
+                } catch (err) {
+                    console.error("Error loading Threads account info:", err);
+                }
+
+                // 3. Fetch Jobs & Render Post History & Analytics
+                const jobsResp = await fetchWithAuth('/api/jobs');
+                if (jobsResp && jobsResp.ok) {
+                    globalJobs = await jobsResp.json();
+                }
+                
+                const published = globalJobs.filter(j => j.status === 'published').length;
+                const scheduled = globalJobs.filter(j => j.status === 'pending').length;
+                const failed = globalJobs.filter(j => j.status === 'failed').length;
+                
+                const totalAttempted = published + failed;
+                const successRate = totalAttempted > 0 ? Math.round((published / totalAttempted) * 100) : 0;
+                
+                // Update stats counters
+                document.getElementById('profileStatPublished').textContent = published;
+                document.getElementById('profileStatScheduled').textContent = scheduled;
+                document.getElementById('profileStatRate').textContent = successRate + '%';
+
+                // Now render the dynamic profile accounts grid
+                const grid = document.querySelector('.profile-accounts-grid');
+                if (grid) {
+                    grid.innerHTML = '';
+
+                    // 1. Render Instagram Accounts
+                    if (igAccs && igAccs.length > 0) {
+                        igAccs.forEach(acc => {
+                            const card = document.createElement('div');
+                            card.className = 'profile-account-card';
+                            
+                            const picHtml = acc.profile_picture_url 
+                                ? `<img src="${acc.profile_picture_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                                : `<i class="fab fa-instagram"></i>`;
+                                
+                            card.innerHTML = `
+                                <div class="profile-account-header">
+                                    <div class="profile-pic-placeholder" style="background: linear-gradient(135deg, #f09433, #dc2743, #cc2366);">
+                                        ${picHtml}
+                                    </div>
+                                    <div class="profile-meta">
+                                        <h3>${escapeHtml(acc.name || '@' + acc.username)}</h3>
+                                        <p>@${escapeHtml(acc.username)}</p>
+                                    </div>
+                                    <span class="job-status status-published profile-status-badge">Connected</span>
+                                </div>
+                                <div class="profile-stats-row" style="display: flex;">
+                                    <div class="profile-stat">
+                                        <span class="stat-num">${acc.followers_count.toLocaleString()}</span>
+                                        <span class="stat-lbl">Followers</span>
+                                    </div>
+                                    <div class="profile-stat">
+                                        <span class="stat-num">${acc.follows_count.toLocaleString()}</span>
+                                        <span class="stat-lbl">Following</span>
+                                    </div>
+                                    <div class="profile-stat">
+                                        <span class="stat-num">${acc.media_count.toLocaleString()}</span>
+                                        <span class="stat-lbl">Posts</span>
+                                    </div>
+                                </div>
+                                <p class="profile-bio">${escapeHtml(acc.biography || 'No biography set.')}</p>
+                            `;
+                            grid.appendChild(card);
+                        });
+                    } else {
+                        // Render Instagram Placeholder
+                        const card = document.createElement('div');
+                        card.className = 'profile-account-card';
+                        card.innerHTML = `
+                            <div class="profile-account-header">
+                                <div class="profile-pic-placeholder" style="background: linear-gradient(135deg, #f09433, #dc2743, #cc2366);">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div class="profile-meta">
+                                    <h3>Not Connected</h3>
+                                    <p>Connect Instagram to view profile</p>
+                                </div>
+                                <span class="job-status status-failed profile-status-badge">Disconnected</span>
+                            </div>
+                            <p class="profile-bio">Link your Instagram Business or Creator account to view live profile data.</p>
+                        `;
+                        grid.appendChild(card);
+                    }
+
+                    // 2. Render LinkedIn Accounts
+                    if (liAccs && liAccs.length > 0) {
+                        liAccs.forEach(acc => {
+                            const card = document.createElement('div');
+                            card.className = 'profile-account-card';
+                            
+                            const picHtml = acc.picture 
+                                ? `<img src="${acc.picture}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`
+                                : `<i class="fab fa-linkedin-in"></i>`;
+                                
+                            const linkedinJobs = globalJobs.filter(j => j.status === 'published' && j.platform === 'linkedin');
+                            const fallbackCount = linkedinJobs.filter(j => {
+                                if (j.member_urn) {
+                                    return j.member_urn === acc.member_urn;
+                                }
+                                return true;
+                            }).length;
+                            const liPublished = typeof acc.post_count === 'number' ? acc.post_count : fallbackCount;
+                            const liBio = acc.post_count_error
+                                ? 'Live LinkedIn post count unavailable due to permission restrictions. Showing app-published posts instead.'
+                                : 'Professional Member & Content Creator. Connected to Post Pilot.ai';
+
+                            card.innerHTML = `
+                                <div class="profile-account-header">
+                                    <div class="profile-pic-placeholder" style="background: #0a66c2;">
+                                        ${picHtml}
+                                    </div>
+                                    <div class="profile-meta">
+                                        <h3>${escapeHtml(acc.name || 'LinkedIn Member')}</h3>
+                                        <p>LinkedIn Profile</p>
+                                    </div>
+                                    <span class="job-status status-published profile-status-badge">Connected</span>
+                                </div>
+                                <div class="profile-quote" style="margin: 18px 0 12px;">
+                                <p>Grow your professional presence with AI-powered LinkedIn publishing.</p>
+                            </div>
+                                <p class="profile-bio">${escapeHtml(liBio)}</p>
+                            `;
+                            grid.appendChild(card);
+                        });
+                    } else {
+                        // Render LinkedIn Placeholder
+                        const card = document.createElement('div');
+                        card.className = 'profile-account-card';
+                        card.innerHTML = `
+                            <div class="profile-account-header">
+                                <div class="profile-pic-placeholder" style="background: #0a66c2;">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </div>
+                                <div class="profile-meta">
+                                    <h3>Not Connected</h3>
+                                    <p>Connect LinkedIn to view profile</p>
+                                </div>
+                                <span class="job-status status-failed profile-status-badge">Disconnected</span>
+                            </div>
+                            <p class="profile-bio">Professional Member &amp; Content Creator. Connect your LinkedIn profile to see publishing history.</p>
+                        `;
+                        grid.appendChild(card);
+                    }
+
+                    // 3. Render Threads Accounts
+                    if (threadsAccs && threadsAccs.length > 0) {
+                        threadsAccs.forEach(acc => {
+                            const card = document.createElement('div');
+                            card.className = 'profile-account-card';
+                            card.style.background = 'rgba(0, 0, 0, 0.4)';
+                            card.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                            
+                            card.innerHTML = `
+                                <div class="profile-account-header">
+                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.15);">
+                                        <i class="fab fa-threads"></i>
+                                    </div>
+                                    <div class="profile-meta">
+                                        <h3 style="color:#fff;">${escapeHtml(acc.name || '@' + acc.username)}</h3>
+                                        <p>@${escapeHtml(acc.username)}</p>
+                                    </div>
+                                    <span class="job-status status-published profile-status-badge" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.2);">Connected</span>
+                                </div>
+                                <div class="profile-stats-row" style="display: flex;">
+                                    <div class="profile-stat">
+                                        <span class="stat-num" style="color:#fff;">${acc.followers_count.toLocaleString()}</span>
+                                        <span class="stat-lbl">Followers</span>
+                                    </div>
+                                    <div class="profile-stat">
+                                        <span class="stat-num" style="color:#fff;">${acc.threads_count.toLocaleString()}</span>
+                                        <span class="stat-lbl">Threads</span>
+                                    </div>
+                                </div>
+                                <p class="profile-bio">${escapeHtml(acc.biography || 'Meta Threads Account')}</p>
+                            `;
+                            grid.appendChild(card);
+                        });
+                    } else {
+                        // Render Threads Placeholder
+                        const card = document.createElement('div');
+                        card.className = 'profile-account-card';
+                        card.innerHTML = `
+                            <div class="profile-account-header">
+                                <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
+                                    <i class="fab fa-threads"></i>
+                                </div>
+                                <div class="profile-meta">
+                                    <h3>Not Connected</h3>
+                                    <p>Connect Threads to view profile</p>
+                                </div>
+                                <span class="job-status status-failed profile-status-badge">Disconnected</span>
+                            </div>
+                            <p class="profile-bio">Connect your Meta Threads account to see dashboard stats and metrics.</p>
+                        `;
+                        grid.appendChild(card);
+                    }
+                }
+
+                // Render History Feed
+                renderPostHistory();
+            } catch (e) {
+                console.error("Error updating profile dashboard:", e);
+            }
+        }
+
+
+        function initDualNavHover() {
+            const container = document.getElementById('dualNavBox');
+            const leftCard = document.getElementById('dualLeft');
+            const rightCard = document.getElementById('dualRight');
+            if(!container || !leftCard || !rightCard) return;
+
+            leftCard.addEventListener('mouseenter', () => container.classList.add('selected-left'));
+            leftCard.addEventListener('mouseleave', () => container.classList.remove('selected-left'));
+            
+            rightCard.addEventListener('mouseenter', () => container.classList.add('selected-right'));
+            rightCard.addEventListener('mouseleave', () => container.classList.remove('selected-right'));
+        }
+
+
+        function setHistoryRange(range) {
+            historyRange = range;
+            const weekBtn = document.getElementById('rangeWeek');
+            const monthBtn = document.getElementById('rangeMonth');
+            if (weekBtn) weekBtn.classList.toggle('active', range === 'week');
+            if (monthBtn) monthBtn.classList.toggle('active', range === 'month');
+            renderPostHistory();
+        }
+        window.setHistoryRange = setHistoryRange;
+
+        function renderPostHistory() {
+            const container = document.getElementById('profilePostHistory');
+            if (!container) return;
+
+            // Only show published, running, or failed
+            const historyJobs = globalJobs.filter(j => j.status !== 'pending' && j.status !== 'cancelled');
+            
+            // Filter by date range
+            const now = new Date();
+            const filteredJobs = historyJobs.filter(j => {
+                const jobDate = new Date(j.scheduled_at);
+                const diffTime = Math.abs(now - jobDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (historyRange === 'week') {
+                    return diffDays <= 7;
+                } else if (historyRange === 'month') {
+                    return diffDays <= 30;
+                }
+                return true;
+            });
+
+            if (filteredJobs.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: var(--text-dim);">
+                        <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 16px; opacity: 0.3; display: block;"></i>
+                        <p>No post history found for this period.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            filteredJobs.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.onclick = () => openHistoryDetailModal(job);
+
+                // Platform Icon / Color
+                let platformIcon = '<i class="fab fa-instagram"></i>';
+                let platformBg = 'linear-gradient(135deg, #f09433, #dc2743, #cc2366)';
+                let platformLabel = 'Instagram';
+                if (job.platform === 'linkedin') {
+                    platformIcon = '<i class="fab fa-linkedin-in"></i>';
+                    platformBg = '#0a66c2';
+                    platformLabel = 'LinkedIn';
+                } else if (job.platform === 'instagram_carousel') {
+                    platformIcon = '<i class="fas fa-images"></i>';
+                    platformBg = 'linear-gradient(135deg, #8a3ab9, #e95950)';
+                    platformLabel = 'Instagram Carousel';
+                } else if (job.platform === 'threads') {
+                    platformIcon = '<i class="fab fa-threads"></i>';
+                    platformBg = '#000000';
+                    platformLabel = 'Threads';
+                }
+
+                const mediaHtml = buildJobThumbHtml(job).replace('job-thumbnail-wrap', 'job-thumbnail-wrap history-thumb-slot').replace('job-thumbnail', 'history-thumb');
+
+                // Caption
+                const rawCaption = job.caption || 'No caption';
+                const previewCaption = rawCaption.length > 70 ? `${rawCaption.slice(0, 68)}...` : rawCaption;
+                // Status Badge
+                let statusBadgeClass = 'status-published';
+                if (job.status === 'failed') {
+                    statusBadgeClass = 'status-failed';
+                } else if (job.status === 'running') {
+                    statusBadgeClass = 'status-running';
+                }
+
+                const dateStr = new Date(job.scheduled_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                item.innerHTML = `
+                    ${mediaHtml}
+                    <div class="history-info">
+                        <strong>${escapeHtml(platformLabel)} • ${job.status.toUpperCase()}</strong>
+                        <span>${dateStr}</span>
+                        <span>${escapeHtml(previewCaption)}</span>
+                    </div>
+                    <span class="job-status ${statusBadgeClass}" style="flex-shrink: 0;">${job.platform.toUpperCase()}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openHistoryDetailModal(job) {
+            const modal = document.getElementById('historyDetailModal');
+            const img = document.getElementById('hmImage');
+            const caption = document.getElementById('hmCaption');
+            const meta = document.getElementById('hmMeta');
+
+            if (!modal) return;
+
+            // Media
+            const thumbUrl = resolveJobThumbUrl(job.image_url);
+            if (thumbUrl) {
+                img.src = thumbUrl;
+                img.style.display = 'block';
+                img.onerror = () => { img.style.display = 'none'; };
+            } else {
+                img.style.display = 'none';
+            }
+
+            // Caption
+            caption.innerHTML = renderHashtagsAsHtml(job.caption || 'No caption available.');
+
+            // Meta row
+            let platformIcon = '<i class="fab fa-instagram"></i>';
+            let platformLabel = 'Instagram';
+            if (job.platform === 'linkedin') {
+                platformIcon = '<i class="fab fa-linkedin-in"></i>';
+                platformLabel = 'LinkedIn';
+            } else if (job.platform === 'instagram_carousel') {
+                platformIcon = '<i class="fas fa-images"></i>';
+                platformLabel = 'Instagram Carousel';
+            } else if (job.platform === 'threads') {
+                platformIcon = '<i class="fab fa-threads"></i>';
+                platformLabel = 'Threads';
+            }
+
+            let statusColor = 'var(--success)';
+            if (job.status === 'failed') statusColor = '#ff5252';
+            else if (job.status === 'running') statusColor = 'var(--primary)';
+
+            const scheduledAt = job.scheduled_at ? new Date(job.scheduled_at).toLocaleString() : 'Unknown';
+            const captionCount = job.caption ? `${job.caption.split(/\s+/).length} words` : 'No caption';
+            const imageInfo = job.image_url ? 'Media attached' : 'No media attached';
+
+            meta.innerHTML = `
+                <span class="hm-chip">${platformIcon} ${platformLabel}</span>
+                <span class="hm-chip"><i class="fas fa-calendar-alt"></i> ${scheduledAt}</span>
+                <span class="hm-chip"><i class="fas fa-info-circle"></i> Status: <span style="color: ${statusColor}; font-weight: 700;">${job.status.toUpperCase()}</span></span>
+                <span class="hm-chip"><i class="fas fa-font"></i> ${escapeHtml(captionCount)}</span>
+                <span class="hm-chip"><i class="fas fa-photo-video"></i> ${escapeHtml(imageInfo)}</span>
+            `;
+
+            if (job.status === 'failed' && job.error) {
+                meta.innerHTML += `
+                    <span class="hm-chip" style="background: rgba(255,82,82,0.1); color: #ff5252; border-color: rgba(255,82,82,0.2); width: 100%;">
+                        <i class="fas fa-exclamation-triangle"></i> Error: ${escapeHtml(job.error)}
+                    </span>
+                `;
+            }
+
+            modal.classList.add('open');
+        }
+        window.openHistoryDetailModal = openHistoryDetailModal;
+
+        // Wire up close events for History Modal
+        document.getElementById('historyCloseBtn').onclick = () => {
+            document.getElementById('historyDetailModal').classList.remove('open');
+        };
+        document.getElementById('historyDetailModal').onclick = (e) => {
+            if (e.target === document.getElementById('historyDetailModal')) {
+                document.getElementById('historyDetailModal').classList.remove('open');
+            }
+        };
+
+        // --- MEDIA UPLOAD ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileImg = document.getElementById('filePreviewImg');
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const gallery = document.getElementById('mediaGallery');
+        const galleryCount = document.getElementById('galleryCount');
+        const removeBtn = document.getElementById('removeMediaBtn');
+        const previewBtn = document.getElementById('previewBtn');
+
+        dropZone.onclick = (e) => {
+            if (e.target.closest('#removeMediaBtn')) return;
+            fileInput.click();
+        };
+
+        function resetPublisherForm() {
+            fileInput.value = '';
+            fileImg.style.display = 'none';
+            fileImg.removeAttribute('src');
+            placeholder.style.display = 'block';
+            if (gallery) gallery.style.display = 'none';
+            if (galleryCount) galleryCount.style.display = 'none';
+            dropZone.classList.remove('has-file');
+            const instaCap = document.getElementById('instaCaption');
+            const liCap = document.getElementById('linkedinCaption');
+            const threadsCap = document.getElementById('threadsCaption');
+            if (instaCap) instaCap.value = '';
+            if (liCap) liCap.value = '';
+            if (threadsCap) threadsCap.value = '';
+            const schedTime = document.getElementById('scheduleTime');
+            if (schedTime) schedTime.value = '';
+            const schedSection = document.getElementById('scheduleSection');
+            const schedToggle = document.getElementById('scheduleToggle');
+            if (typeof isScheduleActive !== 'undefined' && isScheduleActive) {
+                isScheduleActive = false;
+                if (schedSection) schedSection.style.display = 'none';
+                if (schedToggle) {
+                    schedToggle.classList.remove('active');
+                    schedToggle.style.color = '';
+                }
+            }
+            updateUIState();
+            if (typeof updateInpagePreview === 'function') updateInpagePreview();
+        }
+
+        removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            resetPublisherForm();
+        };
+
+        fileInput.onchange = (e) => {
+            handleFiles(e.target.files);
+        };
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--primary)'; };
+        dropZone.ondragleave = () => { dropZone.style.borderColor = 'var(--border)'; };
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            handleFiles(e.dataTransfer.files);
+        };
+
+        function handleFiles(files) {
+            if (!files || files.length === 0) return;
+
+            const fileList = Array.from(files);
+
+            // Primary Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                fileImg.src = e.target.result;
+                fileImg.style.display = 'block';
+                placeholder.style.display = 'none';
+                dropZone.classList.add('has-file');
+
+                // Show count if multiple
+                if (fileList.length > 1) {
+                    galleryCount.textContent = `${fileList.length} Images`;
+                    galleryCount.style.display = 'block';
+                } else {
+                    galleryCount.style.display = 'none';
+                }
+
+                updateUIState();
+            };
+            reader.readAsDataURL(fileList[0]);
+
+            // Gallery Preview
+            gallery.innerHTML = '';
+            if (fileList.length > 1) {
+                gallery.style.display = 'grid';
+                fileList.forEach(file => {
+                    const r = new FileReader();
+                    r.onload = (ev) => {
+                        const item = document.createElement('div');
+                        item.className = 'gallery-item';
+                        item.innerHTML = `<img src="${ev.target.result}" alt="thumb">`;
+                        gallery.appendChild(item);
+                    };
+                    r.readAsDataURL(file);
+                });
+            } else {
+                gallery.style.display = 'none';
+            }
+        }
+
+        // --- PREVIEW MODAL LOGIC ---
+        const previewModal = document.getElementById('previewModal');
+        const previewCloseBtn = document.getElementById('previewCloseBtn');
+        const previewCancelBtn = document.getElementById('previewCancelBtn');
+        const previewSaveBtn = document.getElementById('previewSaveBtn');
+        const segInsta = document.getElementById('segInsta');
+        const segLinkedin = document.getElementById('segLinkedin');
+        const igCard = document.getElementById('igCard');
+        const liCard = document.getElementById('liCard');
+        const modalCaption = document.getElementById('modalCaption');
+        const igCaptionRender = document.getElementById('igCaptionRender');
+        const liCaptionRender = document.getElementById('liCaptionRender');
+        const igPreviewImg = document.getElementById('igPreviewImg');
+        const liPreviewImg = document.getElementById('liPreviewImg');
+        const igPlaceholder = document.getElementById('igPlaceholder');
+        const liPlaceholder = document.getElementById('liPlaceholder');
+        const editorLabel = document.getElementById('editorLabel');
+        const modalAccountSelect = document.getElementById('modalAccountSelect');
+        const modalAccountSelectLabel = document.getElementById('modalAccountSelectLabel');
+
+        let previewActivePlatform = 'instagram';
+        let draftInsta = '';
+        let draftLinkedin = '';
+        let draftLinkedinTarget = '';
+
+        function escapeHtml(str) {
+            return (str || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
+        }
+
+        function renderHashtagsAsHtml(text) {
+            const safe = escapeHtml(text || '');
+            return safe.replace(/(^|\s)(#[\p{L}\d_]+)/gu, (m, p1, tag) => `${p1}<span class="hash">${tag}</span>`);
+        }
+
+        function updatePreviewImages() {
+            const src = fileImg && fileImg.src ? fileImg.src : '';
+            const hasSrc = !!src;
+
+            if (hasSrc) {
+                igPreviewImg.src = src;
+                liPreviewImg.src = src;
+                igPreviewImg.style.display = 'block';
+                liPreviewImg.style.display = 'block';
+                igPlaceholder.style.display = 'none';
+                liPlaceholder.style.display = 'none';
+            } else {
+                igPreviewImg.style.display = 'none';
+                liPreviewImg.style.display = 'none';
+                igPlaceholder.style.display = 'block';
+                liPlaceholder.style.display = 'block';
+            }
+        }
+
+        function populateModalAccounts() {
+            const isIg = previewActivePlatform === 'instagram';
+            const accounts = isIg ? globalInstagramAccounts : globalLinkedInAccounts;
+            modalAccountSelect.innerHTML = '';
+            if (!accounts || accounts.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = '';
+                opt.textContent = `— No ${isIg ? 'Instagram' : 'LinkedIn'} accounts connected —`;
+                modalAccountSelect.appendChild(opt);
+                modalAccountSelectLabel.style.display = 'block';
+                modalAccountSelect.style.display = 'block';
+                return;
+            }
+            accounts.forEach((acc, idx) => {
+                const opt = document.createElement('option');
+                if (isIg) {
+                    opt.value = acc.instagram_account_id || idx;
+                    opt.textContent = '@' + acc.username;
+                } else {
+                    opt.value = acc.member_urn || idx;
+                    opt.textContent = acc.name || 'LinkedIn Account';
+                }
+                modalAccountSelect.appendChild(opt);
+            });
+            modalAccountSelectLabel.style.display = 'block';
+            modalAccountSelect.style.display = 'block';
+            updateModalPreviewCardHeader();
+        }
+
+        function updateModalPreviewCardHeader() {
+            const isIg = previewActivePlatform === 'instagram';
+            if (isIg) {
+                const selectedVal = modalAccountSelect.value;
+                const acc = globalInstagramAccounts.find(a => a.instagram_account_id === selectedVal) || globalInstagramAccounts[0];
+                if (acc) {
+                    document.getElementById('igUsername').textContent = '@' + acc.username;
+                    const avatarEl = document.getElementById('igAvatar');
+                    if (acc.profile_picture_url) {
+                        avatarEl.innerHTML = `<img src="${acc.profile_picture_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+                    } else {
+                        avatarEl.textContent = (acc.username || 'U').charAt(0).toUpperCase();
+                    }
+                }
+            } else {
+                const selectedVal = modalAccountSelect.value;
+                const acc = globalLinkedInAccounts.find(a => a.member_urn === selectedVal) || globalLinkedInAccounts[0];
+                if (acc) {
+                    document.getElementById('liName').textContent = acc.name || 'LinkedIn Member';
+                    const liAvatarEl = document.getElementById('liAvatar');
+                    if (acc.picture) {
+                        liAvatarEl.innerHTML = `<img src="${acc.picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`;
+                    } else {
+                        liAvatarEl.textContent = (acc.name || 'L').charAt(0).toUpperCase();
+                    }
+                }
+            }
+        }
+
+        function setPreviewPlatform(platform) {
+            previewActivePlatform = platform;
+            const isIg = platform === 'instagram';
+
+            segInsta.setAttribute('aria-pressed', isIg ? 'true' : 'false');
+            segLinkedin.setAttribute('aria-pressed', isIg ? 'false' : 'true');
+
+            igCard.style.display = isIg ? 'block' : 'none';
+            liCard.style.display = isIg ? 'none' : 'block';
+
+            editorLabel.textContent = isIg ? 'Edit Instagram caption' : 'Edit LinkedIn caption';
+
+            modalCaption.value = isIg ? draftInsta : draftLinkedin;
+            renderCaption();
+            populateModalAccounts();
+        }
+
+        function renderCaption() {
+            igCaptionRender.innerHTML = renderHashtagsAsHtml(draftInsta || '');
+            liCaptionRender.textContent = draftLinkedin || '';
+        }
+
+        function openPreviewModal() {
+            draftInsta = document.getElementById('instaCaption').value || '';
+            draftLinkedin = document.getElementById('linkedinCaption').value || '';
+            
+            updatePreviewImages();
+            renderCaption();
+
+            // Choose default platform based on selections
+            const hasIg = document.getElementById('checkInsta').checked;
+            const hasLi = document.getElementById('checkLinkedin').checked;
+            if (!hasIg && hasLi) setPreviewPlatform('linkedin');
+            else setPreviewPlatform('instagram');
+
+            previewModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            modalCaption.focus();
+        }
+
+        function closePreviewModal() {
+            previewModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        previewBtn.onclick = () => {
+            const hasFile = !!fileInput.files[0];
+            const hasPlat = document.getElementById('checkInsta').checked || document.getElementById('checkLinkedin').checked;
+            if (!hasFile || !hasPlat) {
+                showToast('Upload media and select a platform first', 'warning');
+                return;
+            }
+            openPreviewModal();
+        };
+
+        previewCloseBtn.onclick = closePreviewModal;
+        previewCancelBtn.onclick = closePreviewModal;
+
+        previewSaveBtn.onclick = () => {
+            document.getElementById('instaCaption').value = draftInsta;
+            document.getElementById('linkedinCaption').value = draftLinkedin;
+            closePreviewModal();
+            updateUIState();
+            showToast('Preview saved', 'success');
+        };
+
+        segInsta.onclick = () => setPreviewPlatform('instagram');
+        segLinkedin.onclick = () => setPreviewPlatform('linkedin');
+
+        modalCaption.addEventListener('input', () => {
+            if (previewActivePlatform === 'instagram') {
+                draftInsta = modalCaption.value;
+                document.getElementById('instaCaption').value = draftInsta;
+            } else {
+                draftLinkedin = modalCaption.value;
+                document.getElementById('linkedinCaption').value = draftLinkedin;
+            }
+            renderCaption();
+        });
+
+        modalAccountSelect.addEventListener('change', updateModalPreviewCardHeader);
+
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) closePreviewModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && previewModal.classList.contains('open')) closePreviewModal();
+        });
+
+        // --- AI MAGIC ---
+        const generateBtn = document.getElementById('generateBtn');
+        generateBtn.onclick = async () => {
+            if (!fileInput.files[0]) return showToast('Please upload media first', 'warning');
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<div class="loader"></div> <span>Generating Art...</span>';
+
+            try {
+                const fd = new FormData();
+                // AI analyzes the first image for the set
+                fd.append('file', fileInput.files[0]);
+                const resp = await fetchWithAuth('/api/ai/analyze-image', { method: 'POST', body: fd });
+                if (resp && resp.ok) {
+                    const data = await resp.json();
+                    if (data.instagram) document.getElementById('instaCaption').value = data.instagram;
+                    if (data.linkedin) document.getElementById('linkedinCaption').value = data.linkedin;
+                    showToast('AI Intelligence Applied!', 'success');
+                    
+                    updateUIState();
+                }
+            } catch (e) {
+                showToast('AI failed to perceive the image', 'error');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = '<i class="fas fa-magic"></i> <span>AI Magic — Generate Captions</span>';
+                updateUIState();
+            }
+        };
+
+        // --- PUBLISHING ---
+        const scheduleToggle = document.getElementById('scheduleToggle');
+        const scheduleSection = document.getElementById('scheduleSection');
+        let isScheduleActive = false;
+
+        scheduleToggle.onclick = () => {
+            isScheduleActive = !isScheduleActive;
+            scheduleSection.style.display = isScheduleActive ? 'block' : 'none';
+            scheduleToggle.classList.toggle('active', isScheduleActive);
+            scheduleToggle.style.color = isScheduleActive ? 'var(--primary)' : '';
+            updateUIState();
+        };
+
+        const postBtn = document.getElementById('postBtn');
+        postBtn.onclick = async () => {
+            const targets = [];
+            
+            if (document.getElementById('checkInsta').checked) {
+                const checkedBoxes = Array.from(document.querySelectorAll('input[name="instagramAccountsCheckbox"]:checked'));
+                if (checkedBoxes.length === 0) return showToast('Choose at least one Instagram account', 'warning');
+                checkedBoxes.forEach(box => {
+                    targets.push({
+                        platform: 'instagram',
+                        id: box.value,
+                        name: box.parentElement.querySelector('label').textContent
+                    });
+                });
+            }
+            
+            if (document.getElementById('checkLinkedin').checked) {
+                const checkedBoxes = Array.from(document.querySelectorAll('input[name="linkedinAccountsCheckbox"]:checked'));
+                if (checkedBoxes.length === 0) return showToast('Choose at least one LinkedIn account', 'warning');
+                checkedBoxes.forEach(box => {
+                    targets.push({
+                        platform: 'linkedin',
+                        id: box.value,
+                        name: box.parentElement.querySelector('label').textContent
+                    });
+                });
+            }
+
+            if (document.getElementById('checkThreads').checked) {
+                const checkedBoxes = Array.from(document.querySelectorAll('input[name="threadsAccountsCheckbox"]:checked'));
+                if (checkedBoxes.length === 0) return showToast('Choose at least one Threads account', 'warning');
+                checkedBoxes.forEach(box => {
+                    targets.push({
+                        platform: 'threads',
+                        id: box.value,
+                        name: box.parentElement.querySelector('label').textContent
+                    });
+                });
+            }
+
+            if (targets.length === 0) return showToast('Select at least one platform and account', 'warning');
+
+            const isScheduling = isScheduleActive && document.getElementById('scheduleTime').value;
+            postBtn.disabled = true;
+            postBtn.innerHTML = `<div class="loader"></div> <span>${isScheduling ? 'Scheduling' : 'Publishing'}...</span>`;
+
+            try {
+                // Timezone Fix: Convert local time to UTC ISO string
+                let scheduledTime = document.getElementById('scheduleTime').value;
+                if (isScheduling && scheduledTime) {
+                    scheduledTime = new Date(scheduledTime).toISOString();
+                }
+
+                for (const target of targets) {
+                    const fd = new FormData();
+                    const files = Array.from(fileInput.files);
+                    const isCarousel = files.length > 1;
+
+                    if (isCarousel) {
+                        files.forEach(f => fd.append('files', f));
+                    } else if (files[0]) {
+                        fd.append('file', files[0]);
+                    }
+
+                    if (isScheduling) {
+                        fd.append('scheduled_at', scheduledTime);
+                    }
+
+                    let url = '';
+                    if (target.platform === 'instagram') {
+                        fd.append('text', document.getElementById('instaCaption').value);
+                        fd.append('instagram_account_id', target.id);
+                        fd.append('username', target.name.replace('@', ''));
+                        if (isCarousel) {
+                            url = isScheduling ? '/api/platforms/instagram/schedule-carousel' : '/api/platforms/instagram/post-carousel';
+                        } else {
+                            url = isScheduling ? '/api/platforms/instagram/schedule-post' : '/upload-post';
+                        }
+                    } else if (target.platform === 'linkedin') {
+                        fd.append('text', document.getElementById('linkedinCaption').value);
+                        fd.append('member_urn', target.id);
+                        url = isScheduling ? '/api/platforms/linkedin/schedule-post' : '/api/platforms/linkedin/post';
+                    } else if (target.platform === 'threads') {
+                        fd.append('text', document.getElementById('threadsCaption').value);
+                        fd.append('threads_account_id', target.id);
+                        url = isScheduling ? '/api/platforms/threads/schedule-post' : '/api/platforms/threads/post';
+                    }
+
+                    if (!url) continue;
+                    const resp = await fetchWithAuth(url, { method: 'POST', body: fd });
+                    if (!resp || !resp.ok) {
+                        const errMsg = await apiErrorMessage(resp, `Failed to post to ${target.platform} (${target.name})`);
+                        throw new Error(errMsg);
+                    }
+                }
+                showToast(isScheduling ? 'Missions set for future deployment!' : 'Broadcast successful!', 'success');
+                await fetchScheduledJobs();
+                await updateProfileDashboard();
+                if (!isScheduling) {
+                    resetPublisherForm();
+                }
+            } catch (e) {
+                console.error("Publication Error:", e);
+                showToast(e.message || 'Broadcast interrupted by error', 'error');
+            } finally {
+                postBtn.disabled = false;
+                postBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Publish Post</span>';
+            }
+        };
+
+        // --- UTILS ---
+        function updateUIState() {
+            const hasFile = !!fileInput.files[0];
+            const checkInsta = document.getElementById('checkInsta').checked;
+            const checkLinkedin = document.getElementById('checkLinkedin').checked;
+            const checkThreads = document.getElementById('checkThreads').checked;
+            const hasPlat = checkInsta || checkLinkedin || checkThreads;
+            postBtn.disabled = !(hasFile && hasPlat);
+            if (previewBtn) previewBtn.disabled = !(hasFile && hasPlat);
+
+            document.getElementById('uiInstaTarget').style.display = checkInsta ? 'flex' : 'none';
+            document.getElementById('uiLinkedinTarget').style.display = checkLinkedin ? 'flex' : 'none';
+            document.getElementById('uiThreadsTarget').style.display = checkThreads ? 'flex' : 'none';
+            
+            const instaCapContainer = document.getElementById('instaCaptionContainer');
+            const linkedinCapContainer = document.getElementById('linkedinCaptionContainer');
+            const threadsCapContainer = document.getElementById('threadsCaptionContainer');
+            const captionSection = document.getElementById('captionSection');
+            
+            if (instaCapContainer) {
+                instaCapContainer.style.display = checkInsta ? 'block' : 'none';
+            }
+            if (linkedinCapContainer) {
+                linkedinCapContainer.style.display = checkLinkedin ? 'block' : 'none';
+            }
+            if (threadsCapContainer) {
+                threadsCapContainer.style.display = checkThreads ? 'block' : 'none';
+            }
+            if (captionSection) {
+                captionSection.style.display = (checkInsta || checkLinkedin || checkThreads) ? 'block' : 'none';
+            }
+            
+            updateInpagePreview();
+        }
+
+        function updateInpagePreview() {
+            const hasFile = !!fileInput.files[0];
+            const checkInsta = document.getElementById('checkInsta').checked;
+            const checkLinkedin = document.getElementById('checkLinkedin').checked;
+            const checkThreads = document.getElementById('checkThreads').checked;
+            
+            const mockInsta = document.getElementById('mockInstagram');
+            const mockLi = document.getElementById('mockLinkedin');
+            const mockTh = document.getElementById('mockThreads');
+            const previewBadge = document.getElementById('previewStatusBadge');
+
+            if (checkInsta) mockInsta.style.display = 'block';
+            else mockInsta.style.display = 'none';
+
+            if (checkLinkedin) mockLi.style.display = 'block';
+            else mockLi.style.display = 'none';
+
+            if (mockTh) {
+                if (checkThreads) mockTh.style.display = 'block';
+                else mockTh.style.display = 'none';
+            }
+
+            const imgUrl = fileImg.src && hasFile ? fileImg.src : null;
+            if (imgUrl) {
+                document.getElementById('mockInstaImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+                document.getElementById('mockLinkedinImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+                const mockThImage = document.getElementById('mockThreadsImage');
+                if (mockThImage) mockThImage.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover; border-radius: 8px;">`;
+            } else {
+                document.getElementById('mockInstaImage').innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
+                document.getElementById('mockLinkedinImage').innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
+                const mockThImage = document.getElementById('mockThreadsImage');
+                if (mockThImage) mockThImage.innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5; color: #666;"></i>`;
+            }
+
+            let instaCap = document.getElementById('instaCaption').value;
+            let liCap = document.getElementById('linkedinCaption').value;
+            let threadsCap = document.getElementById('threadsCaption') ? document.getElementById('threadsCaption').value : '';
+
+            const formatCaption = (cap) => {
+                if (!cap) return '<em style="color: var(--text-dim);">Waiting for AI caption...</em>';
+                let formatted = cap.replace(/\n/g, '<br>');
+                formatted = formatted.replace(/(#[a-zA-Z0-9_]+)/g, '<span style="color: #0095f6; cursor: pointer; font-weight: 500;">$1</span>');
+                return formatted;
+            };
+
+            document.getElementById('mockInstaCaption').innerHTML = formatCaption(instaCap);
+            document.getElementById('mockLinkedinCaption').innerHTML = formatCaption(liCap);
+            const mockThreadsCapEl = document.getElementById('mockThreadsCaption');
+            if (mockThreadsCapEl) mockThreadsCapEl.innerHTML = formatCaption(threadsCap);
+
+            // Update mock Threads username from first connected account
+            const mockThreadsUser = document.getElementById('mockThreadsUser');
+            if (mockThreadsUser && globalThreadsAccounts.length > 0) {
+                mockThreadsUser.textContent = '@' + globalThreadsAccounts[0].username;
+            }
+
+            if (hasFile && (checkInsta || checkLinkedin || checkThreads)) {
+                if (previewBadge) previewBadge.style.display = 'flex';
+            } else {
+                if (previewBadge) previewBadge.style.display = 'none';
+            }
+        }
+
+        // Hook platform checkboxes
+        ['checkInsta', 'checkLinkedin', 'checkThreads'].forEach(id => {
+            document.getElementById(id).onchange = updateUIState;
+        });
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const m = document.getElementById('toastMsg');
+
+            m.textContent = msg;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : (type === 'error' ? 'fas fa-times-circle' : 'fas fa-exclamation-circle');
+            icon.style.color = `var(--${type})`;
+
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 4000);
+        }
+
+        // --- SCHEDULER LIST ---
+        async function fetchScheduledJobs() {
+            try {
+                const resp = await fetchWithAuth('/api/jobs');
+                if (!resp) return;
+                const jobs = await resp.json();
+                globalJobs = jobs;
+                const list = document.getElementById('jobsList');
+
+                const scheduledJobs = jobs.filter(j => j.is_scheduled === 1);
+
+                if (scheduledJobs.length === 0) {
+                    list.innerHTML = `<div style="text-align: center; padding: 100px; color: var(--text-dim);">
+                        <i class="fas fa-calendar-alt" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.2;"></i>
+                        <p>No active missions in the queue</p>
+                    </div>`;
+                    return;
+                }
+
+                list.innerHTML = scheduledJobs.map(job => {
+                    const showCancel = job.status === 'pending' ? 'block' : 'none';
+                    return `
+                        <div class="job-item">
+                            ${buildJobThumbHtml(job)}
+                            <div class="job-content">
+                                <div class="job-header">
+                                    <span class="job-platform">${job.platform}</span>
+                                    <span class="job-status status-${job.status}">${job.status}</span>
+                                </div>
+                                <div class="job-time">${new Date(job.scheduled_at).toLocaleString()}</div>
+                            </div>
+                            <button class="btn-cancel" onclick="cancelMission('${job.job_id}')" style="background: none; border: none; color: var(--text-dim); cursor: pointer; transition: 0.3s; display: ${showCancel};"><i class="fas fa-times"></i></button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) { }
+        }
+
+        async function cancelMission(jId) {
+            if (!confirm('Abort this mission?')) return;
+            try {
+                const resp = await fetchWithAuth(`/api/jobs/${jId}`, { method: 'DELETE' });
+                if (resp && resp.ok) {
+                    showToast('Mission aborted', 'success');
+                    fetchScheduledJobs();
+                }
+            } catch (e) { }
+        }
+
+        async function apiErrorMessage(resp, fallback = 'Sync Failed') {
+            if (!resp) return 'Not authenticated';
+            try {
+                const err = await resp.json();
+                if (err.detail) return typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail);
+            } catch (_) { /* ignore */ }
+            return fallback;
+        }
+
+        // Platform connection handlers with popup watcher
+        function openAuthPopup(url, refreshFn) {
+            const popup = window.open(url, '_blank', 'width=600,height=700');
+            if (!popup) {
+                showToast('Allow popups for this site, then try again.', 'error');
+                return;
+            }
+            const timer = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(timer);
+                    refreshFn();
+                }
+            }, 1000);
+        }
+
+        document.getElementById('addInstaAccount').onclick = async () => {
+            const btn = document.getElementById('addInstaAccount');
+            btn.disabled = true;
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    throw new Error('Not authenticated. Please login again.');
+                }
+                openAuthPopup(`/api/platforms/instagram/oauth?token=${encodeURIComponent(token)}`, () => {
+                    fetchInstagramAccount();
+                    updateProfileDashboard();
+                    showToast('Refreshing Instagram accounts…', 'success');
+                });
+            } catch (e) {
+                showToast(e.message || 'Connection error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('refreshInstagram').onclick = fetchInstagramAccount;
+
+        document.getElementById('addLinkedinAccount').onclick = async () => {
+            const btn = document.getElementById('addLinkedinAccount');
+            btn.disabled = true;
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    throw new Error('Not authenticated. Please login again.');
+                }
+                openAuthPopup(`/api/platforms/linkedin/connect?token=${encodeURIComponent(token)}&force=true`, () => {
+                    fetchLinkedInAccounts();
+                    updateProfileDashboard();
+                    showToast('Checking LinkedIn connection...', 'success');
+                });
+            } catch (e) {
+                showToast(e.message || 'Connection error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('refreshLinkedIn').onclick = fetchLinkedInAccounts;
+        document.getElementById('refreshThreads').onclick = fetchThreadsAccounts;
+        document.getElementById('refreshJobs').onclick = fetchScheduledJobs;
+
+        // --- THREADS ACCOUNT MANAGEMENT ---
+        async function fetchThreadsAccounts() {
+            try {
+                const resp = await fetchWithAuth('/api/platforms/threads/accounts');
+                if (!resp) return;
+                const accounts = await resp.json();
+                globalThreadsAccounts = accounts || [];
+
+                const badge = document.getElementById('threadsBadge');
+                const label = document.getElementById('threadsUserLabel');
+                const listContainer = document.getElementById('threadsAccountsList');
+                const select = document.getElementById('threadsAccounts');
+
+                if (listContainer) listContainer.innerHTML = '';
+                if (select) select.innerHTML = '';
+
+                if (accounts && accounts.length > 0) {
+                    if (badge) { badge.textContent = 'Active'; badge.className = 'job-status status-published'; }
+                    if (label) label.textContent = `${accounts.length} Threads account(s) connected.`;
+
+                    accounts.forEach(acc => {
+                        // Checkbox in post form
+                        if (select) {
+                            const div = document.createElement('div');
+                            div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;';
+                            div.innerHTML = `
+                                <input type="checkbox" name="threadsAccountsCheckbox" value="${acc.threads_account_id}" id="th_chk_${acc.threads_account_id}" style="cursor:pointer;accent-color:#000;">
+                                <label for="th_chk_${acc.threads_account_id}" style="cursor:pointer;font-size:0.85rem;color:var(--text-main);">@${escapeHtml(acc.username)}</label>
+                            `;
+                            select.appendChild(div);
+                        }
+                        // Account list card with disconnect
+                        if (listContainer) {
+                            const item = document.createElement('div');
+                            item.className = 'acc-item';
+                            item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:4px 0;';
+                            item.innerHTML = `
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <i class="fas fa-check-circle" style="color:#4caf50;"></i>
+                                    <span style="color:#ffffff;">@${escapeHtml(acc.username)}</span>
+                                </div>
+                                <button class="btn-disconnect-threads" data-id="${acc.threads_account_id}" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.85rem;display:flex;align-items:center;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            `;
+                            listContainer.appendChild(item);
+                        }
+                    });
+
+                    // Wire disconnect buttons
+                    if (listContainer) {
+                        listContainer.querySelectorAll('.btn-disconnect-threads').forEach(btn => {
+                            btn.onclick = async (e) => {
+                                e.stopPropagation();
+                                const accountId = btn.getAttribute('data-id');
+                                if (!confirm('Disconnect this Threads account?')) return;
+                                try {
+                                    const del = await fetchWithAuth(`/api/platforms/threads/accounts/${encodeURIComponent(accountId)}`, { method: 'DELETE' });
+                                    if (del && del.ok) {
+                                        showToast('Threads account disconnected.', 'success');
+                                        fetchThreadsAccounts();
+                                        updateProfileDashboard();
+                                    } else {
+                                        showToast('Failed to disconnect Threads account.', 'error');
+                                    }
+                                } catch (err) {
+                                    showToast('Error disconnecting account.', 'error');
+                                }
+                            };
+                        });
+                    }
+                } else {
+                    if (badge) { badge.textContent = 'Disconnected'; badge.className = 'job-status status-failed'; }
+                    if (label) label.textContent = 'Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.';
+                    if (select) select.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">No accounts connected</div>';
+                }
+            } catch (e) {
+                console.error('Threads accounts load failed:', e);
+            }
+        }
+
+        document.getElementById('addThreadsAccount').onclick = async () => {
+            // Show a credentials prompt modal
+            const accId = prompt('Enter your Threads Account ID (numeric user ID from Meta):');
+            if (!accId || !accId.trim()) return;
+            const username = prompt('Enter your Threads username (without @):');
+            if (!username || !username.trim()) return;
+            const token = prompt('Enter your Threads Access Token:');
+            if (!token || !token.trim()) return;
+
+            try {
+                const fd = new FormData();
+                fd.append('threads_account_id', accId.trim());
+                fd.append('username', username.trim());
+                fd.append('access_token', token.trim());
+                const resp = await fetchWithAuth('/api/platforms/threads/connect-direct', { method: 'POST', body: fd });
+                if (resp && resp.ok) {
+                    showToast('Threads account connected successfully!', 'success');
+                    fetchThreadsAccounts();
+                    updateProfileDashboard();
+                } else {
+                    const err = resp ? await resp.json().catch(() => ({})) : {};
+                    showToast(err.detail || 'Failed to connect Threads account.', 'error');
+                }
+            } catch (e) {
+                showToast('Error connecting Threads account.', 'error');
+            }
+        };
+
+        const logoutModal = document.getElementById('logoutConfirmModal');
+        document.getElementById('logoutBtn').onclick = () => {
+            logoutModal.classList.add('open');
+        };
+        document.getElementById('logoutCancelBtn').onclick = () => {
+            logoutModal.classList.remove('open');
+        };
+        logoutModal.onclick = (e) => {
+            if (e.target === logoutModal) logoutModal.classList.remove('open');
+        };
+        document.getElementById('logoutConfirmBtn').onclick = () => {
+            sessionStorage.setItem('pp_skip_auth_redirect', '1');
+            localStorage.removeItem('access_token');
+            window.location.href = '/static/login.html';
+        };
+
+        init();
+    </script>
+</body>
+
+</html>
