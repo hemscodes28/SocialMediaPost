@@ -669,7 +669,18 @@ async def connect_threads_direct(
     current_user: User = Depends(auth_service.get_current_user)
 ):
     try:
-        acc = threads_service.add_account(current_user.id, threads_account_id, username, access_token)
+        token_clean = access_token.strip()
+        # Auto-resolve correct ID and username if possible using the token!
+        try:
+            resolved = threads_service.resolve_account_info(token_clean)
+            threads_account_id = resolved["threads_account_id"]
+            username = resolved["username"]
+            print(f"[THREADS AUTO-RESOLVE] Successfully resolved account to @{username} (ID: {threads_account_id})")
+        except Exception as e:
+            print(f"[THREADS AUTO-RESOLVE FAIL] Could not auto-resolve account info from token: {e}")
+            # Fall back to user's manual inputs
+            
+        acc = threads_service.add_account(current_user.id, threads_account_id.strip(), username.strip(), token_clean)
         return {"success": True, "account": acc}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Threads connection failed: {e}")

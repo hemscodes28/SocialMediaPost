@@ -760,6 +760,12 @@
             background: rgba(10, 102, 194, 0.06);
         }
 
+        .seg-btn.threads[aria-pressed="true"] {
+            border-color: #000000;
+            color: #000000;
+            background: rgba(0, 0, 0, 0.06);
+        }
+
         .modal-body {
             display: grid;
             grid-template-columns: 1fr 340px;
@@ -2045,7 +2051,7 @@
 
                                 <input type="checkbox" id="checkThreads" class="platform-checkbox">
                                 <label for="checkThreads" class="platform-chip">
-                                    <i class="fab fa-threads"></i>
+                                    <img src="/static/assets/threads.svg" style="width: 18px; height: 18px; flex-shrink: 0;" alt="Threads">
                                     <span>Threads</span>
                                 </label>
                             </div>
@@ -2094,7 +2100,7 @@
 
                             <div id="threadsCaptionContainer" style="display: none; margin-bottom: 16px;">
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                    <i class="fab fa-threads" style="color: #ffffff;"></i>
+                                    <img src="/static/assets/threads.svg" style="width: 20px; height: 20px; flex-shrink: 0;" alt="Threads">
                                     <span style="font-size: 0.85rem; font-weight: 600;">Threads Post Text</span>
                                 </div>
                                 <textarea id="threadsCaption" rows="4" placeholder="What's on your mind? Write for Threads..."
@@ -2174,29 +2180,18 @@
                         </div>
 
                         <!-- Threads Mock -->
-                        <div id="mockThreads" style="display: none; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; background: #0a0a0a; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
-                            <div style="padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06);">
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: #000000; border: 1px solid rgba(255,255,255,0.2); color: white; display: grid; place-items: center;"><i class="fab fa-threads" style="font-size: 0.9rem;"></i></div>
-                                    <div style="display: flex; flex-direction: column;">
-                                        <div style="font-size: 0.85rem; font-weight: 700; color: #ffffff;" id="mockThreadsUser">threads_user</div>
-                                        <div style="font-size: 0.7rem; color: #666;">Threads Preview</div>
-                                    </div>
+                        <div id="mockThreads" style="display: none; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface-dark);">
+                            <div style="padding: 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border);">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: #000; color: white; display: grid; place-items: center;">
+                                    <img src="/static/assets/threads.svg" style="width: 18px; height: 18px; filter: invert(1);">
                                 </div>
-                                <i class="fab fa-threads" style="color: rgba(255,255,255,0.3); font-size: 1.2rem;"></i>
+                                <div style="font-size: 0.85rem; font-weight: 600;">Threads Preview</div>
                             </div>
-                            <div style="padding: 16px 16px 12px; font-size: 0.9rem; color: #eaeaea; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;" id="mockThreadsCaption">
-                                <em style="color: var(--text-dim);">Waiting for Threads caption...</em>
+                            <div style="padding: 12px; font-size: 0.85rem; color: var(--text-main); line-height: 1.5;" id="mockThreadsCaption">
+                                <em style="color: var(--text-dim);">Waiting for AI caption...</em>
                             </div>
-                            <div id="mockThreadsImage" style="width: calc(100% - 32px); margin: 0 16px 16px; aspect-ratio: 1.91/1; border-radius: 12px; background: #151515; display: grid; place-items: center; color: #444; font-size: 0.85rem; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
-                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.3;"></i>
-                            </div>
-                            <!-- Micro-interactions row -->
-                            <div style="padding: 0 16px 16px; display: flex; gap: 20px; color: #666; font-size: 1rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 12px; margin-top: 8px;">
-                                <i class="far fa-heart" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#ff3040'" onmouseout="this.style.color='#666'"></i>
-                                <i class="far fa-comment" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#666'"></i>
-                                <i class="fas fa-retweet" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#00ff88'" onmouseout="this.style.color='#666'"></i>
-                                <i class="far fa-paper-plane" style="cursor: pointer; transition: 0.2s;" onmouseover="this.style.color='#38b6ff'" onmouseout="this.style.color='#666'"></i>
+                            <div id="mockThreadsImage" style="width: 100%; height: 200px; background: var(--surface-lighter); display: grid; place-items: center; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); overflow: hidden;">
+                                <i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>
                             </div>
                         </div>
                     </div>
@@ -2228,7 +2223,7 @@
 
                         <!-- Threads Target Info -->
                         <div id="uiThreadsTarget" style="display: none; align-items: center; gap: 12px; margin-bottom: 12px; padding: 12px; background: var(--surface-lighter); border-radius: 12px; border: 1px solid var(--border);">
-                            <i class="fab fa-threads" style="font-size: 1.5rem; color: #ffffff;"></i>
+                            <img src="/static/assets/threads.svg" style="width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;" alt="Threads">
                             <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
                                 <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px;">Threads Target</div>
                                 <div id="threadsAccounts"
@@ -2255,7 +2250,7 @@
                                 <span style="color: var(--primary); font-weight: 800; background: rgba(79,70,229,0.1); padding: 4px 8px; border-radius: 6px;">Ready</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
-                                <span style="color: var(--text-dim);"><i class="fab fa-threads" style="width: 20px;"></i> Threads API</span>
+                                <span style="color: var(--text-dim);"><img src="/static/assets/threads.svg" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;" alt="Threads"> Threads API</span>
                                 <span style="color: var(--success); font-weight: 800; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 6px;">Online</span>
                             </div>
                         </div>
@@ -2317,21 +2312,20 @@
                 </div>
 
                 <!-- Threads Connection Card -->
-                <div class="glass-card" style="border-color: rgba(255,255,255,0.08); background: rgba(0,0,0,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                <div class="glass-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
                         <div
-                            style="width: 60px; height: 60px; border-radius: 20px; background: #000000; border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #ffffff; box-shadow: 0 0 15px rgba(255,255,255,0.1);">
-                            <i class="fab fa-threads"></i>
+                            style="width: 60px; height: 60px; border-radius: 20px; background: #000000; display: flex; align-items: center; justify-content: center;">
+                            <img src="/static/assets/threads.svg" style="width: 32px; height: 32px; filter: invert(1);" alt="Threads Logo">
                         </div>
                         <span id="threadsBadge" class="job-status status-failed">Disconnected</span>
                     </div>
-                    <h3 style="margin-bottom: 12px; color: #ffffff;">Threads Accounts</h3>
+                    <h3 style="margin-bottom: 12px;">Threads Accounts</h3>
                     <p id="threadsUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
                         Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.</p>
-                    <button id="addThreadsAccount" class="btn btn-primary" style="width: 100%; background: #ffffff; color: #000000; border: none; font-weight: 700; transition: 0.3s;" onmouseover="this.style.background='#e5e5e5'" onmouseout="this.style.background='#ffffff'">Add Threads Account</button>
+                    <button id="addThreadsAccount" class="btn btn-glass" style="width: 100%;">Add Threads Account</button>
                     <button id="refreshThreads" class="btn btn-glass"
-                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: #ffffff; opacity: 0.8;">Refresh
+                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
                         connection</button>
 
                     <div id="threadsAccountsList" class="accounts-list"></div>
@@ -2486,6 +2480,10 @@
                         <i class="fab fa-linkedin-in" style="color:#0a66c2;"></i>
                         <span>LinkedIn</span>
                     </button>
+                    <button id="segThreads" class="seg-btn threads" type="button" aria-pressed="false">
+                        <img src="/static/assets/threads.svg" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;" alt="Threads">
+                        <span>Threads</span>
+                    </button>
                 </div>
 
                 <button class="modal-close" id="previewCloseBtn" type="button" aria-label="Close preview">
@@ -2549,6 +2547,25 @@
                             <div class="li-act">Comment</div>
                             <div class="li-act">Repost</div>
                             <div class="li-act">Send</div>
+                        </div>
+                    </div>
+
+                    <!-- Threads Card -->
+                    <div id="thCard" class="post-card" style="display:none;">
+                        <div class="topbar">
+                            <div class="ig-user">
+                                <div class="ig-avatar" id="thAvatar" style="background:#000;color:white;"><i class="fas fa-at"></i></div>
+                                <div style="min-width:0;">
+                                    <div class="ig-username" id="thUsername">threads_user</div>
+                                </div>
+                            </div>
+                            <div class="ig-actions">
+                                <i class="fas fa-ellipsis-h" style="opacity:0.75;"></i>
+                            </div>
+                        </div>
+                        <div class="ig-media" style="aspect-ratio: auto; min-height: 100px; padding: 14px; display: block; background: #FFF;">
+                            <div class="ig-caption-text" id="thCaptionRender" style="font-size:0.95rem; margin-bottom: 12px; font-weight: normal; color: #262626;"></div>
+                            <img id="thPreviewImg" alt="Threads preview image" style="display:none; width: 100%; border-radius: 8px; border: 1px solid var(--border);">
                         </div>
                     </div>
                 </div>
@@ -2638,7 +2655,7 @@
                 platformIcon = '<i class="fas fa-images"></i>';
                 platformBg = 'linear-gradient(135deg, #8a3ab9, #e95950)';
             } else if (job.platform === 'threads') {
-                platformIcon = '<i class="fab fa-threads"></i>';
+                platformIcon = '<img src="/static/assets/threads.svg" style="width:1.2rem;height:1.2rem;" alt="Threads">';
                 platformBg = '#000000';
             }
             if (url) {
@@ -2656,7 +2673,7 @@
             if (platform === 'linkedin') {
                 return '<div class="history-thumb-icon" style="background:#0a66c2;color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-linkedin-in"></i></div>';
             } else if (platform === 'threads') {
-                return '<div class="history-thumb-icon" style="background:#000000;color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-threads"></i></div>';
+                return '<div class="history-thumb-icon" style="background:#000000;color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><img src="/static/assets/threads.svg" style="width:1.5rem;height:1.5rem;filter:invert(1);" alt="Threads"></div>';
             }
             return '<div class="history-thumb-icon" style="background:linear-gradient(135deg,#f09433,#dc2743);color:white;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;"><i class="fab fa-instagram"></i></div>';
         };
@@ -3172,27 +3189,25 @@
                         threadsAccs.forEach(acc => {
                             const card = document.createElement('div');
                             card.className = 'profile-account-card';
-                            card.style.background = 'rgba(0, 0, 0, 0.4)';
-                            card.style.borderColor = 'rgba(255, 255, 255, 0.08)';
                             
                             card.innerHTML = `
                                 <div class="profile-account-header">
-                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.15);">
-                                        <i class="fab fa-threads"></i>
+                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
+                                        <img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">
                                     </div>
                                     <div class="profile-meta">
-                                        <h3 style="color:#fff;">${escapeHtml(acc.name || '@' + acc.username)}</h3>
+                                        <h3>${escapeHtml(acc.name || '@' + acc.username)}</h3>
                                         <p>@${escapeHtml(acc.username)}</p>
                                     </div>
-                                    <span class="job-status status-published profile-status-badge" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.2);">Connected</span>
+                                    <span class="job-status status-published profile-status-badge">Connected</span>
                                 </div>
                                 <div class="profile-stats-row" style="display: flex;">
                                     <div class="profile-stat">
-                                        <span class="stat-num" style="color:#fff;">${acc.followers_count.toLocaleString()}</span>
+                                        <span class="stat-num">${acc.followers_count.toLocaleString()}</span>
                                         <span class="stat-lbl">Followers</span>
                                     </div>
                                     <div class="profile-stat">
-                                        <span class="stat-num" style="color:#fff;">${acc.threads_count.toLocaleString()}</span>
+                                        <span class="stat-num">${acc.threads_count.toLocaleString()}</span>
                                         <span class="stat-lbl">Threads</span>
                                     </div>
                                 </div>
@@ -3207,7 +3222,7 @@
                         card.innerHTML = `
                             <div class="profile-account-header">
                                 <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
-                                    <i class="fab fa-threads"></i>
+                                    <img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">
                                 </div>
                                 <div class="profile-meta">
                                     <h3>Not Connected</h3>
@@ -3303,7 +3318,7 @@
                     platformBg = 'linear-gradient(135deg, #8a3ab9, #e95950)';
                     platformLabel = 'Instagram Carousel';
                 } else if (job.platform === 'threads') {
-                    platformIcon = '<i class="fab fa-threads"></i>';
+                    platformIcon = '<img src="/static/assets/threads.svg" style="width:1.1rem;height:1.1rem;vertical-align:middle;" alt="Threads">';
                     platformBg = '#000000';
                     platformLabel = 'Threads';
                 }
@@ -3372,7 +3387,7 @@
                 platformIcon = '<i class="fas fa-images"></i>';
                 platformLabel = 'Instagram Carousel';
             } else if (job.platform === 'threads') {
-                platformIcon = '<i class="fab fa-threads"></i>';
+                platformIcon = '<img src="/static/assets/threads.svg" style="width:1.1rem;height:1.1rem;vertical-align:middle;" alt="Threads">';
                 platformLabel = 'Threads';
             }
 
@@ -3526,13 +3541,17 @@
         const previewSaveBtn = document.getElementById('previewSaveBtn');
         const segInsta = document.getElementById('segInsta');
         const segLinkedin = document.getElementById('segLinkedin');
+        const segThreads = document.getElementById('segThreads');
         const igCard = document.getElementById('igCard');
         const liCard = document.getElementById('liCard');
+        const thCard = document.getElementById('thCard');
         const modalCaption = document.getElementById('modalCaption');
         const igCaptionRender = document.getElementById('igCaptionRender');
         const liCaptionRender = document.getElementById('liCaptionRender');
+        const thCaptionRender = document.getElementById('thCaptionRender');
         const igPreviewImg = document.getElementById('igPreviewImg');
         const liPreviewImg = document.getElementById('liPreviewImg');
+        const thPreviewImg = document.getElementById('thPreviewImg');
         const igPlaceholder = document.getElementById('igPlaceholder');
         const liPlaceholder = document.getElementById('liPlaceholder');
         const editorLabel = document.getElementById('editorLabel');
@@ -3542,6 +3561,7 @@
         let previewActivePlatform = 'instagram';
         let draftInsta = '';
         let draftLinkedin = '';
+        let draftThreads = '';
         let draftLinkedinTarget = '';
 
         function escapeHtml(str) {
@@ -3565,13 +3585,16 @@
             if (hasSrc) {
                 igPreviewImg.src = src;
                 liPreviewImg.src = src;
+                thPreviewImg.src = src;
                 igPreviewImg.style.display = 'block';
                 liPreviewImg.style.display = 'block';
+                thPreviewImg.style.display = 'block';
                 igPlaceholder.style.display = 'none';
                 liPlaceholder.style.display = 'none';
             } else {
                 igPreviewImg.style.display = 'none';
                 liPreviewImg.style.display = 'none';
+                thPreviewImg.style.display = 'none';
                 igPlaceholder.style.display = 'block';
                 liPlaceholder.style.display = 'block';
             }
@@ -3579,12 +3602,14 @@
 
         function populateModalAccounts() {
             const isIg = previewActivePlatform === 'instagram';
-            const accounts = isIg ? globalInstagramAccounts : globalLinkedInAccounts;
+            const isLi = previewActivePlatform === 'linkedin';
+            const isTh = previewActivePlatform === 'threads';
+            const accounts = isIg ? globalInstagramAccounts : (isLi ? globalLinkedInAccounts : globalThreadsAccounts);
             modalAccountSelect.innerHTML = '';
             if (!accounts || accounts.length === 0) {
                 const opt = document.createElement('option');
                 opt.value = '';
-                opt.textContent = `— No ${isIg ? 'Instagram' : 'LinkedIn'} accounts connected —`;
+                opt.textContent = `— No ${isIg ? 'Instagram' : (isLi ? 'LinkedIn' : 'Threads')} accounts connected —`;
                 modalAccountSelect.appendChild(opt);
                 modalAccountSelectLabel.style.display = 'block';
                 modalAccountSelect.style.display = 'block';
@@ -3595,9 +3620,12 @@
                 if (isIg) {
                     opt.value = acc.instagram_account_id || idx;
                     opt.textContent = '@' + acc.username;
-                } else {
+                } else if (isLi) {
                     opt.value = acc.member_urn || idx;
                     opt.textContent = acc.name || 'LinkedIn Account';
+                } else if (isTh) {
+                    opt.value = acc.threads_account_id || idx;
+                    opt.textContent = '@' + acc.username;
                 }
                 modalAccountSelect.appendChild(opt);
             });
@@ -3608,6 +3636,8 @@
 
         function updateModalPreviewCardHeader() {
             const isIg = previewActivePlatform === 'instagram';
+            const isLi = previewActivePlatform === 'linkedin';
+            const isTh = previewActivePlatform === 'threads';
             if (isIg) {
                 const selectedVal = modalAccountSelect.value;
                 const acc = globalInstagramAccounts.find(a => a.instagram_account_id === selectedVal) || globalInstagramAccounts[0];
@@ -3620,7 +3650,7 @@
                         avatarEl.textContent = (acc.username || 'U').charAt(0).toUpperCase();
                     }
                 }
-            } else {
+            } else if (isLi) {
                 const selectedVal = modalAccountSelect.value;
                 const acc = globalLinkedInAccounts.find(a => a.member_urn === selectedVal) || globalLinkedInAccounts[0];
                 if (acc) {
@@ -3632,22 +3662,34 @@
                         liAvatarEl.textContent = (acc.name || 'L').charAt(0).toUpperCase();
                     }
                 }
+            } else if (isTh) {
+                const selectedVal = modalAccountSelect.value;
+                const acc = globalThreadsAccounts.find(a => a.threads_account_id === selectedVal) || globalThreadsAccounts[0];
+                if (acc) {
+                    document.getElementById('thUsername').textContent = '@' + acc.username;
+                    const avatarEl = document.getElementById('thAvatar');
+                    avatarEl.textContent = (acc.username || 'T').charAt(0).toUpperCase();
+                }
             }
         }
 
         function setPreviewPlatform(platform) {
             previewActivePlatform = platform;
             const isIg = platform === 'instagram';
+            const isLi = platform === 'linkedin';
+            const isTh = platform === 'threads';
 
             segInsta.setAttribute('aria-pressed', isIg ? 'true' : 'false');
-            segLinkedin.setAttribute('aria-pressed', isIg ? 'false' : 'true');
+            segLinkedin.setAttribute('aria-pressed', isLi ? 'true' : 'false');
+            segThreads.setAttribute('aria-pressed', isTh ? 'true' : 'false');
 
             igCard.style.display = isIg ? 'block' : 'none';
-            liCard.style.display = isIg ? 'none' : 'block';
+            liCard.style.display = isLi ? 'block' : 'none';
+            thCard.style.display = isTh ? 'block' : 'none';
 
-            editorLabel.textContent = isIg ? 'Edit Instagram caption' : 'Edit LinkedIn caption';
+            editorLabel.textContent = isIg ? 'Edit Instagram caption' : (isLi ? 'Edit LinkedIn caption' : 'Edit Threads post');
 
-            modalCaption.value = isIg ? draftInsta : draftLinkedin;
+            modalCaption.value = isIg ? draftInsta : (isLi ? draftLinkedin : draftThreads);
             renderCaption();
             populateModalAccounts();
         }
@@ -3655,11 +3697,13 @@
         function renderCaption() {
             igCaptionRender.innerHTML = renderHashtagsAsHtml(draftInsta || '');
             liCaptionRender.textContent = draftLinkedin || '';
+            thCaptionRender.innerHTML = renderHashtagsAsHtml(draftThreads || '');
         }
 
         function openPreviewModal() {
             draftInsta = document.getElementById('instaCaption').value || '';
             draftLinkedin = document.getElementById('linkedinCaption').value || '';
+            draftThreads = document.getElementById('threadsCaption').value || '';
             
             updatePreviewImages();
             renderCaption();
@@ -3667,7 +3711,9 @@
             // Choose default platform based on selections
             const hasIg = document.getElementById('checkInsta').checked;
             const hasLi = document.getElementById('checkLinkedin').checked;
-            if (!hasIg && hasLi) setPreviewPlatform('linkedin');
+            const hasTh = document.getElementById('checkThreads').checked;
+            if (!hasIg && !hasLi && hasTh) setPreviewPlatform('threads');
+            else if (!hasIg && hasLi) setPreviewPlatform('linkedin');
             else setPreviewPlatform('instagram');
 
             previewModal.classList.add('open');
@@ -3682,7 +3728,7 @@
 
         previewBtn.onclick = () => {
             const hasFile = !!fileInput.files[0];
-            const hasPlat = document.getElementById('checkInsta').checked || document.getElementById('checkLinkedin').checked;
+            const hasPlat = document.getElementById('checkInsta').checked || document.getElementById('checkLinkedin').checked || document.getElementById('checkThreads').checked;
             if (!hasFile || !hasPlat) {
                 showToast('Upload media and select a platform first', 'warning');
                 return;
@@ -3696,6 +3742,7 @@
         previewSaveBtn.onclick = () => {
             document.getElementById('instaCaption').value = draftInsta;
             document.getElementById('linkedinCaption').value = draftLinkedin;
+            document.getElementById('threadsCaption').value = draftThreads;
             closePreviewModal();
             updateUIState();
             showToast('Preview saved', 'success');
@@ -3703,14 +3750,18 @@
 
         segInsta.onclick = () => setPreviewPlatform('instagram');
         segLinkedin.onclick = () => setPreviewPlatform('linkedin');
+        segThreads.onclick = () => setPreviewPlatform('threads');
 
         modalCaption.addEventListener('input', () => {
             if (previewActivePlatform === 'instagram') {
                 draftInsta = modalCaption.value;
                 document.getElementById('instaCaption').value = draftInsta;
-            } else {
+            } else if (previewActivePlatform === 'linkedin') {
                 draftLinkedin = modalCaption.value;
                 document.getElementById('linkedinCaption').value = draftLinkedin;
+            } else if (previewActivePlatform === 'threads') {
+                draftThreads = modalCaption.value;
+                document.getElementById('threadsCaption').value = draftThreads;
             }
             renderCaption();
         });
@@ -3742,6 +3793,7 @@
                     const data = await resp.json();
                     if (data.instagram) document.getElementById('instaCaption').value = data.instagram;
                     if (data.linkedin) document.getElementById('linkedinCaption').value = data.linkedin;
+                    if (data.threads) document.getElementById('threadsCaption').value = data.threads;
                     showToast('AI Intelligence Applied!', 'success');
                     
                     updateUIState();
@@ -4149,15 +4201,10 @@
                         if (listContainer) {
                             const item = document.createElement('div');
                             item.className = 'acc-item';
-                            item.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin:4px 0;';
                             item.innerHTML = `
-                                <div style="display:flex;align-items:center;gap:8px;">
-                                    <i class="fas fa-check-circle" style="color:#4caf50;"></i>
-                                    <span style="color:#ffffff;">@${escapeHtml(acc.username)}</span>
-                                </div>
-                                <button class="btn-disconnect-threads" data-id="${acc.threads_account_id}" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.85rem;display:flex;align-items:center;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
+                                <i class="fas fa-check-circle"></i>
+                                <span style="flex:1; color:var(--text-main);">@${escapeHtml(acc.username)}</span>
+                                <button class="btn btn-ghost btn-sm btn-disconnect-threads" data-id="${acc.threads_account_id}" style="margin-left:8px; color:#ff5252;">Remove</button>
                             `;
                             listContainer.appendChild(item);
                         }

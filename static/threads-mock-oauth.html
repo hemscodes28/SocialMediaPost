@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorize Post Pilot.ai — Meta Threads</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0A0A0A;
+            --card-bg: rgba(20, 20, 20, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #FFFFFF;
+            --text-dim: #94A3B8;
+            --primary: #4F46E5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient background glow */
+        .glow {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+            text-align: center;
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .logo-wrap {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        .logo-wrap img {
+            width: 38px;
+            height: 38px;
+            filter: invert(1);
+        }
+
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        p.app-meta {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0 0 32px 0;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: #fff;
+            transition: 0.25s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.03);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            box-sizing: border-box;
+            border: none;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid var(--border);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-authorize {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-authorize:hover {
+            opacity: 0.9;
+            transform: scale(1.01);
+        }
+
+        .permissions-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 28px;
+        }
+
+        .permissions-box h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .permissions-box ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .permissions-box li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glow"></div>
+    <div class="auth-card">
+        <div class="logo-wrap">
+            <img src="/static/assets/threads.svg" alt="Threads">
+        </div>
+        <h1>Authorize Post Pilot.ai</h1>
+        <p class="app-meta">Post Pilot.ai is requesting permissions to access your Meta Threads profile and publish content on your behalf.</p>
+
+        <div class="permissions-box">
+            <h3>Requested Scope</h3>
+            <ul>
+                <li>Access your Threads profile metadata (username, ID)</li>
+                <li>Publish text posts and replies to your profile</li>
+                <li>Upload and post images and media to your feed</li>
+            </ul>
+        </div>
+
+        <form id="oauthForm">
+            <div class="form-group">
+                <label for="username">Threads Username</label>
+                <input type="text" id="username" class="form-input" value="threads_dev" required autocomplete="off">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label for="accountId">Threads User ID</label>
+                <input type="text" id="accountId" class="form-input" value="101928374" required autocomplete="off">
+            </div>
+
+            <div class="btn-row">
+                <button type="button" class="btn btn-cancel" onclick="window.close()">Cancel</button>
+                <button type="submit" class="btn btn-authorize">Authorize</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const state = params.get('state') || '';
+
+        document.getElementById('oauthForm').onsubmit = (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim().replace(/^@/, '');
+            const accountId = document.getElementById('accountId').value.trim();
+
+            if (!username || !accountId) return;
+
+            // Redirect back to our server callback with state and mock code
+            const mockCode = `mock_${username}_${accountId}`;
+            window.location.href = `/api/platforms/threads/callback?code=${encodeURIComponent(mockCode)}&state=${encodeURIComponent(state)}`;
+        };
+    </script>
+</body>
+
+</html>

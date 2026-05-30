@@ -44,6 +44,29 @@ class ThreadsService:
 
         return {"threads_account_id": threads_id_clean, "username": username_clean}
 
+    def resolve_account_info(self, access_token: str) -> dict:
+        """Resolve the real user ID and username from a Threads access token."""
+        if access_token.startswith("mock_") or "mock" in access_token.lower():
+            return {"threads_account_id": "threads_mock_user_id", "username": "threads_mock_user"}
+
+        url = "https://graph.threads.net/v1.0/me"
+        params = {
+            "fields": "id,username",
+            "access_token": access_token
+        }
+        try:
+            resp = requests.get(url, params=params, timeout=15)
+            result = resp.json()
+            if "error" in result:
+                raise Exception(result["error"].get("message"))
+            return {
+                "threads_account_id": result["id"],
+                "username": result["username"]
+            }
+        except Exception as e:
+            print(f"[THREADS API FAIL] Failed to resolve account info from token: {e}")
+            raise
+
     def delete_account(self, threads_account_id: str, user_id: int) -> bool:
         with db.get_connection() as conn:
             cursor = conn.execute(
@@ -138,5 +161,23 @@ class ThreadsService:
         if "error" in result:
             raise HTTPException(status_code=400, detail=f"Threads Publish Error: {result['error'].get('message')}")
         return result["id"]
+
+    def get_threads_login_url(self, user_id: int) -> str:
+        from urllib.parse import urlencode
+        from app.services.instagram_token_service import InstagramTokenService
+        token_svc = InstagramTokenService()
+        state = token_svc._make_oauth_state(user_id)
+        
+        if settings.THREADS_APP_ID and settings.THREADS_APP_SECRET:
+            params = {
+                "client_id": settings.THREADS_APP_ID,
+                "redirect_uri": settings.THREADS_REDIRECT_URI,
+                "scope": "threads_basic,threads_content_publish",
+                "response_type": "code",
+                "state": state
+            }
+            return f"https://threads.net/oauth/authorize?{urlencode(params)}"
+        else:
+            return f"/static/threads-mock-oauth.html?state={state}"
 
 threads_service = ThreadsService()

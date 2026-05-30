@@ -59,6 +59,7 @@ class OpenAICaptionService:
                 "3. A Call-to-Action at the end.\n"
                 "Tone: Visionary, professional, yet readable. Include 4-5 relevant industry hashtags."
             ),
+            "threads": "Write a short, punchy, conversational, and direct Threads post. Emojis welcome, limit hashtags to 0 or 1 relevant hashtags.",
         }
 
         rule = platform_rules.get(platform, platform_rules["instagram"])
@@ -134,10 +135,11 @@ class OpenAICaptionService:
 
         system_prompt = (
             "You are a social media expert. Write high-quality, engaging captions for multiple platforms.\n"
-            "You MUST return valid JSON with keys: instagram and linkedin.\n\n"
+            "You MUST return valid JSON with keys: instagram, linkedin, and threads.\n\n"
             "Rules:\n"
             "- instagram: Fun, engaging, emojis, exactly 5 hashtags.\n"
-            "- linkedin: Professional, viral-style structure with hook, 2-3 short paragraphs, CTA, and 4-5 hashtags."
+            "- linkedin: Professional, viral-style structure with hook, 2-3 short paragraphs, CTA, and 4-5 hashtags.\n"
+            "- threads: Short, punchy, conversational, and direct. Emojis welcome, limit hashtags to 0 or 1 relevant hashtags."
         )
 
         prompt_text = "Generate captions for all platforms."
@@ -174,6 +176,7 @@ class OpenAICaptionService:
             return {
                 "instagram": result.get("instagram", ""),
                 "linkedin": result.get("linkedin", ""),
+                "threads": result.get("threads", ""),
             }
 
         except Exception as e:
