@@ -67,6 +67,37 @@ class ThreadsService:
             print(f"[THREADS API FAIL] Failed to resolve account info from token: {e}")
             raise
 
+    def exchange_for_long_lived_token(self, short_lived_token: str) -> str:
+        """
+        Exchange a short-lived Threads token (1 hour) for a long-lived token (60 days).
+        Endpoint: GET https://graph.threads.net/access_token
+        """
+        if short_lived_token.startswith("mock_") or "mock" in short_lived_token.lower():
+            print("[THREADS MOCK] Skipping long-lived token exchange for mock token.")
+            return short_lived_token
+
+        url = "https://graph.threads.net/access_token"
+        params = {
+            "grant_type": "th_exchange_token",
+            "client_secret": settings.THREADS_APP_SECRET,
+            "access_token": short_lived_token
+        }
+        try:
+            resp = requests.get(url, params=params, timeout=20)
+            result = resp.json()
+            if "error" in result:
+                err_msg = result["error"].get("message", "Token exchange failed")
+                print(f"[THREADS TOKEN EXCHANGE FAIL] {err_msg}. Using short-lived token as fallback.")
+                return short_lived_token
+            long_lived_token = result.get("access_token")
+            expires_in = result.get("expires_in", 5184000)  # default 60 days in seconds
+            print(f"[THREADS TOKEN EXCHANGE] Successfully obtained long-lived token. Expires in {expires_in // 86400} days.")
+            return long_lived_token
+        except Exception as e:
+            print(f"[THREADS TOKEN EXCHANGE ERROR] {e}. Using short-lived token as fallback.")
+            return short_lived_token
+
+
     def get_account_info(self, threads_account_id: str, access_token: str) -> dict:
         """Fetch real live profile info, follower count, and thread count from the Threads API."""
         info = {
@@ -242,7 +273,10 @@ class ThreadsService:
                 "redirect_uri": settings.THREADS_REDIRECT_URI,
                 "scope": "threads_basic,threads_content_publish",
                 "response_type": "code",
-                "state": state
+                "state": state,
+                "auth_type": "reauthorize",        # Force Meta to show login/account-picker screen
+                "prompt": "login",                 # Standard OIDC parameter to force login screen
+                "force_authentication": "1",       # Instagram/Meta legacy parameter to force login screen
             }
             return f"https://threads.net/oauth/authorize?{urlencode(params)}"
         else:

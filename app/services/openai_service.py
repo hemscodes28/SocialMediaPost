@@ -172,11 +172,16 @@ class OpenAICaptionService:
             )
 
             result = json.loads(response.choices[0].message.content)
+            
+            # Normalize keys to lowercase for robust extraction
+            result_lower = {}
+            if isinstance(result, dict):
+                result_lower = {str(k).lower().strip(): v for k, v in result.items()}
 
             return {
-                "instagram": result.get("instagram", ""),
-                "linkedin": result.get("linkedin", ""),
-                "threads": result.get("threads", ""),
+                "instagram": result_lower.get("instagram") or result_lower.get("instagram_caption") or result_lower.get("insta") or "",
+                "linkedin": result_lower.get("linkedin") or result_lower.get("linkedin_caption") or result_lower.get("linked_in") or "",
+                "threads": result_lower.get("threads") or result_lower.get("threads_caption") or "",
             }
 
         except Exception as e:

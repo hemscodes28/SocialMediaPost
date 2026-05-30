@@ -725,6 +725,9 @@ async def threads_oauth_callback(
             resolved = threads_service.resolve_account_info(access_token)
             username = resolved["username"]
             threads_account_id = resolved["threads_account_id"]
+
+            # Exchange short-lived token (1 hour) for long-lived token (60 days)
+            access_token = threads_service.exchange_for_long_lived_token(access_token)
             
         acc = threads_service.add_account(user_id, threads_account_id, username, access_token)
         print(f"  [SUCCESS] Threads connected for user {user_id}: @{username}")
@@ -760,7 +763,10 @@ async def connect_threads_direct(
         except Exception as e:
             print(f"[THREADS AUTO-RESOLVE FAIL] Could not auto-resolve account info from token: {e}")
             # Fall back to user's manual inputs
-            
+
+        # Exchange for long-lived token (60 days)
+        token_clean = threads_service.exchange_for_long_lived_token(token_clean)
+
         acc = threads_service.add_account(current_user.id, threads_account_id.strip(), username.strip(), token_clean)
         return {"success": True, "account": acc}
     except Exception as e:
