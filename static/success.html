@@ -87,6 +87,17 @@
                 count > 1
                     ? `Linked ${count} accounts: ${label}. Close this window — your list will refresh.`
                     : `Linked ${label}. Close this window — your list will refresh.`;
+        } else if (platform === 'threads' && names.length) {
+            const label = names.map((n) => '@' + n.replace(/^@/, '')).join(', ');
+            document.getElementById('title').textContent = count > 1 ? 'Accounts connected!' : 'Threads connected!';
+            document.getElementById('message').textContent =
+                count > 1
+                    ? `Linked ${count} Threads accounts: ${label}. Close this window — your list will refresh.`
+                    : `Linked Threads account ${label}. Close this window — your list will refresh.`;
+        } else if (platform === 'linkedin') {
+            const label = names.join(', ') || 'LinkedIn Account';
+            document.getElementById('title').textContent = 'LinkedIn connected!';
+            document.getElementById('message').textContent = `Linked ${label}. Close this window — your list will refresh.`;
         } else {
             document.getElementById('message').textContent =
                 'You can close this window and return to Post Pilot.ai.';

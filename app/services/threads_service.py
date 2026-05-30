@@ -100,7 +100,7 @@ class ThreadsService:
             print(f"[THREADS MOCK] Direct text publish to @{threads_account_id}")
             return f"threads_mock_text_{int(time.time())}"
 
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
         payload = {
             "media_type": "TEXT",
             "text": text,
@@ -127,7 +127,7 @@ class ThreadsService:
             print(f"[THREADS MOCK] Direct image publish to @{threads_account_id} with image: {image_url}")
             return f"threads_mock_image_{int(time.time())}"
 
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
         payload = {
             "media_type": "IMAGE",
             "image_url": image_url,
@@ -151,7 +151,7 @@ class ThreadsService:
             return f"threads_mock_fallback_{int(time.time())}"
 
     def publish_container(self, threads_account_id: str, creation_id: str, access_token: str) -> str:
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media_publish"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads_publish"
         payload = {
             "creation_id": creation_id,
             "access_token": access_token

@@ -2702,11 +2702,13 @@
         window.addEventListener('message', (ev) => {
             if (ev.data === 'platform_connected') {
                 fetchInstagramAccount();
+                fetchLinkedInAccounts();
+                fetchThreadsAccounts();
                 updateProfileDashboard();
-                showToast('Instagram account connected!', 'success');
+                showToast('Account connected successfully!', 'success');
             }
-            if (ev.data?.type === 'platform_connect_failed' && ev.data.platform === 'instagram') {
-                showToast('Instagram connection failed. Check the popup for setup steps.', 'error');
+            if (ev.data?.type === 'platform_connect_failed') {
+                showToast(`${ev.data.platform || 'Platform'} connection failed. Check the popup for setup steps.`, 'error');
             }
         });
 
@@ -4243,30 +4245,55 @@
         }
 
         document.getElementById('addThreadsAccount').onclick = async () => {
-            // Show a credentials prompt modal
-            const accId = prompt('Enter your Threads Account ID (numeric user ID from Meta):');
-            if (!accId || !accId.trim()) return;
-            const username = prompt('Enter your Threads username (without @):');
-            if (!username || !username.trim()) return;
-            const token = prompt('Enter your Threads Access Token:');
-            if (!token || !token.trim()) return;
+            const useOAuth = confirm(
+                "Would you like to connect your Threads account using standard Meta OAuth Login?\n\n" +
+                "• Click OK: Log in securely using Meta Threads OAuth (Mock/Real standard flow).\n" +
+                "• Click Cancel: Manually enter direct credentials/developer access token."
+            );
 
-            try {
-                const fd = new FormData();
-                fd.append('threads_account_id', accId.trim());
-                fd.append('username', username.trim());
-                fd.append('access_token', token.trim());
-                const resp = await fetchWithAuth('/api/platforms/threads/connect-direct', { method: 'POST', body: fd });
-                if (resp && resp.ok) {
-                    showToast('Threads account connected successfully!', 'success');
-                    fetchThreadsAccounts();
-                    updateProfileDashboard();
-                } else {
-                    const err = resp ? await resp.json().catch(() => ({})) : {};
-                    showToast(err.detail || 'Failed to connect Threads account.', 'error');
+            if (useOAuth) {
+                const btn = document.getElementById('addThreadsAccount');
+                btn.disabled = true;
+                try {
+                    const token = localStorage.getItem('access_token');
+                    if (!token) {
+                        throw new Error('Not authenticated. Please login again.');
+                    }
+                    openAuthPopup(`/api/platforms/threads/connect?token=${encodeURIComponent(token)}`, () => {
+                        fetchThreadsAccounts();
+                        updateProfileDashboard();
+                        showToast('Refreshing Threads accounts…', 'success');
+                    });
+                } catch (e) {
+                    showToast(e.message || 'Connection error. Please try again.', 'error');
+                } finally {
+                    btn.disabled = false;
                 }
-            } catch (e) {
-                showToast('Error connecting Threads account.', 'error');
+            } else {
+                const accId = prompt('Enter your Threads Account ID (numeric user ID from Meta):');
+                if (!accId || !accId.trim()) return;
+                const username = prompt('Enter your Threads username (without @):');
+                if (!username || !username.trim()) return;
+                const token = prompt('Enter your Threads Access Token:');
+                if (!token || !token.trim()) return;
+
+                try {
+                    const fd = new FormData();
+                    fd.append('threads_account_id', accId.trim());
+                    fd.append('username', username.trim());
+                    fd.append('access_token', token.trim());
+                    const resp = await fetchWithAuth('/api/platforms/threads/connect-direct', { method: 'POST', body: fd });
+                    if (resp && resp.ok) {
+                        showToast('Threads account connected successfully!', 'success');
+                        fetchThreadsAccounts();
+                        updateProfileDashboard();
+                    } else {
+                        const err = resp ? await resp.json().catch(() => ({})) : {};
+                        showToast(err.detail || 'Failed to connect Threads account.', 'error');
+                    }
+                } catch (e) {
+                    showToast('Error connecting Threads account.', 'error');
+                }
             }
         };
 

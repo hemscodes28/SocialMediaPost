@@ -661,6 +661,80 @@ async def list_threads_accounts_detailed(current_user: User = Depends(auth_servi
         })
     return detailed
 
+@app.get("/api/platforms/threads/connect")
+async def threads_connect(current_user: User = Depends(auth_service.get_current_user)):
+    """Redirect to Threads login so the user can authorize Threads."""
+    try:
+        return RedirectResponse(threads_service.get_threads_login_url(current_user.id))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/platforms/threads/callback")
+async def threads_oauth_callback(
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+    error_description: Optional[str] = None,
+):
+    if error:
+        msg = error_description or error
+        print(f"[WARN] Threads OAuth returned error: {msg}")
+        return RedirectResponse(f"/static/connection-error.html?platform=threads&message={quote(msg)}")
+    if not code or not state:
+        return RedirectResponse(
+            "/static/connection-error.html?platform=threads&message=Missing%20authorization%20code%20or%20state"
+        )
+    try:
+        print("[INFO] Processing Threads OAuth callback...")
+        from app.services.instagram_token_service import InstagramTokenService
+        token_svc = InstagramTokenService()
+        user_id = token_svc.get_user_id_from_oauth_state(state)
+        print(f"  [OK] User ID from state: {user_id}")
+        
+        if code.startswith("mock_") or "mock" in code.lower():
+            # Parse username and ID from mock code e.g. mock_username_id
+            parts = code.split("_")
+            username = parts[1] if len(parts) > 1 else "threads_mock_user"
+            threads_account_id = parts[2] if len(parts) > 2 else "threads_mock_user_id"
+            access_token = code
+        else:
+            import requests
+            # Exchange code for access token using standard Threads OAuth mechanism
+            payload = {
+                "client_id": settings.THREADS_APP_ID,
+                "client_secret": settings.THREADS_APP_SECRET,
+                "grant_type": "authorization_code",
+                "redirect_uri": settings.THREADS_REDIRECT_URI,
+                "code": code
+            }
+            resp = requests.post("https://graph.threads.net/oauth/access_token", data=payload, timeout=20)
+            res_data = resp.json()
+            if "error" in res_data:
+                raise Exception(res_data["error"].get("message", "Token exchange failed"))
+            access_token = res_data["access_token"]
+            threads_account_id = res_data["user_id"]
+            
+            # Resolve profile info using the obtained token
+            resolved = threads_service.resolve_account_info(access_token)
+            username = resolved["username"]
+            threads_account_id = resolved["threads_account_id"]
+            
+        acc = threads_service.add_account(user_id, threads_account_id, username, access_token)
+        print(f"  [SUCCESS] Threads connected for user {user_id}: @{username}")
+        
+        query = urlencode(
+            {
+                "platform": "threads",
+                "count": "1",
+                "names": f"@{username}",
+            }
+        )
+        return RedirectResponse(f"/static/success.html?{query}")
+    except Exception as e:
+        error_msg = str(e)
+        print(f"[ERROR] Threads OAuth callback error: {error_msg}")
+        return RedirectResponse(f"/static/connection-error.html?platform=threads&message={quote(str(e))}")
+
 @app.post("/api/platforms/threads/connect-direct")
 async def connect_threads_direct(
     access_token: str = Form(...),
