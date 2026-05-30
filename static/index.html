@@ -3191,29 +3191,40 @@
                         threadsAccs.forEach(acc => {
                             const card = document.createElement('div');
                             card.className = 'profile-account-card';
-                            
+
+                            const picHtml = acc.profile_picture_url
+                                ? '<img src="' + acc.profile_picture_url + '" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="">'
+                                : '<img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">';
+
+                            const followersDisplay = (acc.followers_count != null) ? Number(acc.followers_count).toLocaleString() : '—';
+                            const threadsDisplay = (acc.threads_count != null) ? Number(acc.threads_count).toLocaleString() : '—';
+                            const verifiedBadge = acc.is_verified ? ' <span title="Verified" style="color:#0095f6;font-size:0.85rem;">&#10003;</span>' : '';
+                            const displayName = escapeHtml(acc.name || '@' + acc.username) + verifiedBadge;
+                            const bioText = escapeHtml(acc.biography || 'Meta Threads Account');
+                            const usernameText = escapeHtml(acc.username);
+
                             card.innerHTML = `
                                 <div class="profile-account-header">
                                     <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
-                                        <img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">
+                                        ${picHtml}
                                     </div>
                                     <div class="profile-meta">
-                                        <h3>${escapeHtml(acc.name || '@' + acc.username)}</h3>
-                                        <p>@${escapeHtml(acc.username)}</p>
+                                        <h3>${displayName}</h3>
+                                        <p>@${usernameText}</p>
                                     </div>
                                     <span class="job-status status-published profile-status-badge">Connected</span>
                                 </div>
                                 <div class="profile-stats-row" style="display: flex;">
                                     <div class="profile-stat">
-                                        <span class="stat-num">${acc.followers_count.toLocaleString()}</span>
+                                        <span class="stat-num">${followersDisplay}</span>
                                         <span class="stat-lbl">Followers</span>
                                     </div>
                                     <div class="profile-stat">
-                                        <span class="stat-num">${acc.threads_count.toLocaleString()}</span>
+                                        <span class="stat-num">${threadsDisplay}</span>
                                         <span class="stat-lbl">Threads</span>
                                     </div>
                                 </div>
-                                <p class="profile-bio">${escapeHtml(acc.biography || 'Meta Threads Account')}</p>
+                                <p class="profile-bio">${bioText}</p>
                             `;
                             grid.appendChild(card);
                         });

@@ -649,15 +649,22 @@ async def list_threads_accounts_detailed(current_user: User = Depends(auth_servi
     accounts = threads_service.get_all_accounts(current_user.id)
     detailed = []
     for acc in accounts:
+        live_info = {}
+        try:
+            live_info = threads_service.get_account_info(acc["threads_account_id"], acc["access_token"])
+        except Exception as e:
+            print(f"[THREADS] Could not fetch live info for {acc['username']}: {e}")
+        
         detailed.append({
             "threads_account_id": acc["threads_account_id"],
             "username": acc["username"],
-            "name": f"@{acc['username']}",
+            "name": live_info.get("name") or f"@{acc['username']}",
             "status": acc["status"],
-            "profile_picture_url": None,
-            "followers_count": 1250, # Mock stats for elegant visual presentation
-            "threads_count": 42,
-            "biography": "Meta Threads account. Connected to Post Pilot.ai"
+            "profile_picture_url": live_info.get("profile_picture_url"),
+            "is_verified": live_info.get("is_verified", False),
+            "followers_count": live_info.get("followers_count"),
+            "threads_count": live_info.get("threads_count"),
+            "biography": live_info.get("biography") or "Meta Threads account connected to Post Pilot.ai"
         })
     return detailed
 
