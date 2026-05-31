@@ -2358,10 +2358,6 @@
                 <i class="fas fa-user-circle"></i>
                 <span>My Profile</span>
             </div>
-            <div class="nav-item" data-tab="publisher">
-                <i class="fas fa-rocket"></i>
-                <span>Create &amp; Post</span>
-            </div>
             <div class="nav-item" data-tab="accounts">
                 <i class="fas fa-link"></i>
                 <span>My Accounts</span>
@@ -2389,71 +2385,7 @@
         </div>
     </aside>
 
-    <main>        <!-- CREATE & POST TAB -->
-        <div id="publisher" class="tab-content">
-            <header>
-                <div>
-                    <h2 class="outfit">Create &amp; Post</h2>
-                    <p style="color: var(--text-dim); margin-top: 4px;">Command your social presence from a unified switchboard</p>
-                </div>
-            </header>
-
-            <div class="publisher-landing-hub-wrapper">
-                <div class="publisher-landing-hub">
-                    <!-- SVG lines linking center to platforms -->
-                    <svg class="landing-switchboard-svg" viewBox="0 0 800 500">
-                        <!-- Defs for premium gradients -->
-                        <defs>
-                            <linearGradient id="line-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#000000"/>
-                                <stop offset="50%" stop-color="#2563eb"/>
-                                <stop offset="100%" stop-color="#06b6d4"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- Animated path lines connecting center (400, 250) to orbital nodes -->
-                        <path class="switch-path" d="M 400 250 L 150 120" />
-                        <path class="switch-path" d="M 400 250 L 650 120" />
-                        <path class="switch-path" d="M 400 250 L 400 80" />
-                        <path class="switch-path" d="M 400 250 L 120 250" />
-                        <path class="switch-path" d="M 400 250 L 680 250" />
-                        <path class="switch-path" d="M 400 250 L 200 380" />
-                        <path class="switch-path" d="M 400 250 L 600 380" />
-                    </svg>
-
-                    <!-- Orbital Platform Nodes -->
-                    <div class="orbital-node node-insta" style="left: 18.75%; top: 24%;" title="Instagram">
-                        <i class="fab fa-instagram" style="color: #e4405f;"></i>
-                    </div>
-                    <div class="orbital-node node-linkedin" style="left: 81.25%; top: 24%;" title="LinkedIn">
-                        <i class="fab fa-linkedin-in" style="color: #0a66c2;"></i>
-                    </div>
-                    <div class="orbital-node node-threads" style="left: 50%; top: 16%;" title="Threads">
-                        <img src="/static/threads-logo-icon.svg" style="width: 22px; height: 22px; border-radius: 4px;" alt="Threads">
-                    </div>
-                    <div class="orbital-node node-facebook" style="left: 15%; top: 50%;" title="Facebook">
-                        <i class="fab fa-facebook-f" style="color: #1877f2;"></i>
-                    </div>
-                    <div class="orbital-node node-twitter" style="left: 85%; top: 50%;" title="X (Twitter)">
-                        <i class="fab fa-x-twitter" style="color: #000000;"></i>
-                    </div>
-                    <div class="orbital-node node-tiktok" style="left: 25%; top: 76%;" title="TikTok">
-                        <i class="fab fa-tiktok" style="color: #000000;"></i>
-                    </div>
-                    <div class="orbital-node node-youtube" style="left: 75%; top: 76%;" title="YouTube">
-                        <i class="fab fa-youtube" style="color: #ff0000;"></i>
-                    </div>
-
-                    <!-- Center Trigger Button -->
-                    <div class="landing-composer-trigger-wrap" style="left: 50%; top: 50%;">
-                        <button id="openComposerModalBtn" type="button" class="landing-composer-trigger shine">
-                            <div class="pulse-ring"></div>
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Compose Post</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <main>
 
         <!-- ACCOUNTS TAB -->
         <div id="accounts" class="tab-content">
@@ -2520,8 +2452,9 @@
                     <p id="threadsUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
                         Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.</p>
                     <button id="addThreadsAccount" class="btn btn-glass" style="width: 100%;">Add Threads Account</button>
+                    <button id="connectThreadsEnv" class="btn btn-glass" style="width: 100%; margin-top: 12px; border: 1px dashed var(--primary); color: var(--primary);">Connect via Environment Token</button>
                     <button id="refreshThreads" class="btn btn-glass"
-                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
+                        style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--text-dim);">Refresh
                         connection</button>
 
                     <div id="threadsAccountsList" class="accounts-list"></div>
@@ -2539,6 +2472,26 @@
                         <p class="profile-welcome-sub">Here's what's happening with your posts today.</p>
                     </div>
                     <div class="date-badge" id="profileCurrentDate">Loading date…</div>
+                </div>
+            </div>
+
+            <!-- Premium Create & Post Call-to-Action Card -->
+            <div class="glass-card" style="margin: 24px 0; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.07) 0%, rgba(6, 182, 212, 0.07) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05); flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 280px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <span style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-magic" style="color: var(--primary);"></i> Spark of Inspiration
+                        </span>
+                    </div>
+                    <p style="font-family: 'Outfit', sans-serif; font-style: italic; font-size: 1.05rem; color: var(--text-main); line-height: 1.5; margin: 0;">
+                        "Great content isn't tomorrow's job — it's today's spark. Amplify your voice across the social universe."
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <button id="openComposerModalBtn" class="btn btn-primary shine" style="padding: 14px 28px; border-radius: 14px; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3); border: none; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Create &amp; Post Now</span>
+                    </button>
                 </div>
             </div>
 
@@ -3354,11 +3307,13 @@
         window.addEventListener('message', (ev) => {
             if (ev.data === 'platform_connected') {
                 fetchInstagramAccount();
+                fetchLinkedInAccounts();
+                fetchThreadsAccounts();
                 updateProfileDashboard();
-                showToast('Instagram account connected!', 'success');
+                showToast('Account connected successfully!', 'success');
             }
-            if (ev.data?.type === 'platform_connect_failed' && ev.data.platform === 'instagram') {
-                showToast('Instagram connection failed. Check the popup for setup steps.', 'error');
+            if (ev.data?.type === 'platform_connect_failed') {
+                showToast(`${ev.data.platform || 'Platform'} connection failed. Check the popup for setup steps.`, 'error');
             }
         });
 
@@ -3448,6 +3403,12 @@
 
         // --- TAB MANAGEMENT ---
         function switchTab(tabId) {
+            // Automatically close the composer modal when switching tabs
+            const compModal = document.getElementById('composerModal');
+            if (compModal) {
+                compModal.classList.remove('open');
+            }
+
             document.querySelectorAll('.nav-item').forEach(n => {
                 if (n.dataset.tab === tabId) {
                     n.classList.add('active');
@@ -3888,29 +3849,45 @@
                         threadsAccs.forEach(acc => {
                             const card = document.createElement('div');
                             card.className = 'profile-account-card';
-                            
+
+                            const picHtml = acc.profile_picture_url
+                                ? '<img src="' + acc.profile_picture_url + '" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="">'
+                                : '<img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">';
+
+                            const followersDisplay = (acc.followers_count != null) ? Number(acc.followers_count).toLocaleString() : '—';
+                            const threadsDisplay = (acc.threads_count != null) ? Number(acc.threads_count).toLocaleString() : '—';
+                            const verifiedBadge = acc.is_verified ? ' <span title="Verified" style="color:#0095f6;font-size:0.85rem;">&#10003;</span>' : '';
+                            const displayName = escapeHtml(acc.name || '@' + acc.username) + verifiedBadge;
+                            const bioText = escapeHtml(acc.biography || 'Meta Threads Account');
+                            const usernameText = escapeHtml(acc.username);
+
                             card.innerHTML = `
                                 <div class="profile-account-header">
+<<<<<<< HEAD
                                     <div class="profile-pic-placeholder" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
                                         <img src="/static/threads-logo-icon.svg" style="width: 100%; height: 100%; object-fit: cover;" alt="Threads">
+=======
+                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
+                                        ${picHtml}
+>>>>>>> d9406c5a756227133978983bde066b74547f90bf
                                     </div>
                                     <div class="profile-meta">
-                                        <h3>${escapeHtml(acc.name || '@' + acc.username)}</h3>
-                                        <p>@${escapeHtml(acc.username)}</p>
+                                        <h3>${displayName}</h3>
+                                        <p>@${usernameText}</p>
                                     </div>
                                     <span class="job-status status-published profile-status-badge">Connected</span>
                                 </div>
                                 <div class="profile-stats-row" style="display: flex;">
                                     <div class="profile-stat">
-                                        <span class="stat-num">${acc.followers_count.toLocaleString()}</span>
+                                        <span class="stat-num">${followersDisplay}</span>
                                         <span class="stat-lbl">Followers</span>
                                     </div>
                                     <div class="profile-stat">
-                                        <span class="stat-num">${acc.threads_count.toLocaleString()}</span>
+                                        <span class="stat-num">${threadsDisplay}</span>
                                         <span class="stat-lbl">Threads</span>
                                     </div>
                                 </div>
-                                <p class="profile-bio">${escapeHtml(acc.biography || 'Meta Threads Account')}</p>
+                                <p class="profile-bio">${bioText}</p>
                             `;
                             grid.appendChild(card);
                         });
@@ -4883,11 +4860,25 @@
         }
 
         // Platform connection handlers with popup watcher
-        function openAuthPopup(url, refreshFn) {
-            const popup = window.open(url, '_blank', 'width=600,height=700');
-            if (!popup) {
-                showToast('Allow popups for this site, then try again.', 'error');
-                return;
+        function openAuthPopup(url, refreshFn, switchAccount = false) {
+            let popup;
+            if (switchAccount) {
+                popup = window.open('https://www.instagram.com/accounts/logout/', '_blank', 'width=600,height=700');
+                if (!popup) {
+                    showToast('Allow popups for this site, then try again.', 'error');
+                    return;
+                }
+                setTimeout(() => {
+                    if (!popup.closed) {
+                        popup.location.href = url;
+                    }
+                }, 1500);
+            } else {
+                popup = window.open(url, '_blank', 'width=600,height=700');
+                if (!popup) {
+                    showToast('Allow popups for this site, then try again.', 'error');
+                    return;
+                }
             }
             const timer = setInterval(() => {
                 if (popup.closed) {
@@ -4960,34 +4951,43 @@
                 if (select) select.innerHTML = '';
 
                 if (accounts && accounts.length > 0) {
-                    if (badge) { badge.textContent = 'Active'; badge.className = 'job-status status-published'; }
-                    if (label) label.textContent = `${accounts.length} Threads account(s) connected.`;
+                    if (badge) {
+                        badge.textContent = accounts.length > 1
+                            ? `${accounts.length} Accounts`
+                            : 'Active';
+                        badge.className = 'job-status status-published';
+                    }
+                    if (label) label.textContent = `${accounts.length} Threads account(s) connected. You can add more below.`;
 
-                    accounts.forEach(acc => {
+                    accounts.forEach((acc, idx) => {
                         // Checkbox in post form
                         if (select) {
                             const div = document.createElement('div');
                             div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:4px 0;';
-                            div.innerHTML = `
-                                <input type="checkbox" name="threadsAccountsCheckbox" value="${acc.threads_account_id}" id="th_chk_${acc.threads_account_id}" style="cursor:pointer;accent-color:#000;">
-                                <label for="th_chk_${acc.threads_account_id}" style="cursor:pointer;font-size:0.85rem;color:var(--text-main);">@${escapeHtml(acc.username)}</label>
-                            `;
+                            div.innerHTML =
+                                '<input type="checkbox" name="threadsAccountsCheckbox" value="' + acc.threads_account_id + '" id="th_chk_' + acc.threads_account_id + '" style="cursor:pointer;accent-color:#000;">' +
+                                '<label for="th_chk_' + acc.threads_account_id + '" style="cursor:pointer;font-size:0.85rem;color:var(--text-main);">@' + escapeHtml(acc.username) + '</label>';
                             select.appendChild(div);
                         }
-                        // Account list card with disconnect
+                        // Rich account card with avatar initial + remove button
                         if (listContainer) {
                             const item = document.createElement('div');
                             item.className = 'acc-item';
-                            item.innerHTML = `
-                                <i class="fas fa-check-circle"></i>
-                                <span style="flex:1; color:var(--text-main);">@${escapeHtml(acc.username)}</span>
-                                <button class="btn btn-ghost btn-sm btn-disconnect-threads" data-id="${acc.threads_account_id}" style="margin-left:8px; color:#ff5252;">Remove</button>
-                            `;
+                            item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--glass-bg, rgba(255,255,255,0.04));margin-bottom:8px;border:1px solid rgba(255,255,255,0.07);';
+                            const initial = (acc.username || 'T').charAt(0).toUpperCase();
+                            item.innerHTML =
+                                '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#222,#555);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;">' + initial + '</div>' +
+                                '<div style="flex:1;min-width:0;">' +
+                                  '<div style="font-weight:600;color:var(--text-main);font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@' + escapeHtml(acc.username) + '</div>' +
+                                  '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">Account ' + (idx + 1) + ' &bull; <span style="color:#4caf50;">&#9679; Connected</span></div>' +
+                                '</div>' +
+                                '<button class="btn-disconnect-threads" data-id="' + acc.threads_account_id + '" title="Remove account" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.8rem;display:flex;align-items:center;gap:4px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(255,82,82,0.1)\'" onmouseout="this.style.background=\'none\'">' +
+                                  '<i class="fas fa-times"></i></button>';
                             listContainer.appendChild(item);
                         }
                     });
 
-                    // Wire disconnect buttons
+                    // Wire all disconnect buttons
                     if (listContainer) {
                         listContainer.querySelectorAll('.btn-disconnect-threads').forEach(btn => {
                             btn.onclick = async (e) => {
@@ -4995,7 +4995,7 @@
                                 const accountId = btn.getAttribute('data-id');
                                 if (!confirm('Disconnect this Threads account?')) return;
                                 try {
-                                    const del = await fetchWithAuth(`/api/platforms/threads/accounts/${encodeURIComponent(accountId)}`, { method: 'DELETE' });
+                                    const del = await fetchWithAuth('/api/platforms/threads/accounts/' + encodeURIComponent(accountId), { method: 'DELETE' });
                                     if (del && del.ok) {
                                         showToast('Threads account disconnected.', 'success');
                                         fetchThreadsAccounts();
@@ -5027,7 +5027,7 @@
                     }
                 } else {
                     if (badge) { badge.textContent = 'Disconnected'; badge.className = 'job-status status-failed'; }
-                    if (label) label.textContent = 'Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.';
+                    if (label) label.textContent = 'No Threads accounts connected. Add one below to publish thread posts.';
                     if (select) select.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">No accounts connected</div>';
                 }
             } catch (e) {
@@ -5035,33 +5035,150 @@
             }
         }
 
-        document.getElementById('addThreadsAccount').onclick = async () => {
-            // Show a credentials prompt modal
-            const accId = prompt('Enter your Threads Account ID (numeric user ID from Meta):');
-            if (!accId || !accId.trim()) return;
-            const username = prompt('Enter your Threads username (without @):');
-            if (!username || !username.trim()) return;
-            const token = prompt('Enter your Threads Access Token:');
-            if (!token || !token.trim()) return;
+        function showThreadsLoginOptionsModal() {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay open';
+                overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); display:flex; align-items:center; justify-content:center; z-index:9999; animation: fadeIn 0.3s;';
 
+                const shell = document.createElement('div');
+                shell.style.cssText = 'width:min(450px, 90%); background:var(--surface-dark); border:1px solid var(--border); border-radius:20px; padding:32px; box-shadow: 0 24px 64px rgba(99, 102, 241, 0.15); text-align:center; animation: scaleUp 0.3s; color:var(--text-main);';
+
+                function renderStep1() {
+                    shell.innerHTML = `
+                        <div style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, #6366f1, #818cf8); display:flex; align-items:center; justify-content:center; margin: 0 auto 20px; font-size:1.5rem; color:#fff;">
+                            <img src="/static/assets/threads.svg" style="width: 28px; height: 28px; filter: invert(1);" alt="Threads">
+                        </div>
+                        <h3 style="font-family:\'Outfit\', sans-serif; font-size:1.35rem; margin-bottom:12px; font-weight:700; color:var(--text-main);">Connect Threads Account</h3>
+                        <p style="color:var(--text-dim); font-size:0.92rem; line-height:1.5; margin-bottom:28px;">
+                            Would you like to connect with your active browser account or sign in with a different account?
+                        </p>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <button id="thOptActive" class="btn btn-primary" style="padding:14px 20px; border-radius:12px; font-weight:600; width:100%;">Continue as Active Account</button>
+                            <button id="thOptSwitch" class="btn btn-glass" style="padding:14px 20px; border-radius:12px; font-weight:600; width:100%; border:1px solid var(--border); background:rgba(255,255,255,0.03);">Sign in with a Different Account</button>
+                            <button id="thOptCancel" class="btn btn-glass" style="padding:12px 20px; border-radius:12px; font-size:0.85rem; width:100%; border:none; color:var(--text-dim);">Cancel</button>
+                        </div>
+                    `;
+
+                    shell.querySelector('#thOptActive').onclick = () => {
+                        document.body.removeChild(overlay);
+                        resolve('active');
+                    };
+
+                    shell.querySelector('#thOptSwitch').onclick = () => {
+                        // Open both Instagram logout URL and Threads.net in new tabs
+                        window.open('https://www.instagram.com/accounts/logout/', '_blank');
+                        window.open('https://www.threads.net', '_blank');
+                        renderStep2();
+                    };
+
+                    shell.querySelector('#thOptCancel').onclick = () => {
+                        document.body.removeChild(overlay);
+                        resolve(null);
+                    };
+                }
+
+                function renderStep2() {
+                    shell.innerHTML = `
+                        <div style="width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg, #ff4757, #ff6b81); display:flex; align-items:center; justify-content:center; margin: 0 auto 20px; font-size:1.5rem; color:#fff;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <h3 style="font-family:\'Outfit\', sans-serif; font-size:1.35rem; margin-bottom:12px; font-weight:700; color:var(--text-main);">Switch Threads Account</h3>
+                        <p style="color:var(--text-dim); font-size:0.9rem; line-height:1.55; margin-bottom:24px; text-align:left;">
+                            We have opened two new tabs to clear your active sessions:
+                            <br><br>
+                            1. <strong>Instagram session</strong> is automatically cleared.
+                            <br>
+                            2. <strong>Threads.net</strong> will open. If you are signed in as <strong>@leopard</strong> there, click <strong>Log Out</strong> (bottom-left settings menu).
+                            <br><br>
+                            Once you are logged out of both, return here and click <strong>Continue to Sign In</strong>!
+                        </p>
+                        <div style="display:flex; flex-direction:column; gap:12px;">
+                            <button id="thOptContinue" class="btn btn-primary" style="padding:14px 20px; border-radius:12px; font-weight:600; width:100%;">Continue to Sign In</button>
+                            <button id="thOptBack" class="btn btn-glass" style="padding:14px 20px; border-radius:12px; font-weight:600; width:100%; border:1px solid var(--border); background:rgba(255,255,255,0.03);">Go Back</button>
+                        </div>
+                        <p style="color:var(--text-dim); font-size:0.82rem; line-height:1.45; margin-top:20px; padding:10px; background:rgba(255,255,255,0.02); border-radius:10px; border:1px solid rgba(255,255,255,0.05); text-align:left;">
+                            <i class="fas fa-user-secret" style="margin-right:6px; color:#a855f7;"></i>
+                            <strong>Tip:</strong> Alternatively, open this website in an <strong>Incognito / Private Window</strong> to sign in with any account instantly!
+                        </p>
+                    `;
+
+                    shell.querySelector('#thOptContinue').onclick = () => {
+                        document.body.removeChild(overlay);
+                        resolve('active'); // Cookies are cleared, standard oauth triggers fresh login screen!
+                    };
+
+                    shell.querySelector('#thOptBack').onclick = () => {
+                        renderStep1();
+                    };
+                }
+
+                renderStep1();
+                overlay.appendChild(shell);
+                document.body.appendChild(overlay);
+
+                overlay.onclick = (e) => {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                        resolve(null);
+                    }
+                };
+            });
+        }
+
+        document.getElementById('addThreadsAccount').onclick = async () => {
+            const btn = document.getElementById('addThreadsAccount');
+            btn.disabled = true;
             try {
-                const fd = new FormData();
-                fd.append('threads_account_id', accId.trim());
-                fd.append('username', username.trim());
-                fd.append('access_token', token.trim());
-                const resp = await fetchWithAuth('/api/platforms/threads/connect-direct', { method: 'POST', body: fd });
-                if (resp && resp.ok) {
-                    showToast('Threads account connected successfully!', 'success');
+                const token = localStorage.getItem('access_token');
+                if (!token) throw new Error('Not authenticated. Please login again.');
+                
+                const choice = await showThreadsLoginOptionsModal();
+                if (choice === null) return;
+                
+                openAuthPopup('/api/platforms/threads/connect?token=' + encodeURIComponent(token), () => {
                     fetchThreadsAccounts();
                     updateProfileDashboard();
-                } else {
-                    const err = resp ? await resp.json().catch(() => ({})) : {};
-                    showToast(err.detail || 'Failed to connect Threads account.', 'error');
-                }
+                    showToast('Threads account connected successfully!', 'success');
+                }, false);
             } catch (e) {
-                showToast('Error connecting Threads account.', 'error');
+                showToast(e.message || 'Connection error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
             }
         };
+
+        document.getElementById('connectThreadsEnv').onclick = async () => {
+            const btn = document.getElementById('connectThreadsEnv');
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = 'Connecting via Env...';
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) throw new Error('Not authenticated. Please login again.');
+                
+                const resp = await fetchWithAuth('/api/platforms/threads/connect-env', {
+                    method: 'POST'
+                });
+                
+                if (resp && resp.ok) {
+                    await fetchThreadsAccounts();
+                    updateProfileDashboard();
+                    showToast('Threads account connected via Env Token!', 'success');
+                } else {
+                    const err = await resp.json();
+                    throw new Error(err.detail || 'Connection failed.');
+                }
+            } catch (e) {
+                showToast(e.message || 'Connection error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+
+
 
         const logoutModal = document.getElementById('logoutConfirmModal');
         document.getElementById('logoutBtn').onclick = () => {

@@ -45,17 +45,15 @@ APP_PUBLIC_URL = _normalize_public_base_url(os.getenv("APP_PUBLIC_URL", ""))
 def oauth_callback_url(path: str, explicit_env_key: str, localhost_default: str) -> str:
     """
     Build OAuth redirect URIs for hosted deployments.
-
-    Set APP_PUBLIC_URL=https://social.dmprojects.in (no trailing slash) on the server.
-    When set, callback URLs are derived from it so localhost values in .env are not used.
+    Explicit environment keys override both APP_PUBLIC_URL and defaults.
     """
     if not path.startswith("/"):
         path = "/" + path
-    if APP_PUBLIC_URL:
-        return f"{APP_PUBLIC_URL}{path}"
     explicit = os.getenv(explicit_env_key, "").strip()
     if explicit:
         return explicit
+    if APP_PUBLIC_URL:
+        return f"{APP_PUBLIC_URL}{path}"
     return localhost_default
 
 

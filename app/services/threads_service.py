@@ -67,6 +67,105 @@ class ThreadsService:
             print(f"[THREADS API FAIL] Failed to resolve account info from token: {e}")
             raise
 
+    def exchange_for_long_lived_token(self, short_lived_token: str) -> str:
+        """
+        Exchange a short-lived Threads token (1 hour) for a long-lived token (60 days).
+        Endpoint: GET https://graph.threads.net/access_token
+        """
+        if short_lived_token.startswith("mock_") or "mock" in short_lived_token.lower():
+            print("[THREADS MOCK] Skipping long-lived token exchange for mock token.")
+            return short_lived_token
+
+        url = "https://graph.threads.net/access_token"
+        params = {
+            "grant_type": "th_exchange_token",
+            "client_secret": settings.THREADS_APP_SECRET,
+            "access_token": short_lived_token
+        }
+        try:
+            resp = requests.get(url, params=params, timeout=20)
+            result = resp.json()
+            if "error" in result:
+                err_msg = result["error"].get("message", "Token exchange failed")
+                print(f"[THREADS TOKEN EXCHANGE FAIL] {err_msg}. Using short-lived token as fallback.")
+                return short_lived_token
+            long_lived_token = result.get("access_token")
+            expires_in = result.get("expires_in", 5184000)  # default 60 days in seconds
+            print(f"[THREADS TOKEN EXCHANGE] Successfully obtained long-lived token. Expires in {expires_in // 86400} days.")
+            return long_lived_token
+        except Exception as e:
+            print(f"[THREADS TOKEN EXCHANGE ERROR] {e}. Using short-lived token as fallback.")
+            return short_lived_token
+
+
+    def get_account_info(self, threads_account_id: str, access_token: str) -> dict:
+        """Fetch real live profile info, follower count, and thread count from the Threads API."""
+        info = {
+            "name": None,
+            "profile_picture_url": None,
+            "biography": None,
+            "is_verified": False,
+            "followers_count": None,
+            "threads_count": None,
+        }
+
+        if access_token.startswith("mock_") or "mock" in access_token.lower():
+            return info
+
+        try:
+            # 1. Fetch profile fields
+            profile_url = f"https://graph.threads.net/v1.0/{threads_account_id}"
+            profile_resp = requests.get(profile_url, params={
+                "fields": "id,username,name,threads_profile_picture_url,threads_biography,is_verified",
+                "access_token": access_token
+            }, timeout=15)
+            profile_data = profile_resp.json()
+            if "error" not in profile_data:
+                info["name"] = profile_data.get("name")
+                info["profile_picture_url"] = profile_data.get("threads_profile_picture_url")
+                info["biography"] = profile_data.get("threads_biography")
+                info["is_verified"] = profile_data.get("is_verified", False)
+        except Exception as e:
+            print(f"[THREADS] Failed to fetch profile info for {threads_account_id}: {e}")
+
+        try:
+            # 2. Fetch followers count from insights API
+            insights_url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads_insights"
+            insights_resp = requests.get(insights_url, params={
+                "metric": "followers_count",
+                "access_token": access_token
+            }, timeout=15)
+            insights_data = insights_resp.json()
+            for item in insights_data.get("data", []):
+                if item.get("name") == "followers_count":
+                    values = item.get("values") or item.get("total_value", {})
+                    if isinstance(values, list) and values:
+                        info["followers_count"] = values[-1].get("value")
+                    elif isinstance(values, dict):
+                        info["followers_count"] = values.get("value")
+        except Exception as e:
+            print(f"[THREADS] Failed to fetch insights for {threads_account_id}: {e}")
+
+        try:
+            # 3. Fetch thread count from the threads list endpoint
+            threads_url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
+            threads_resp = requests.get(threads_url, params={
+                "fields": "id",
+                "access_token": access_token
+            }, timeout=15)
+            threads_data = threads_resp.json()
+            if "data" in threads_data:
+                # Total threads in first page (approx count from summary if available)
+                summary = threads_data.get("paging", {}).get("cursors", {})
+                data_list = threads_data.get("data", [])
+                # Use summary total if provided, else use page count
+                info["threads_count"] = len(data_list)
+        except Exception as e:
+            print(f"[THREADS] Failed to fetch thread count for {threads_account_id}: {e}")
+
+        return info
+
+
     def delete_account(self, threads_account_id: str, user_id: int) -> bool:
         with db.get_connection() as conn:
             cursor = conn.execute(
@@ -100,7 +199,7 @@ class ThreadsService:
             print(f"[THREADS MOCK] Direct text publish to @{threads_account_id}")
             return f"threads_mock_text_{int(time.time())}"
 
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
         payload = {
             "media_type": "TEXT",
             "text": text,
@@ -127,7 +226,7 @@ class ThreadsService:
             print(f"[THREADS MOCK] Direct image publish to @{threads_account_id} with image: {image_url}")
             return f"threads_mock_image_{int(time.time())}"
 
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
         payload = {
             "media_type": "IMAGE",
             "image_url": image_url,
@@ -151,7 +250,7 @@ class ThreadsService:
             return f"threads_mock_fallback_{int(time.time())}"
 
     def publish_container(self, threads_account_id: str, creation_id: str, access_token: str) -> str:
-        url = f"https://graph.threads.net/v1.0/{threads_account_id}/media_publish"
+        url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads_publish"
         payload = {
             "creation_id": creation_id,
             "access_token": access_token
@@ -174,7 +273,10 @@ class ThreadsService:
                 "redirect_uri": settings.THREADS_REDIRECT_URI,
                 "scope": "threads_basic,threads_content_publish",
                 "response_type": "code",
-                "state": state
+                "state": state,
+                "auth_type": "reauthorize",        # Force Meta to show login/account-picker screen
+                "prompt": "login",                 # Standard OIDC parameter to force login screen
+                "force_authentication": "1",       # Instagram/Meta legacy parameter to force login screen
             }
             return f"https://threads.net/oauth/authorize?{urlencode(params)}"
         else:

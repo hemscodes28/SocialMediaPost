@@ -62,10 +62,4 @@
         });
     });
 
-    if (localStorage.getItem('access_token')) {
-        document.querySelectorAll('[data-auth-dashboard]').forEach((a) => {
-            a.href = '/static/index.html';
-            if (a.dataset.authLabel) a.textContent = a.dataset.authLabel;
-        });
-    }
 })();
