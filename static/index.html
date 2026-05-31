@@ -2958,6 +2958,14 @@
                             <div style="min-height: 180px; max-height: 260px; overflow-y: auto; background: var(--surface-lighter); border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-size: 0.86rem; line-height: 1.6; color: var(--text-main); font-family: inherit; outline: none; margin-bottom: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);" id="aiGeneratedOutputText">
                                 Generated text...
                             </div>
+<div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; margin-top: 6px;">
+    <button class="btn btn-glass" id="aiAssistantCopyBtn" type="button" style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700;">
+        <i class="far fa-copy"></i> Copy
+    </button>
+    <button class="btn btn-primary" id="aiAssistantUseBtn" type="button" style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: var(--accent); border: none; color: white;">
+        <i class="fas fa-check"></i> Use Caption
+    </button>
+</div>
                             
                             <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; letter-spacing: 0.5px;">Tone Adjustments</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
@@ -6280,6 +6288,33 @@
         if (btnToneRetry) btnToneRetry.onclick = () => adjustTone('retry');
 
         // Scheduler Footer Integration
+// AI Assistant: Copy and Use Caption Buttons
+const aiAssistantCopyBtn = document.getElementById('aiAssistantCopyBtn');
+if (aiAssistantCopyBtn) {
+    aiAssistantCopyBtn.onclick = async () => {
+        const txt = aiGeneratedOutputText ? aiGeneratedOutputText.textContent : '';
+        try {
+            await navigator.clipboard.writeText(txt);
+            showToast('Caption copied!', 'success');
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to copy caption.', 'error');
+        }
+    };
+}
+
+const aiAssistantUseBtn = document.getElementById('aiAssistantUseBtn');
+if (aiAssistantUseBtn) {
+    aiAssistantUseBtn.onclick = () => {
+        const txt = aiGeneratedOutputText ? aiGeneratedOutputText.textContent : '';
+        if (composerMainEditor) {
+            composerMainEditor.value = txt;
+            composerMainEditor.dispatchEvent(new Event('input'));
+            showToast('Caption applied to main editor.', 'success');
+        }
+    };
+}
+
         const composerPublishNowBtn = document.getElementById('composerPublishNowBtn');
         const composerScheduleLaterBtn = document.getElementById('composerScheduleLaterBtn');
         // scheduleSection already declared
