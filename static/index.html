@@ -2773,20 +2773,47 @@
                         </div>
                     </div>
 
+                    <!-- STANDALONE UPLOAD MEDIA ZONE (IN THE MIDDLE) -->
+                    <div style="background: var(--surface-dark); padding: 18px; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.8px;">Upload Media</span>
+                        </div>
+                        <div id="dropZone" style="border: 2px dashed var(--border); border-radius: 12px; padding: 20px 16px; background: rgba(255, 255, 255, 0.015); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: 0.2s; min-height: 110px; position: relative;">
+                            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--surface-lighter); display: grid; place-items: center; color: var(--accent); font-size: 1.35rem; border: 1px solid var(--border);">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div style="text-align: center;" id="uploadPlaceholder">
+                                <div style="font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Add Photo / Video</div>
+                                <div style="font-size: 0.75rem; color: var(--text-dim);">Drag and drop or click to select media from your device</div>
+                            </div>
+                            <input type="file" id="fileInput" style="display: none;" accept="image/jpeg,image/png" multiple>
+                            
+                            <!-- Custom Image Preview Area inside standalone upload zone -->
+                            <div id="composerMediaPreviewArea" style="display: none; align-items: center; justify-content: center; gap: 16px; width: 100%; margin-top: 4px;">
+                                <div style="position: relative; width: 140px; height: 140px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                                    <img id="composerImagePreviewImg" src="" style="width: 100%; height: 100%; object-fit: cover;" alt="preview">
+                                    <button id="composerRemovePreviewBtn" type="button" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.75); border: none; color: white; display: grid; place-items: center; cursor: pointer; transition: 0.2s; z-index: 10;"><i class="fas fa-times" style="font-size: 10px;"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- Thumbnails/Gallery rendering for multi-file upload -->
+                            <div id="mediaGallery" style="display: none; grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); gap: 8px; width: 100%; margin-top: 8px;"></div>
+                            <span id="galleryCount" style="display: none; font-size: 0.75rem; font-weight: 700; color: var(--accent); margin-top: 4px;"></span>
+                            
+                            <!-- Hidden legacy elements for compatibility -->
+                            <div style="display: none;">
+                                <img id="filePreviewImg" src="">
+                                <div id="removeMediaBtn"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Composition Area Card -->
-                    <div style="background: var(--surface-dark); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; min-height: 280px; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
+                    <div style="background: var(--surface-dark); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; min-height: 220px; box-shadow: 0 4px 15px rgba(0,0,0,0.01);">
                         
                         <!-- Single Unified Composer Textarea -->
                         <div style="flex: 1; padding: 18px; display: flex; flex-direction: column;" id="captionSection">
-                            <textarea id="composerMainEditor" rows="7" placeholder="Start writing or get inspired with Templates..." style="width: 100%; border: none; font-size: 0.95rem; line-height: 1.6; resize: none; font-family: inherit; color: var(--text-main); outline: none; background: transparent;"></textarea>
-                            
-                            <!-- Custom Image Preview Area (CHANGE 2 - VISUAL THUMBNAIL) -->
-                            <div id="composerMediaPreviewArea" style="display: none; align-items: center; gap: 16px; margin-top: 12px; margin-bottom: 12px; text-align: left;">
-                                <div style="position: relative; width: 160px; height: 160px; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                                    <img id="composerImagePreviewImg" src="" style="width: 100%; height: 100%; object-fit: cover;" alt="preview">
-                                    <button id="composerRemovePreviewBtn" type="button" style="position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(0,0,0,0.6); border: none; color: white; display: grid; place-items: center; cursor: pointer; transition: 0.2s;"><i class="fas fa-times" style="font-size: 10px;"></i></button>
-                                </div>
-                            </div>
+                            <textarea id="composerMainEditor" rows="6" placeholder="Start writing or get inspired with Templates..." style="width: 100%; border: none; font-size: 0.95rem; line-height: 1.6; resize: none; font-family: inherit; color: var(--text-main); outline: none; background: transparent;"></textarea>
                             
                             <!-- Hidden original platform-specific textareas -->
                             <div id="instaCaptionContainer" style="display: none !important;">
@@ -2800,35 +2827,10 @@
                             </div>
                         </div>
 
-                        <!-- Composer Bottom Media dropzone area inside card -->
-                        <div style="padding: 14px 18px; border-top: 1px solid var(--border); background: var(--surface-lighter); display: flex; align-items: center; justify-content: space-between; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-                            
-                            <!-- Integrated Mini upload zone -->
-                            <div id="dropZone" style="display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1;">
-                                <div style="width: 44px; height: 44px; border-radius: 8px; border: 1px dashed var(--border); background: var(--surface-dark); display: grid; place-items: center; color: var(--accent);">
-                                    <i class="fas fa-image" style="font-size: 1.1rem;"></i>
-                                </div>
-                                <div style="flex: 1; text-align: left;" id="uploadPlaceholder">
-                                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">Add Photo / Video</div>
-                                    <div style="font-size: 0.72rem; color: var(--text-dim);">Drag and drop or select file</div>
-                                </div>
-                                <input type="file" id="fileInput" style="display: none;" accept="image/jpeg,image/png" multiple>
-                            </div>
-
-                            <!-- Thumbnails rendering -->
-                            <div id="mediaGallery" style="display: none; align-items: center; gap: 10px;">
-                                <div style="position: relative; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border);">
-                                    <img id="filePreviewImg" src="" style="width:100%; height:100%; object-fit:cover;" alt="preview">
-                                    <div id="removeMediaBtn" style="position: absolute; top:0; right:0; background:rgba(0,0,0,0.6); color:white; width:14px; height:14px; border-radius:50%; font-size:8px; display:grid; place-items:center; cursor:pointer;"><i class="fas fa-times"></i></div>
-                                </div>
-                                <span id="galleryCount" style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);"></span>
-                            </div>
-
-                            <!-- Bottom toolbar icons -->
-                            <div style="display: flex; gap: 12px; color: var(--text-dim); font-size: 1.1rem; margin-left: 16px;">
-                                <i class="far fa-smile" id="composerEmojiBtn" style="cursor: pointer; transition: 0.2s;" title="Add Emojis"></i>
-                                <i class="fas fa-hashtag" id="composerHashtagBtn" style="cursor: pointer; transition: 0.2s;" title="Extract Hashtags"></i>
-                            </div>
+                        <!-- Bottom toolbar icons inside Composition Area Card -->
+                        <div style="padding: 12px 18px; border-top: 1px solid var(--border); background: var(--surface-lighter); display: flex; align-items: center; justify-content: flex-end; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; gap: 12px; color: var(--text-dim); font-size: 1.1rem;">
+                            <i class="far fa-smile" id="composerEmojiBtn" style="cursor: pointer; transition: 0.2s;" title="Add Emojis"></i>
+                            <i class="fas fa-hashtag" id="composerHashtagBtn" style="cursor: pointer; transition: 0.2s;" title="Extract Hashtags"></i>
                         </div>
                     </div>
 
@@ -4136,7 +4138,7 @@
         const previewBtn = document.getElementById('previewBtn');
 
         dropZone.onclick = (e) => {
-            if (e.target.closest('#removeMediaBtn')) return;
+            if (e.target.closest('#removeMediaBtn') || e.target.closest('#composerRemovePreviewBtn')) return;
             fileInput.click();
         };
 
@@ -4318,7 +4320,10 @@
         }
 
         function updatePreviewImages() {
-            const src = fileImg && fileImg.src ? fileImg.src : '';
+            const previewImg = document.getElementById('composerImagePreviewImg');
+            const src = (previewImg && previewImg.src && previewImg.src.startsWith('data:')) 
+                ? previewImg.src 
+                : ((fileImg && fileImg.src && fileImg.src.startsWith('data:')) ? fileImg.src : '');
             const hasSrc = !!src;
 
             if (hasSrc) {
@@ -4653,9 +4658,7 @@
                 showToast(isScheduling ? 'Missions set for future deployment!' : 'Broadcast successful!', 'success');
                 await fetchScheduledJobs();
                 await updateProfileDashboard();
-                if (!isScheduling) {
-                    resetPublisherForm();
-                }
+                resetPublisherForm();
             } catch (e) {
                 console.error("Publication Error:", e);
                 showToast(e.message || 'Broadcast interrupted by error', 'error');
@@ -4689,7 +4692,12 @@
         }
 
         function updateInpagePreview() {
-            const hasFile = !!fileInput.files[0];
+            const previewImg = document.getElementById('composerImagePreviewImg');
+            const imgUrl = (previewImg && previewImg.src && previewImg.src.startsWith('data:')) 
+                ? previewImg.src 
+                : ((fileImg && fileImg.src && fileImg.src.startsWith('data:')) ? fileImg.src : null);
+
+            const hasFile = !!fileInput.files[0] || !!imgUrl;
             const checkInsta = document.getElementById('checkInsta').checked;
             const checkLinkedin = document.getElementById('checkLinkedin').checked;
             const checkThreads = document.getElementById('checkThreads').checked;
@@ -4709,8 +4717,6 @@
                 if (checkThreads) mockTh.style.display = 'block';
                 else mockTh.style.display = 'none';
             }
-
-            const imgUrl = fileImg.src && hasFile ? fileImg.src : null;
             if (imgUrl) {
                 document.getElementById('mockInstaImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
                 document.getElementById('mockLinkedinImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
@@ -5229,9 +5235,9 @@
         const composerRemovePreviewBtnModal = document.getElementById('composerRemovePreviewBtn');
 
         if (composerRemovePreviewBtnModal) {
-            composerRemovePreviewBtnModal.onclick = () => {
-                const removeMediaBtn = document.getElementById('removeMediaBtn');
-                if (removeMediaBtn) removeMediaBtn.click();
+            composerRemovePreviewBtnModal.onclick = (e) => {
+                if (e) e.stopPropagation();
+                resetPublisherForm();
             };
         }
 
