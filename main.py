@@ -324,7 +324,6 @@ async def generate_caption_route(
     prompt: str = Form(...),
     platform: Optional[str] = Form("instagram"),
     tone: Optional[str] = Form("casual"),
-    current_user: User = Depends(auth_service.get_current_user)
 ):
     """Text-based AI Caption Generation"""
     try:
