@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head><title>Debug Navigation</title></head>
+<body>
+<h1>Debug: Checking index.html JavaScript</h1>
+<pre id="output" style="white-space:pre-wrap; font-family:monospace; background:#111; color:#0f0; padding:20px;"></pre>
+<script>
+(async function() {
+    localStorage.setItem('access_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZW1rdW1hcnIyODAzQGdtYWlsLmNvbSIsImV4cCI6MTc4MDI2MzUwNX0.rpfxcZO9JiM8Z2_hq6rCV8kehNMNELwUr5c06Vk8k0I');
+    console.log('Injected token into localStorage');
+    localStorage.setItem('access_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJoZW1rdW1hcnIyODAzQGdtYWlsLmNvbSIsImV4cCI6MTc4MDI2MzQ3Mn0.dH5_yKhS8UJ_0bzEwssKh7N-5hFzk-Jyr1uDM4BZtKw');
+    console.log('Injected token into localStorage');
+    const out = document.getElementById('output');
+    function log(msg) {
+        out.textContent += msg + '\n';
+        console.log(msg);
+    }
+
+    async function runTest() {
+        log('Fetching index.html...');
+        const resp = await fetch('/static/index.html');
+        const html = await resp.text();
+        
+        // Extract inline script
+        const match = html.match(/<script>(?!.*type)([\s\S]*?)<\/script>/);
+        if (!match) {
+            log('ERROR: No inline script found!');
+            return;
+        }
+        
+        const script = match[1];
+        log(`Found inline script: ${script.length} chars`);
+        
+        // Try to parse it
+        try {
+            new Function(script);
+            log('SYNTAX CHECK: PASSED - script compiles OK');
+        } catch(e) {
+            log('SYNTAX ERROR: ' + e.message);
+            log('Line info: ' + e.stack);
+            return;
+        }
+        
+        // Now check if the nav-items exist and their event listeners
+        log('\n--- DOM Check ---');
+        
+        // Create a temporary iframe to load the page
+        log('Loading index.html in an iframe to check runtime...');
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+        
+        // Listen for errors from the iframe
+        const errors = [];
+        iframe.contentWindow.onerror = function(msg, url, line, col, err) {
+            errors.push(`Line ${line}: ${msg}`);
+            log(`RUNTIME ERROR at line ${line}: ${msg}`);
+            return true; // prevent default handling
+        };
+        
+        iframe.src = '/static/index.html';
+        
+        // Wait for it to load
+        await new Promise(resolve => {
+            iframe.onload = resolve;
+            setTimeout(resolve, 8000);
+        });
+        
+        // Check if navigation works in the iframe
+        const iDoc = iframe.contentDocument;
+        if (iDoc) {
+            const navItems = iDoc.querySelectorAll('.nav-item');
+            log(`\nNav items found: ${navItems.length}`);
+            navItems.forEach((item, i) => {
+                log(`  [${i}] data-tab="${item.dataset.tab}" classes="${item.className}"`);
+            });
+            
+            const tabContents = iDoc.querySelectorAll('.tab-content');
+            log(`Tab contents found: ${tabContents.length}`);
+            tabContents.forEach((t, i) => {
+                log(`  [${i}] id="${t.id}" active=${t.classList.contains('active')}`);
+            });
+            
+            // Check if switchTab exists
+            log(`\nwindow.switchTab exists: ${typeof iframe.contentWindow.switchTab}`);
+        }
+        
+        if (errors.length === 0) {
+            log('\nNo runtime errors detected.');
+        } else {
+            log(`\n${errors.length} runtime errors detected!`);
+        }
+    }
+
+    try {
+        await runTest();
+    } catch(err) {
+        log('Unexpected test execution error: ' + err.message + '\n' + err.stack);
+    } finally {
+        // Send logs to the backend
+        try {
+            await fetch('/api/debug-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body: out.textContent
+            });
+        } catch(e) {
+            console.error('Failed to send log:', e);
+        }
+    }
+})();
+</script>
+</body>
+</html>

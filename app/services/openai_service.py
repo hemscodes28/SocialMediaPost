@@ -35,6 +35,7 @@ class OpenAICaptionService:
         platform: str,
         topic: Optional[str] = None,
         image_path: Optional[str] = None,
+        tone: Optional[str] = None,
     ) -> Dict:
         if not self.client:
             raise CaptionGenerationError(
@@ -49,6 +50,8 @@ class OpenAICaptionService:
             "Return only the final caption with hashtags at the end.\n"
             "Do not include preamble like 'Here is your caption:'."
         )
+        if tone:
+            system_prompt += f"\nDesired Tone: {tone.capitalize()}"
 
         platform_rules = {
             "instagram": "Write a fun, engaging Instagram caption. Use emojis. Include exactly 5 relevant hashtags.",
@@ -126,6 +129,7 @@ class OpenAICaptionService:
         self,
         topic: Optional[str] = None,
         image_path: Optional[str] = None,
+        tone: Optional[str] = None,
     ) -> Dict:
         if not self.client:
             raise CaptionGenerationError(
@@ -141,6 +145,8 @@ class OpenAICaptionService:
             "- linkedin: Professional, viral-style structure with hook, 2-3 short paragraphs, CTA, and 4-5 hashtags.\n"
             "- threads: Short, punchy, conversational, and direct. Emojis welcome, limit hashtags to 0 or 1 relevant hashtags."
         )
+        if tone:
+            system_prompt += f"\n\nDesired Tone for all platforms: {tone.capitalize()}"
 
         prompt_text = "Generate captions for all platforms."
 
@@ -188,7 +194,7 @@ class OpenAICaptionService:
         if isinstance(error, AuthenticationError):
             return CaptionGenerationError(
                 "OpenAI API key is invalid or expired. Update OPENAI_API_KEY in .env and restart the server.",
-                status_code=401,
+                status_code=500,
             )
 
         if isinstance(error, RateLimitError):

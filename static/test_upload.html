@@ -254,16 +254,24 @@
                 <label for="prompt">💡 AI Prompt (Optional)</label>
                 <textarea id="prompt" name="prompt" rows="3"
                     placeholder="Describe your image or what you want the caption to be about..."></textarea>
-                <button type="button" id="generateBtn" class="btn-secondary" style="margin-top: 10px; width: 100%;">
-                    ✨ Generate Caption with AI
+                <button type="button" id="generateBtn" class="btn-secondary" style="margin-top: 10px; width: 48%;">
+                    ✨ Generate Caption from Prompt
+                </button>
+                <button type="button" id="usePromptCaptionBtn" class="btn-secondary" style="margin-top: 10px; width: 48%; display:none;">
+                    ✅ Use This Caption
+                </button>
+                <button type="button" id="generateImgBtn" class="btn-secondary" style="margin-top: 10px; width: 48%;">
+                    📷 Generate Caption from Image
+                </button>
+                <button type="button" id="deleteImageBtn" class="btn-secondary" style="margin-top: 10px; width: 48%; display:none;">
+                    ✖ Delete Image
                 </button>
             </div>
-
             <div class="form-group">
                 <label for="caption">✍️ Caption *</label>
-                <textarea id="caption" name="caption" rows="8" placeholder="Write your caption here... 
+                <textarea id="caption" name="caption" rows="12" placeholder="Write your caption here... 
 
-Or generate one using the AI tool above! 🚀"></textarea>
+Or generate one using the AI tools above! 🚀"></textarea>
                 <div class="char-count">
                     <span id="charCount">0</span> / 2200 characters
                 </div>
@@ -319,7 +327,7 @@ Or generate one using the AI tool above! 🚀"></textarea>
             }
         });
 
-        // Generate Caption
+        // Generate Caption from Prompt (existing)
         generateBtn.addEventListener('click', async function () {
             const promptText = prompt.value.trim();
             if (!promptText) {
@@ -351,6 +359,8 @@ Or generate one using the AI tool above! 🚀"></textarea>
                     caption.dispatchEvent(new Event('input'));
                     genStatus.className = 'status success';
                     genStatus.innerHTML = '✅ Caption generated! You can edit it below.';
+                    // Show “Use This Caption” button
+                    usePromptCaptionBtn.style.display = 'inline-block';
                 } else {
                     genStatus.className = 'status error';
                     genStatus.innerHTML = `❌ Error: ${data.detail || 'Failed to generate'}`;
@@ -364,20 +374,78 @@ Or generate one using the AI tool above! 🚀"></textarea>
             }
         });
 
-        // Character counter
-        caption.addEventListener('input', function () {
-            const length = this.value.length;
-            charCount.textContent = length;
+        // Use Prompt Generated Caption
+        usePromptCaptionBtn.addEventListener('click', function () {
+            // Caption is already placed in the textarea; just focus for editing
+            caption.focus();
+            // Hide the button after use
+            usePromptCaptionBtn.style.display = 'none';
+        });
 
-            if (length > 2200) {
-                charCount.style.color = 'red';
-                charCount.style.fontWeight = 'bold';
-            } else if (length > 2000) {
-                charCount.style.color = 'orange';
-                charCount.style.fontWeight = 'bold';
+        // Generate Caption from Image (AI Magic Caption)
+        const generateImgBtn = document.getElementById('generateImgBtn');
+        generateImgBtn.addEventListener('click', async function () {
+            const file = imageFile.files[0];
+            if (!file) {
+                alert('Please select an image first!');
+                return;
+            }
+
+            generateImgBtn.disabled = true;
+            generateImgBtn.innerHTML = '<span class="loader"></span> Generating...';
+            genStatus.style.display = 'block';
+            genStatus.className = 'status loading';
+            genStatus.innerHTML = '✨ Analyzing image and generating caption...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('platform', 'instagram'); // platform can be parameterized later
+
+                const response = await fetch('/api/ai/analyze-image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // The API returns a dict with caption, hashtags, full_caption
+                    caption.value = data.full_caption || data.caption || '';
+                    caption.dispatchEvent(new Event('input'));
+                    genStatus.className = 'status success';
+                    genStatus.innerHTML = '✅ Image caption generated! You can edit it below.';
+                } else {
+                    genStatus.className = 'status error';
+                    genStatus.innerHTML = `❌ Error: ${data.detail || 'Failed to generate'}`;
+                }
+            } catch (error) {
+                genStatus.className = 'status error';
+                genStatus.innerHTML = `❌ Network Error: ${error.message}`;
+            } finally {
+                generateImgBtn.disabled = false;
+                generateImgBtn.innerHTML = '📷 Generate Caption from Image';
+            }
+        });
+
+        // Delete Image button
+        const deleteImageBtn = document.getElementById('deleteImageBtn');
+        deleteImageBtn.addEventListener('click', function () {
+            // Clear file input
+            imageFile.value = '';
+            // Clear preview and info
+            preview.innerHTML = '';
+            fileInfo.textContent = '';
+            // Hide delete button
+            deleteImageBtn.style.display = 'none';
+        });
+
+        // Show Delete button when an image is selected
+        imageFile.addEventListener('change', function (e) {
+            if (imageFile.files.length > 0) {
+                deleteImageBtn.style.display = 'inline-block';
             } else {
-                charCount.style.color = '#666';
-                charCount.style.fontWeight = 'normal';
+                deleteImageBtn.style.display = 'none';
             }
         });
 

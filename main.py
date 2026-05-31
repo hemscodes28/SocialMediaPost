@@ -111,6 +111,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi import Request
+@app.post("/api/debug-log")
+async def debug_log(request: Request):
+    body = await request.body()
+    log_text = body.decode("utf-8")
+    print("\n" + "="*40 + "\nFRONTEND DEBUG LOG:\n" + log_text + "\n" + "="*40 + "\n")
+    with open("InsideWorkspace/scratch/frontend_debug.log", "w", encoding="utf-8") as f:
+        f.write(log_text)
+    return {"status": "ok"}
+
 STATIC_DIR = PROJECT_ROOT / "static"
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
@@ -280,6 +290,8 @@ async def get_me(current_user: User = Depends(auth_service.get_current_user)):
 @app.post("/api/ai/analyze-image")
 async def analyze_image(
     file: UploadFile = File(...),
+    topic: Optional[str] = Form(None),
+    tone: Optional[str] = Form(None),
     current_user: User = Depends(auth_service.get_current_user)
 ):
     """Visual Analysis & Caption Generation"""
@@ -287,7 +299,9 @@ async def analyze_image(
     try:
         file_path = await image_service.save_upload(file)
         results = await openai_service.generate_multi_captions(
-            image_path=str(file_path)
+            topic=topic,
+            image_path=str(file_path),
+            tone=tone
         )
         return results
     except CaptionGenerationError as e:
@@ -303,6 +317,31 @@ async def analyze_image(
     finally:
         if file_path:
             image_service.cleanup_file(file_path)
+
+@app.post("/generate-caption")
+@app.post("/api/ai/generate-caption")
+async def generate_caption_route(
+    prompt: str = Form(...),
+    platform: Optional[str] = Form("instagram"),
+    tone: Optional[str] = Form("casual"),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """Text-based AI Caption Generation"""
+    try:
+        results = await openai_service.generate_caption(
+            platform=platform,
+            topic=prompt,
+            tone=tone
+        )
+        return results
+    except CaptionGenerationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
+    except Exception as e:
+        print(f"[ERROR] Caption generation failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Caption generation failed. Please try again."
+        )
             
 @app.get("/api/jobs")
 async def list_jobs(current_user: User = Depends(auth_service.get_current_user)):

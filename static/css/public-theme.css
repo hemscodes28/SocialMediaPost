@@ -1,15 +1,15 @@
 /* Post Pilot.ai — Public pages theme (matches dashboard index.html) */
 :root {
-    --bg-dark: #F8F9FA;
+    --bg-dark: #F9FAFB;
     --surface-dark: #FFFFFF;
-    --surface-lighter: #F1F4F9;
-    --primary: #4f46e5;
-    --primary-glow: rgba(79, 70, 229, 0.12);
-    --accent: #7c3aed;
-    --accent-glow: rgba(124, 58, 237, 0.1);
-    --text-main: #1A1A2E;
-    --text-dim: #64748B;
-    --border: rgba(0, 0, 0, 0.06);
+    --surface-lighter: #F3F4F6;
+    --primary: #000000;
+    --primary-glow: rgba(0, 0, 0, 0.05);
+    --accent: #2563eb;
+    --accent-glow: rgba(37, 99, 235, 0.08);
+    --text-main: #111827;
+    --text-dim: #4B5563;
+    --border: rgba(0, 0, 0, 0.08);
     --glass-bg: rgba(255, 255, 255, 0.88);
     --success: #10b981;
     --error: #ef4444;
@@ -18,7 +18,7 @@
     --radius-lg: 24px;
     --radius-md: 16px;
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.04);
-    --shadow-hover: 0 24px 56px rgba(79, 70, 229, 0.16);
+    --shadow-hover: 0 24px 56px rgba(37, 99, 235, 0.16);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
