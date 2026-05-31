@@ -150,11 +150,17 @@ export async function exchangeFirebaseSession(idToken, fullName) {
   return data;
 }
 
+/**
+ * Used after EMAIL or GOOGLE sign-in (existing / returning users).
+ * Always routes to the main dashboard.
+ */
 export function completeSession(data, statusEl, successMessage) {
   if (!data?.access_token) {
     throw new Error("Server did not return an access token.");
   }
   localStorage.setItem("access_token", data.access_token);
+  // Clear any stale new-user flag so returning users are never sent to onboarding
+  localStorage.removeItem('is_new_user');
   if (statusEl) {
     statusEl.textContent = successMessage;
     statusEl.className = "status-msg success";
@@ -163,6 +169,26 @@ export function completeSession(data, statusEl, successMessage) {
   setTimeout(() => {
     window.location.href = "/static/index.html?tab=profile";
   }, 800);
+}
+
+/**
+ * Used ONLY after a brand-new sign-up.
+ * Always routes to the onboarding questionnaire first.
+ */
+export function completeSessionNewUser(data, statusEl, successMessage) {
+  if (!data?.access_token) {
+    throw new Error("Server did not return an access token.");
+  }
+  localStorage.setItem("access_token", data.access_token);
+  localStorage.removeItem('is_new_user'); // clean up just in case
+  if (statusEl) {
+    statusEl.textContent = successMessage;
+    statusEl.className = "status-msg success";
+    statusEl.style.display = "block";
+  }
+  setTimeout(() => {
+    window.location.href = "/static/onboarding.html";
+  }, 700);
 }
 
 export function showAuthError(statusEl, message) {

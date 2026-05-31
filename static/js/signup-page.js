@@ -1,6 +1,6 @@
 import {
   signUpWithEmail,
-  completeSession,
+  completeSessionNewUser,
   mapFirebaseAuthError,
   showAuthError,
 } from "./firebase-auth.js";
@@ -42,7 +42,8 @@ signupForm.addEventListener("submit", async (e) => {
 
   try {
     const data = await signUpWithEmail(email, password, full_name);
-    completeSession(data, status, "Account created! Opening your dashboard…");
+    // Always route new signups → onboarding (no localStorage flag needed)
+    completeSessionNewUser(data, status, "Account created! Setting up your workspace…");
   } catch (err) {
     showAuthError(status, mapFirebaseAuthError(err));
   } finally {

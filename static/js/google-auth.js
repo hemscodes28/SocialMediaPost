@@ -2,6 +2,7 @@
 import {
   signInWithGoogle,
   completeSession,
+  completeSessionNewUser,
   mapFirebaseAuthError,
   showAuthError,
 } from "./firebase-auth.js";
@@ -47,13 +48,20 @@ export function initGoogleAuth(mode) {
 
     try {
       const data = await signInWithGoogle();
-      completeSession(
-        data,
-        status,
-        mode === "signup"
-          ? "Account ready! Opening your dashboard…"
-          : "Signed in with Google! Opening your dashboard…"
-      );
+      if (mode === "signup") {
+        // New user via Google → always go to onboarding
+        completeSessionNewUser(
+          data,
+          status,
+          "Account ready! Setting up your workspace…"
+        );
+      } else {
+        completeSession(
+          data,
+          status,
+          "Signed in with Google! Opening your dashboard…"
+        );
+      }
     } catch (err) {
       showAuthError(status, mapFirebaseAuthError(err));
     } finally {
