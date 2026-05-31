@@ -630,6 +630,79 @@
             transform: translateY(-2px);
         }
 
+        /* Branded Connection Buttons */
+        .btn-insta {
+            background: linear-gradient(45deg, #f09433, #dc2743, #cc2366);
+            color: white;
+            box-shadow: 0 8px 24px rgba(220, 39, 67, 0.2);
+        }
+        .btn-insta:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(220, 39, 67, 0.3);
+        }
+        .btn-insta-connected {
+            background: rgba(228, 64, 95, 0.05) !important;
+            color: #dc2743 !important;
+            border: 1px solid rgba(228, 64, 95, 0.2) !important;
+            box-shadow: none !important;
+        }
+        .btn-insta-connected:hover:not(:disabled) {
+            background: rgba(228, 64, 95, 0.1) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-linkedin {
+            background: linear-gradient(135deg, #0a66c2 0%, #0077b5 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(10, 102, 194, 0.2);
+        }
+        .btn-linkedin:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(10, 102, 194, 0.3);
+        }
+        .btn-linkedin-connected {
+            background: rgba(10, 102, 194, 0.05) !important;
+            color: #0a66c2 !important;
+            border: 1px solid rgba(10, 102, 194, 0.2) !important;
+            box-shadow: none !important;
+        }
+        .btn-linkedin-connected:hover:not(:disabled) {
+            background: rgba(10, 102, 194, 0.1) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-threads {
+            background: linear-gradient(135deg, #111111 0%, #000000 100%);
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+        .btn-threads:hover:not(:disabled) {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+        }
+        .btn-threads-connected {
+            background: rgba(0, 0, 0, 0.03) !important;
+            color: #111111 !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            box-shadow: none !important;
+        }
+        .btn-threads-connected:hover:not(:disabled) {
+            background: rgba(0, 0, 0, 0.08) !important;
+            transform: translateY(-2px);
+        }
+        
+        .btn-threads-env {
+            background: transparent;
+            color: #111111;
+            border: 1px dashed #111111 !important;
+            box-shadow: none !important;
+        }
+        .btn-threads-env:hover:not(:disabled) {
+            background: rgba(0, 0, 0, 0.03) !important;
+            transform: translateY(-2px);
+        }
+
+
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -2219,6 +2292,7 @@
             margin-bottom: 4px;
             padding: 8px 2px;
             min-height: 60px;
+            flex-wrap: wrap; /* Ensure clean wrapping on smaller screens */
         }
         .avatar-chip {
             position: relative;
@@ -2410,7 +2484,7 @@
                     <h3 style="margin-bottom: 12px;">Instagram Accounts</h3>
                     <p id="instaUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
                         Connect a professional (Business or Creator) Instagram linked to a Facebook Page. Tap below to open Facebook login—use an existing Meta account or sign in and link your Page and Instagram.</p>
-                    <button id="addInstaAccount" class="btn btn-primary" style="width: 100%;">Add Instagram Account</button>
+                    <button id="addInstaAccount" class="btn btn-insta" style="width: 100%;">Add Instagram Account</button>
                     <button id="refreshInstagram" class="btn btn-glass"
                         style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
                         connection</button>
@@ -2425,13 +2499,12 @@
                             style="width: 60px; height: 60px; border-radius: 20px; background: #0a66c2; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
                             <i class="fab fa-linkedin-in"></i>
                         </div>
-                        <span class="job-status status-published">OAuth v2</span>
+                        <span id="linkedinBadge" class="job-status status-failed">Disconnected</span>
                     </div>
                     <h3 style="margin-bottom: 12px;">LinkedIn Profiles</h3>
-                    <p style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">Manage personal profiles
+                    <p id="linkedinUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">Manage personal profiles
                         or brand pages on the professional network.</p>
-                    <button id="addLinkedinAccount" class="btn btn-glass" style="width: 100%;">Add LinkedIn
-                        Profile</button>
+                    <button id="addLinkedinAccount" class="btn btn-linkedin" style="width: 100%;">Add LinkedIn Profile</button>
                     <button id="refreshLinkedIn" class="btn btn-glass"
                         style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--primary);">Refresh
                         Account List</button>
@@ -2451,8 +2524,8 @@
                     <h3 style="margin-bottom: 12px;">Threads Accounts</h3>
                     <p id="threadsUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
                         Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.</p>
-                    <button id="addThreadsAccount" class="btn btn-glass" style="width: 100%;">Add Threads Account</button>
-                    <button id="connectThreadsEnv" class="btn btn-glass" style="width: 100%; margin-top: 12px; border: 1px dashed var(--primary); color: var(--primary);">Connect via Environment Token</button>
+                    <button id="addThreadsAccount" class="btn btn-threads" style="width: 100%;">Add Threads Account</button>
+                    <button id="connectThreadsEnv" class="btn btn-threads-env" style="width: 100%; margin-top: 12px;">Connect via Environment Token</button>
                     <button id="refreshThreads" class="btn btn-glass"
                         style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--text-dim);">Refresh
                         connection</button>
@@ -2542,6 +2615,24 @@
                         <p>Grow your professional presence with AI-powered LinkedIn publishing.</p>
                     </div>
                     <p class="profile-bio" id="liBio">Professional Member &amp; Content Creator. Connect your LinkedIn profile to discover smarter publishing.</p>
+                </div>
+
+                <!-- Threads Account Card -->
+                <div class="profile-account-card">
+                    <div class="profile-account-header">
+                        <div class="profile-pic-placeholder" id="thProfilePic" style="background: #000; color: #fff; display: flex; align-items: center; justify-content: center;">
+                            <img src="/static/threads-logo-icon.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads Logo">
+                        </div>
+                        <div class="profile-meta">
+                            <h3 id="thProfileName">Not Connected</h3>
+                            <p id="thProfileHandle">Connect Threads to view profile</p>
+                        </div>
+                        <span class="job-status status-failed profile-status-badge" id="thProfileBadge">Disconnected</span>
+                    </div>
+                    <div class="profile-quote" id="thProfileQuote">
+                        <p>Share your thoughts and media on the Threads platform.</p>
+                    </div>
+                    <p class="profile-bio" id="thBio">Connect your Meta Threads account to see dashboard stats and metrics.</p>
                 </div>
             </div>
 
@@ -2664,13 +2755,10 @@
                     <div style="background: var(--surface-dark); padding: 18px; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 14px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.8px;">Target Accounts</span>
-                            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; color: var(--accent); cursor: pointer;">
-                                <input type="checkbox" id="modalSelectAllChannels" style="accent-color: var(--accent);"> Select All
-                            </label>
                         </div>
                         
                         <!-- Dynamically filled avatar chips container for quick visual indicators -->
-                        <div class="avatar-selectors-row" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+                        <div class="avatar-selectors-row"></div>
                         
                         <!-- Premium Accounts Selection Grid -->
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 4px;">
@@ -3467,7 +3555,7 @@
                     badge.className = 'job-status status-published';
                     label.textContent = `${accounts.length} Instagram account(s) connected`;
                     btn.textContent = 'Add Instagram Account';
-                    btn.className = 'btn btn-glass';
+                    btn.className = 'btn btn-insta-connected';
 
                     accounts.forEach(acc => {
                         // Checkbox
@@ -3536,7 +3624,7 @@
                     badge.className = 'job-status status-failed';
                     label.textContent = 'Connect a Business or Creator Instagram via Facebook (Meta). Use Add Instagram Account to sign in.';
                     btn.textContent = 'Add Instagram Account';
-                    btn.className = 'btn btn-primary';
+                    btn.className = 'btn btn-insta';
                     if (select) {
                         select.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No accounts connected</div>';
                     }
@@ -3583,7 +3671,22 @@
                 listContainer.innerHTML = '';
 
                 const list = Array.isArray(accounts) ? accounts : (accounts.accounts || []);
+                const badge = document.getElementById('linkedinBadge');
+                const label = document.getElementById('linkedinUserLabel');
+                const btn = document.getElementById('addLinkedinAccount');
+
                 if (list.length > 0) {
+                    if (badge) {
+                        badge.textContent = 'Active';
+                        badge.className = 'job-status status-published';
+                    }
+                    if (label) {
+                        label.textContent = `${list.length} LinkedIn profile(s) connected`;
+                    }
+                    if (btn) {
+                        btn.className = 'btn btn-linkedin-connected';
+                    }
+
                     list.forEach(acc => {
                         // Checkbox
                         if (select) {
@@ -3635,6 +3738,16 @@
                         });
                     });
                 } else {
+                    if (badge) {
+                        badge.textContent = 'Disconnected';
+                        badge.className = 'job-status status-failed';
+                    }
+                    if (label) {
+                        label.textContent = 'Manage personal profiles or brand pages on the professional network.';
+                    }
+                    if (btn) {
+                        btn.className = 'btn btn-linkedin';
+                    }
                     if (select) {
                         select.innerHTML = '<div style="color: var(--text-dim); font-size: 0.8rem; padding: 4px;">No profiles connected</div>';
                     }
@@ -3668,44 +3781,44 @@
 
         async function updateProfileDashboard() {
             try {
-                // 1. Fetch Instagram Account Details
+                // Fetch all detailed platform stats and jobs in parallel
+                const [igResp, liResp, threadsResp, jobsResp] = await Promise.all([
+                    fetchWithAuth('/api/platforms/instagram/accounts/detailed').catch(err => {
+                        console.error("Error loading detailed Instagram account info:", err);
+                        return null;
+                    }),
+                    fetchWithAuth('/api/platforms/linkedin/accounts/detailed').catch(err => {
+                        console.error("Error loading LinkedIn account info:", err);
+                        return null;
+                    }),
+                    fetchWithAuth('/api/platforms/threads/accounts/detailed').catch(err => {
+                        console.error("Error loading Threads account info:", err);
+                        return null;
+                    }),
+                    fetchWithAuth('/api/jobs').catch(err => {
+                        console.error("Error loading jobs:", err);
+                        return null;
+                    })
+                ]);
+
                 let igAccs = [];
-                try {
-                    const igResp = await fetchWithAuth('/api/platforms/instagram/accounts/detailed');
-                    if (igResp && igResp.ok) {
-                        igAccs = await igResp.json();
-                    }
-                } catch (err) {
-                    console.error("Error loading detailed Instagram account info:", err);
+                if (igResp && igResp.ok) {
+                    igAccs = await igResp.json().catch(() => []);
                 }
 
-                // 2. Fetch LinkedIn Account Details
                 let liAccs = [];
-                try {
-                    const liResp = await fetchWithAuth('/api/platforms/linkedin/accounts/detailed');
-                    if (liResp && liResp.ok) {
-                        const res = await liResp.json();
-                        liAccs = Array.isArray(res) ? res : (res.accounts || []);
-                    }
-                } catch (err) {
-                    console.error("Error loading LinkedIn account info:", err);
+                if (liResp && liResp.ok) {
+                    const res = await liResp.json().catch(() => ({}));
+                    liAccs = Array.isArray(res) ? res : (res.accounts || []);
                 }
 
-                // 2.5 Fetch Threads Account Details
                 let threadsAccs = [];
-                try {
-                    const threadsResp = await fetchWithAuth('/api/platforms/threads/accounts/detailed');
-                    if (threadsResp && threadsResp.ok) {
-                        threadsAccs = await threadsResp.json();
-                    }
-                } catch (err) {
-                    console.error("Error loading Threads account info:", err);
+                if (threadsResp && threadsResp.ok) {
+                    threadsAccs = await threadsResp.json().catch(() => []);
                 }
 
-                // 3. Fetch Jobs & Render Post History & Analytics
-                const jobsResp = await fetchWithAuth('/api/jobs');
                 if (jobsResp && jobsResp.ok) {
-                    globalJobs = await jobsResp.json();
+                    globalJobs = await jobsResp.json().catch(() => []);
                 }
                 
                 const published = globalJobs.filter(j => j.status === 'published').length;
@@ -3852,7 +3965,7 @@
 
                             const picHtml = acc.profile_picture_url
                                 ? '<img src="' + acc.profile_picture_url + '" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" alt="">'
-                                : '<img src="/static/assets/threads.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">';
+                                : '<img src="/static/threads-logo-icon.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">';
 
                             const followersDisplay = (acc.followers_count != null) ? Number(acc.followers_count).toLocaleString() : '—';
                             const threadsDisplay = (acc.threads_count != null) ? Number(acc.threads_count).toLocaleString() : '—';
@@ -3863,13 +3976,8 @@
 
                             card.innerHTML = `
                                 <div class="profile-account-header">
-<<<<<<< HEAD
-                                    <div class="profile-pic-placeholder" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
-                                        <img src="/static/threads-logo-icon.svg" style="width: 100%; height: 100%; object-fit: cover;" alt="Threads">
-=======
-                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff;">
+                                    <div class="profile-pic-placeholder" style="background: #000; color: #fff; display: flex; align-items: center; justify-content: center;">
                                         ${picHtml}
->>>>>>> d9406c5a756227133978983bde066b74547f90bf
                                     </div>
                                     <div class="profile-meta">
                                         <h3>${displayName}</h3>
@@ -3897,8 +4005,8 @@
                         card.className = 'profile-account-card';
                         card.innerHTML = `
                             <div class="profile-account-header">
-                                <div class="profile-pic-placeholder" style="border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px;">
-                                    <img src="/static/threads-logo-icon.svg" style="width: 100%; height: 100%; object-fit: cover;" alt="Threads">
+                                <div class="profile-pic-placeholder" style="background: #000; color: #fff; display: flex; align-items: center; justify-content: center;">
+                                    <img src="/static/threads-logo-icon.svg" style="width: 24px; height: 24px; filter: invert(1);" alt="Threads">
                                 </div>
                                 <div class="profile-meta">
                                     <h3>Not Connected</h3>
@@ -4946,6 +5054,8 @@
                 const label = document.getElementById('threadsUserLabel');
                 const listContainer = document.getElementById('threadsAccountsList');
                 const select = document.getElementById('threadsAccounts');
+                const btn = document.getElementById('addThreadsAccount');
+                const envBtn = document.getElementById('connectThreadsEnv');
 
                 if (listContainer) listContainer.innerHTML = '';
                 if (select) select.innerHTML = '';
@@ -4958,6 +5068,8 @@
                         badge.className = 'job-status status-published';
                     }
                     if (label) label.textContent = `${accounts.length} Threads account(s) connected. You can add more below.`;
+                    if (btn) btn.className = 'btn btn-threads-connected';
+                    if (envBtn) envBtn.className = 'btn btn-threads-env';
 
                     accounts.forEach((acc, idx) => {
                         // Checkbox in post form
@@ -5021,13 +5133,15 @@
                                     checkThreads.checked = checkedBoxes.length > 0;
                                 }
                                 renderAvatarChips();
-                                updateUIState();
+                                  updateUIState();
                             });
                         });
                     }
                 } else {
                     if (badge) { badge.textContent = 'Disconnected'; badge.className = 'job-status status-failed'; }
                     if (label) label.textContent = 'No Threads accounts connected. Add one below to publish thread posts.';
+                    if (btn) btn.className = 'btn btn-threads';
+                    if (envBtn) envBtn.className = 'btn btn-threads-env';
                     if (select) select.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;padding:4px;">No accounts connected</div>';
                 }
             } catch (e) {
@@ -5824,9 +5938,10 @@
                     chip.className = `avatar-chip ${activeClass}`;
                     chip.title = `@${acc.username} (Instagram)`;
                     
+                    const firstLetter = acc.username ? acc.username.charAt(0).toUpperCase() : 'I';
                     const avatarContent = acc.profile_picture_url 
                         ? `<img src="${acc.profile_picture_url}" alt="ig">`
-                        : `<i class="fas fa-user fallback-icon"></i>`;
+                        : `<div class="initials-avatar" style="width: 100%; height: 100%; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: #FFFFFF; background: linear-gradient(135deg, #f09433, #dc2743, #cc2366); border-radius: 50%;">${firstLetter}</div>`;
                         
                     chip.innerHTML = `
                         ${avatarContent}
@@ -5868,7 +5983,7 @@
                                 </radialGradient>
                             </defs>
                             <rect width="48" height="48" fill="url(#ig-radial)"/>
-                            <path d="M24 14.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM24 12c-3.259 0-3.668.014-4.948.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.281-.072 1.689-.072 4.948 0 3.259.014 3.668.072 4.948.2 4.354 2.618 6.782 6.98 6.979 1.28.059 1.689.073 4.948.073 3.259 0 3.667-.014 4.947-.072 4.354-.196 6.78-2.617 6.98-6.979.058-1.28.072-1.689.072-4.948 0-3.259-.014-3.668-.072-4.948-.2-4.354-2.618-6.78-6.98-6.979C27.668 12.014 27.259 12 24 12zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.838 3.838 0 110-7.676 3.838 3.838 0 010 7.676zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" fill="#fff" transform="scale(0.7) translate(5.1, 5.1)"/>
+                            <path d="M24 14.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM24 12c-3.259 0-3.668.014-4.948.072-4.358.2-6.78 2.618-6.98 6.98-.058 1.281-.072 1.689-.072 4.948 0 3.259.014 3.668.072 4.948.2 4.354 2.618 6.782 6.98 6.979 1.28.059 1.689.073 4.948.073 3.259 0 3.667-.014 4.947-.072 4.354-.196 6.78-2.617 6.98-6.979.058-1.28.072-1.689.072-4.948 0-3.259-.014-3.668-.072-4.948-.2-4.354-2.618-6.78-6.98-6.979C27.668 12.014 27.259 12 24 12zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.838 3.838 0 110-7.676 3.838 3.838 0 010 7.676zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" fill="#fff" transform="translate(7.2, 7.2) scale(0.7)"/>
                         </svg>
                     </div>
                     <div class="lock-overlay"><i class="fas fa-plus"></i></div>
@@ -5886,9 +6001,10 @@
                     chip.className = `avatar-chip ${activeClass}`;
                     chip.title = `${acc.name} (LinkedIn)`;
                     
+                    const firstLetter = acc.name ? acc.name.charAt(0).toUpperCase() : 'L';
                     const avatarContent = acc.picture 
                         ? `<img src="${acc.picture}" alt="li">`
-                        : `<i class="fas fa-user fallback-icon"></i>`;
+                        : `<div class="initials-avatar" style="width: 100%; height: 100%; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: #FFFFFF; background: #0077b5; border-radius: 50%;">${firstLetter}</div>`;
                         
                     chip.innerHTML = `
                         ${avatarContent}
@@ -5921,7 +6037,7 @@
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <svg viewBox="0 0 48 48" style="width: 100%; height: 100%; border-radius: 50%;">
                             <rect width="48" height="48" fill="#0077B5"/>
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 18.5H6V10h3v8.5zM7.5 8.7c-.9 0-1.7-.8-1.7-1.7s.8-1.7 1.7-1.7 1.7.8 1.7 1.7-.8 1.7-1.7 1.7zm11 9.8h-3v-4.8c0-1.1-.9-2-2-2s-2 .9-2 2v4.8h-3V10h3v1.3c.6-.8 1.6-1.3 2.7-1.3 1.8 0 3.3 1.5 3.3 3.3v5.2z" fill="#fff" transform="scale(0.8) translate(4.8, 4.8)"/>
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 18.5H6V10h3v8.5zM7.5 8.7c-.9 0-1.7-.8-1.7-1.7s.8-1.7 1.7-1.7 1.7.8 1.7 1.7-.8 1.7-1.7 1.7zm11 9.8h-3v-4.8c0-1.1-.9-2-2-2s-2 .9-2 2v4.8h-3V10h3v1.3c.6-.8 1.6-1.3 2.7-1.3 1.8 0 3.3 1.5 3.3 3.3v5.2z" fill="#fff" transform="translate(4.8, 4.8) scale(0.8)"/>
                         </svg>
                     </div>
                     <div class="lock-overlay"><i class="fas fa-plus"></i></div>
@@ -5939,8 +6055,11 @@
                     chip.className = `avatar-chip ${activeClass}`;
                     chip.title = `@${acc.username} (Threads)`;
                     
+                    const firstLetter = acc.username ? acc.username.charAt(0).toUpperCase() : 'T';
+                    const avatarContent = `<div class="initials-avatar" style="width: 100%; height: 100%; display: grid; place-items: center; font-weight: 800; font-size: 1.2rem; color: #FFFFFF; background: #000000; border-radius: 50%;">${firstLetter}</div>`;
+                    
                     chip.innerHTML = `
-                        <i class="fas fa-user fallback-icon"></i>
+                        ${avatarContent}
                         <div class="platform-badge" style="background: #000000; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; padding: 2px;">
                             <svg viewBox="0 0 192 192" style="width: 100%; height: 100%;" fill="white">
                                 <path d="M128.6 97.2c-.7-3.9-2.1-7.3-4.3-10.2-2.9-3.8-7-6.5-12.2-7.9-1.8-.5-3.7-.8-5.7-.9-3.6-.2-6.9.3-9.9 1.4-4.5 1.7-8 4.9-10.1 9.2-1.4 2.9-2.1 6.1-2.1 9.5 0 3.9.9 7.5 2.7 10.6 2.4 4.2 6.1 7.2 11 8.8 3.1 1 6.5 1.3 10.1 1 2.5-.2 4.8-.7 7-1.6v6.3c-2.1.7-4.5 1.1-7.1 1.3-4.8.3-9.5-.2-13.8-1.7-6.8-2.3-12.1-6.6-15.4-12.5-2.5-4.4-3.8-9.4-3.8-14.9 0-5 1.1-9.7 3.2-13.8 3-5.8 7.8-10.3 14.1-12.9 4.3-1.7 9-2.5 14.1-2.2 2.8.2 5.5.6 8 1.4 8.2 2.3 14.5 7.3 18.1 14.5 1.9 3.8 3 8 3.2 12.6.1 2.1.1 3.9-.1 5.6-.5 7.2-3.1 12.8-7.6 16.6-4.2 3.5-9.6 5.2-15.9 5.1-3.3-.1-6.3-.7-8.9-2-2.2-1.1-4-2.7-5.2-4.8-.7 1.4-1.6 2.6-2.7 3.6-2.3 2.1-5.3 3.2-8.7 3.2-4.2 0-7.7-1.5-10.2-4.4-2.3-2.6-3.5-6.2-3.5-10.5 0-4.1 1.2-7.8 3.5-10.5 2.5-2.9 6-4.5 10.2-4.5 2.3 0 4.4.5 6.1 1.5v-1.3h6.5v20.8c0 1.9.4 3.4 1.3 4.4.9 1.1 2.2 1.6 3.9 1.7 4.4.1 8.2-1.2 11-3.8 3.1-2.9 4.8-7.2 5.2-12.7.1-1.5.2-3.1.1-4.9zm-37.7 12.1c1.3 1.6 3.1 2.4 5.3 2.4 2.2 0 4-.8 5.3-2.4 1.3-1.5 2-3.7 2-6.2 0-2.6-.7-4.7-2-6.2-1.3-1.5-3.1-2.3-5.3-2.3-2.2 0-4 .8-5.3 2.3-1.3 1.5-2 3.6-2 6.2 0 2.5.7 4.7 2 6.2z"/>
@@ -5970,7 +6089,7 @@
                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
                         <svg viewBox="0 0 48 48" style="width: 100%; height: 100%; border-radius: 50%;">
                             <rect width="48" height="48" fill="#000000"/>
-                            <path d="M27.25 21.46c-.75-.43-1.63-.66-2.58-.66-2.45 0-4.14 1.63-4.14 4.09 0 2.3 1.64 4.04 4.01 4.04 1.05 0 2-.31 2.75-.89V21.46zm5.83 5.43c0 3.73-2.6 6.84-6.66 6.84-2.64 0-4.83-1.28-5.83-3.15-.07.03-.13.06-.2.09-2.07.82-4.12.87-5.59-.2-1.39-1.01-2.01-2.73-2.01-4.71 0-4.27 3.32-8.31 9.47-8.31 1.07 0 2.16.14 3.12.42.06-.22.14-.44.25-.66 1.04-2.12 3.16-3.23 5.76-3.23 3.65 0 6.13 2.18 6.13 6.01 0 5.47-3.78 8.16-7.85 8.16-1.57 0-2.82-.57-3.32-1.46-.22-.38-.34-.84-.34-1.38V21.6c-.66-.46-1.46-.73-2.34-.73-3.17 0-5.32 2.37-5.32 5.56 0 3.12 2.06 5.44 5.11 5.44 1.25 0 2.37-.41 3.25-1.12v.22c0 .94.22 1.67.62 2.16.54.67 1.39 1 2.45 1 2.94 0 4.67-2.18 4.67-5.8v-.25c0-2.38-1.42-3.75-3.69-3.75-1.5 0-2.68.75-3.24 2.13l-.06.16h.06zm-7.79-11.39c-4.49 0-6.9 2.9-6.9 6.06 0 1.34.42 2.48 1.35 3.14.98.7 2.43.68 3.84.12a14.28 14.28 0 002.58-1.27c-.45-3.08-1.55-5.91-3.2-8.05h.33zm11.75 3.33c0-2.45-1.38-3.78-3.56-3.78-1.42 0-2.58.64-3.12 1.76-.08.17-.14.34-.18.52 1.83 2.07 2.99 4.79 3.42 7.79 2.04-.37 3.44-2.29 3.44-6.29z" fill="#fff" transform="scale(0.8) translate(4.8, 4.8)"/>
+                            <path d="M27.25 21.46c-.75-.43-1.63-.66-2.58-.66-2.45 0-4.14 1.63-4.14 4.09 0 2.3 1.64 4.04 4.01 4.04 1.05 0 2-.31 2.75-.89V21.46zm5.83 5.43c0 3.73-2.6 6.84-6.66 6.84-2.64 0-4.83-1.28-5.83-3.15-.07.03-.13.06-.2.09-2.07.82-4.12.87-5.59-.2-1.39-1.01-2.01-2.73-2.01-4.71 0-4.27 3.32-8.31 9.47-8.31 1.07 0 2.16.14 3.12.42.06-.22.14-.44.25-.66 1.04-2.12 3.16-3.23 5.76-3.23 3.65 0 6.13 2.18 6.13 6.01 0 5.47-3.78 8.16-7.85 8.16-1.57 0-2.82-.57-3.32-1.46-.22-.38-.34-.84-.34-1.38V21.6c-.66-.46-1.46-.73-2.34-.73-3.17 0-5.32 2.37-5.32 5.56 0 3.12 2.06 5.44 5.11 5.44 1.25 0 2.37-.41 3.25-1.12v.22c0 .94.22 1.67.62 2.16.54.67 1.39 1 2.45 1 2.94 0 4.67-2.18 4.67-5.8v-.25c0-2.38-1.42-3.75-3.69-3.75-1.5 0-2.68.75-3.24 2.13l-.06.16h.06zm-7.79-11.39c-4.49 0-6.9 2.9-6.9 6.06 0 1.34.42 2.48 1.35 3.14.98.7 2.43.68 3.84.12a14.28 14.28 0 002.58-1.27c-.45-3.08-1.55-5.91-3.2-8.05h.33zm11.75 3.33c0-2.45-1.38-3.78-3.56-3.78-1.42 0-2.58.64-3.12 1.76-.08.17-.14.34-.18.52 1.83 2.07 2.99 4.79 3.42 7.79 2.04-.37 3.44-2.29 3.44-6.29z" fill="#fff" transform="translate(4.8, 4.8) scale(0.8)"/>
                         </svg>
                     </div>
                     <div class="lock-overlay"><i class="fas fa-plus"></i></div>
