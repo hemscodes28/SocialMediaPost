@@ -2982,8 +2982,25 @@
 
                     <!-- Dock Panel 2: Templates Library -->
                     <div id="panelTemplates" style="display: none; flex-direction: column; gap: 12px; height: 100%; overflow: hidden; background: var(--surface-dark); border: 1px solid var(--border); border-radius: 16px; padding: 18px;">
+                        <style>
+                            #templateSuggestedTags::-webkit-scrollbar {
+                                display: none;
+                            }
+                        </style>
                         <div style="font-weight: 700; font-size: 0.82rem; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.8px; margin-bottom: 4px;">Templates Library</div>
-                        <input type="text" id="templateSearchInput" placeholder="Search 1000+ templates..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.82rem; outline: none; background: var(--surface-lighter); margin-bottom: 8px;">
+                        
+                        <!-- Search Box with Search Icon and Clear button -->
+                        <div style="position: relative; width: 100%; margin-bottom: 4px;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 0.85rem; pointer-events: none;"></i>
+                            <input type="text" id="templateSearchInput" placeholder="Search templates (e.g. food, tech, finance)..." style="width: 100%; padding: 10px 32px 10px 32px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.82rem; outline: none; background: var(--surface-lighter); color: var(--text-main); transition: all 0.2s;">
+                            <i class="fas fa-times-circle" id="templateSearchClearBtn" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); cursor: pointer; display: none; font-size: 0.9rem; transition: color 0.2s;" title="Clear search"></i>
+                        </div>
+                        
+                        <!-- Suggested Tags row -->
+                        <div id="templateSuggestedTags" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; white-space: nowrap; scrollbar-width: none; -ms-overflow-style: none;"></div>
+                        
+                        <!-- Search Result Summary -->
+                        <div id="templateSearchSummary" style="font-size: 0.75rem; color: var(--text-dim); margin-top: -4px; margin-bottom: 2px; font-weight: 600; display: none;"></div>
                         
                         <div id="templatesListGrid" style="flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px;"></div>
                         
@@ -6211,157 +6228,485 @@
         
         // Define base templates and niches to generate 500+ combinations
         const baseTemplateStructures = [
+            // FOOD
             {
-                category: "Launch",
-                title: "🚀 New [Niche] Launch",
-                body: "BIG NEWS! 🚀 We are officially launching our new [Niche] platform today! This project has been months in the making, and we are so excited to share it with you. For the next 24 hours only, get early-bird access with 20% off. Use code START at checkout! #NewLaunch #Innovation #[NicheTag] #[NicheTag]Life"
+                category: "Food",
+                tags: ["food", "cooking", "recipe", "meal", "kitchen", "cafe", "restaurant", "dining", "eat", "bake", "coffee", "chef", "pasta", "vegan", "grill", "smoothie"],
+                structures: [
+                    {
+                        title: "🍳 Master [Niche] Today",
+                        body: "Struggling to get that restaurant-quality finish with [Niche]? 🍳 The secret is [Secret]. This simple adjustment unlocks [Result] that will impress anyone. Try it out this week! #[NicheTag] #HomeChef"
+                    },
+                    {
+                        title: "💡 Easy [Niche] Hack",
+                        body: "Love [Niche] but hate the prep time? 💡 Here is my favorite hack: [Hack]. It delivers the exact same [Result] in half the time. Perfect for busy weeknights! #[NicheTag] #QuickMeals"
+                    },
+                    {
+                        title: "🌱 Better [Niche] Guide",
+                        body: "How to make a healthier, cleaner version of [Niche]: substitute heavy ingredients with [Alternative]. 🌱 Not only is it better for you, but it also accentuates the natural [Result] of the dish! #[NicheTag] #HealthyEating"
+                    },
+                    {
+                        title: "🔥 The Ultimate [Niche] Mistake",
+                        body: "If you are doing [Niche], stop making this common mistake: [Mistake]. 🛑 Instead, focus on [Secret] to ensure you get [Result] every single time. #[NicheTag] #CookingTips"
+                    }
+                ],
+                niches: [
+                    { name: "Vegan Cooking", secret: "pressing your tofu and cooking with nutritional yeast", hack: "batch-blending cashew creams for sauces", alternative: "creamy oat milk and nutritional yeast", result: "a rich, cheesy texture", mistake: "not seasoning your plant proteins early in the cooking process", tag: "VeganRecipe" },
+                    { name: "Sourdough Baking", secret: "maintaining a strict stretch-and-fold routine during bulk fermentation", hack: "baking in a pre-heated cast-iron Dutch oven", alternative: "ancient grain whole-wheat flours", result: "a perfect open crumb and crispy blistered crust", mistake: "using water that is too hot, which kills the starter yeasts", tag: "SourdoughBaking" },
+                    { name: "Specialty Coffee", secret: "weighing your coffee beans to the gram and using filtered water", hack: "blooming your coffee ground for exactly 45 seconds before the main pour", alternative: "light-roast single-origin beans", result: "bright, clean, and floral notes", mistake: "using boiling water, which extracts bitter and over-extracted flavors", tag: "SpecialtyCoffee" },
+                    { name: "Italian Pasta", secret: "emulsifying the starchy pasta water with your sauce in the pan", hack: "using bronze-cut pasta shapes for better sauce cling", alternative: "handmade egg dough", result: "a glossy, restaurant-style coating on every noodle", mistake: "rinsing the cooked pasta under cold water, which washes away vital starch", tag: "ItalianFood" },
+                    { name: "Meal Prep", secret: "roasting your vegetables at high heat to lock in flavor", hack: "using airtight glass containers to extend freshness", alternative: "quinoa and roasted chickpeas", result: "fresh-tasting meals all week long", mistake: "prepping too much food, leading to soggy textures by Thursday", tag: "MealPrep" },
+                    { name: "Smoothie Bowls", secret: "using frozen banana chunks as the thick cream base", hack: "blending on low speed and using a tamper to push down the fruit", alternative: "spinach and chia seeds", result: "a thick, scoopable texture that holds toppings", mistake: "adding too much liquid, which turns your bowl into a runny drink", tag: "SmoothieBowl" },
+                    { name: "Backyard Grilling", secret: "letting your meat rest off the heat for at least 10 minutes", hack: "using a dual-zone fire setup for direct and indirect heat", alternative: "charcoal and hardwood smoke blocks", result: "tender, juicy bites with a perfect sear", mistake: "constantly cutting into the meat to check if it's done", tag: "Grilling" },
+                    { name: "Healthy Baking", secret: "substituting refined sugars with applesauce or ripe bananas", hack: "freezing individual muffin portions for instant morning snacks", alternative: "almond flour and oat flour", result: "fluffy, moist baked goods with low glycemic index", mistake: "over-mixing the batter, which makes the muffins dense and rubbery", tag: "HealthyBaking" },
+                    { name: "Pastry Art", secret: "balancing sweet components with a touch of sea salt or acid", hack: "using silicone molds for clean and elegant presentation", alternative: "agar-agar instead of gelatin", result: "a visually stunning and perfectly balanced bite", mistake: "underestimating the cooling and setting times", tag: "PastryArt" },
+                    { name: "Tea Brewing", secret: "steeping leaves at specific temperatures depending on the variety", hack: "using a clay teapot for heat retention and flavor enhancement", alternative: "loose leaf green tea", result: "a subtle, complex brew without any bitterness", mistake: "over-steeping the tea leaves beyond the recommended time", tag: "TeaCulture" },
+                    { name: "Street Food", secret: "layering textures with crispy shallots and fresh herbs", hack: "serving in authentic small plates for rustic charm", alternative: "spiced tofu cubes", result: "punchy, vibrant street flavors at home", mistake: "crowding the pan, which steams the ingredients instead of searing them", tag: "StreetFood" },
+                    { name: "Soup Crafting", secret: "simmering aromatics slowly in olive oil before adding liquid", hack: "puréing a portion of the soup for automatic thickness", alternative: "homemade vegetable stock", result: "a deeply comforting and layered broth", mistake: "adding delicate fresh herbs too early, losing their bright flavor", tag: "SoupSeason" },
+                    { name: "Fermentation", secret: "submerging the vegetables completely below the brine line", hack: "using glass weights to keep everything pressed down", alternative: "pink Himalayan sea salt", result: "tangy, probiotic-rich ferments", mistake: "using chlorinated tap water, which inhibits the beneficial bacteria", tag: "Fermentation" }
+                ]
             },
+            // TECH
             {
-                category: "Promo",
-                title: "🎁 Limited [Niche] Offer",
-                body: "🚨 FLASH SALE! For a very limited time, enjoy 25% OFF on all [Niche] programs and resources! It's the perfect opportunity to invest in yourself and take your skills to the next level. Use code UPGRADE at checkout. Hurry, this offer ends soon! #FlashSale #Discount #[NicheTag]"
+                category: "Tech",
+                tags: ["tech", "coding", "software", "programming", "saas", "developer", "web", "app", "uiux", "design", "computer", "git", "python", "javascript", "developer", "engineering", "database", "sql", "api", "docker", "typescript"],
+                structures: [
+                    {
+                        title: "💻 Master [Niche] Performance",
+                        body: "Is your [Niche] codebase starting to slow down? 💻 The trick is [Secret]. Implementing this helps you achieve [Result], keeping your users happy and your code clean. #[NicheTag] #CodingLife"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Hack",
+                        body: "Tired of writing boilerplate code for [Niche]? 💡 Try this: [Hack]. It automates the process and guarantees [Result] with minimal effort. #[NicheTag] #DeveloperTips"
+                    },
+                    {
+                        title: "🛠️ Clean Code in [Niche]",
+                        body: "How to write cleaner, more maintainable code in [Niche]: replace complex patterns with [Alternative]. 🛠️ This ensures [Result] and makes onboarding new developers a breeze! #[NicheTag] #CleanCode"
+                    },
+                    {
+                        title: "⚠️ Stop Doing This in [Niche]",
+                        body: "Are you still [Mistake] in your [Niche] projects? 🛑 Stop immediately! Switch to [Secret] for [Result] and cleaner deployments. #[NicheTag] #WebDev"
+                    }
+                ],
+                niches: [
+                    { name: "ReactJS Development", secret: "memoizing components and separating state logically", hack: "using custom hooks to share component state", alternative: "simple functional contexts", result: "blazing-fast render times", mistake: "putting all your state in one giant global store", tag: "ReactJS" },
+                    { name: "Python Automation", secret: "using asynchronous requests and queue management", hack: "writing scheduled cron jobs using schedule libraries", alternative: "lightweight concurrent runners", result: "seamless and reliable script execution", mistake: "using hard-coded sleep timers in your loops", tag: "PythonProgramming" },
+                    { name: "UI/UX Design", secret: "using a strict 8pt grid system for spacing", hack: "building reusable design tokens for colors and fonts", alternative: "fluid typography formulas", result: "pixel-perfect and responsive interfaces", mistake: "manually styling every single element from scratch", tag: "UIUXDesign" },
+                    { name: "AI Integrations", secret: "structuring strict system prompts with clear constraints", hack: "implementing semantic caching to save API costs", alternative: "fine-tuned lightweight local models", result: "highly accurate and cost-effective AI responses", mistake: "sending unvalidated raw user inputs directly to the LLM", tag: "AITech" },
+                    { name: "Git Workflows", secret: "interactive rebasing to squash minor commits before merging", hack: "configuring pre-commit hooks to auto-format files", alternative: "feature branch pull request templates", result: "a pristine, readable repository commit history", mistake: "committing directly to the master branch without testing", tag: "DevOps" },
+                    { name: "SQL Databases", secret: "adding compound indexes and analyzing query plans", hack: "writing batch updates instead of looping inserts", alternative: "prepared statements with connection pooling", result: "millisecond query response times under high loads", mistake: "using SELECT * queries without limit clauses in production", tag: "DatabaseDesign" },
+                    { name: "CSS Styling", secret: "leveraging modern CSS variables and flex layouts", hack: "using CSS grid to build complex grid systems", alternative: "native container queries", result: "responsive layouts that require zero media queries", mistake: "using absolute pixel positioning for fluid layouts", tag: "WebDesign" },
+                    { name: "API Development", secret: "adding rate limits and validating request payloads with Pydantic", hack: "generating swagger docs automatically on startup", alternative: "gRPC for microservices communication", result: "secure, fast, and self-documenting APIs", mistake: "returning raw database models directly to clients", tag: "APIDevelopment" },
+                    { name: "Cyber Security", secret: "sanitizing inputs and using parameterized database queries", hack: "implementing multi-factor authentication and JWT signing", alternative: "secure hash algorithms like bcrypt for passwords", result: "impenetrable systems that resist injection attacks", mistake: "storing plain-text API secrets directly in code repositories", tag: "CyberSecurity" },
+                    { name: "Mobile Apps", secret: "caching images locally and lazy-loading lists", hack: "using fast-refresh tools during local testing", alternative: "native platform bridges", result: "smooth 60fps animations and scrolling", mistake: "loading entire database tables into device memory", tag: "MobileDev" },
+                    { name: "Testing Code", secret: "writing mock interfaces for all third-party services", hack: "running automated tests on every push using CI pipelines", alternative: "integration tests over unit tests", result: "100% confidence when deploying to production", mistake: "skipping edge-case tests because they are hard to mock", tag: "SoftwareTesting" },
+                    { name: "Docker Containers", secret: "multi-stage builds to shrink image footprints", hack: "caching package steps in the build configuration", alternative: "distroless base images", result: "secure and fast container deployments", mistake: "running your application container processes as root users", tag: "DevOps" },
+                    { name: "TypeScript", secret: "defining strict interfaces and avoiding the 'any' type", hack: "using utility types like Pick and Omit for reuse", alternative: "discriminated union types", result: "compile-time errors instead of runtime crashes", mistake: "casting variables arbitrarily to bypass compiler checks", tag: "TypeScript" }
+                ]
             },
+            // FITNESS
             {
-                category: "Tips",
-                title: "💡 Expert [Niche] Tip",
-                body: "Here is a quick [Niche] tip to instantly level up your routine: focus on quality over quantity. 💡 In [Niche], consistency and small habits lead to massive breakthroughs over time. What's your go-to hack? Drop it in the comments below! #[NicheTag] #ExpertTips #LifeHacks"
+                category: "Fitness",
+                tags: ["health", "fitness", "gym", "workout", "wellness", "yoga", "nutrition", "diet", "meditation", "supplements", "exercise", "weightloss", "running", "stretch", "hiit", "muscle", "cardio", "strength"],
+                structures: [
+                    {
+                        title: "🏋️ Level Up [Niche]",
+                        body: "Want to see better results with [Niche]? 🏋️ The core secret is [Secret]. Integrating this into your program promotes [Result], which keeps you progressing safely. #[NicheTag] #FitnessJourney"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Hack",
+                        body: "Short on time but want a solid [Niche] session? 💡 My favorite hack is [Hack]. It maximizes [Result] while saving you precious time. No excuses! #[NicheTag] #WorkoutTips"
+                    },
+                    {
+                        title: "🌱 Better [Niche] Routine",
+                        body: "How to upgrade your daily [Niche] routine: swap standard patterns with [Alternative]. 🌱 This adjustment enhances [Result] and supports long-term recovery. #[NicheTag] #Wellness"
+                    },
+                    {
+                        title: "⚠️ 1 Big [Niche] Mistake",
+                        body: "If you are doing [Niche], make sure to avoid this mistake: [Mistake]. 🛑 Instead, focus on [Secret] for [Result] and injury prevention. #[NicheTag] #GymTips"
+                    }
+                ],
+                niches: [
+                    { name: "Strength Training", secret: "tracking progressive overload and taking adequate rest", hack: "performing supersets of opposing muscle groups", alternative: "unilateral compound movements", result: "muscle fiber recruitment and strength gains", mistake: "ego lifting with bad posture or zero control", tag: "StrengthTraining" },
+                    { name: "HIIT Workouts", secret: "keeping active recovery intervals brief and focused", hack: "following a strict 20s work, 10s rest Tabata scheme", alternative: "bodyweight functional movements", result: "anaerobic threshold and high caloric burn", mistake: "sacrificing form for speed when fatigued", tag: "HIITWorkout" },
+                    { name: "Yoga Practice", secret: "syncing your breath depth with movement transitions", hack: "holding yin poses for 3+ minutes to release fascia", alternative: "restorative alignment blocks", result: "flexibility, core stability, and mental clarity", mistake: "forcing yourself into deep stretches before warming up", tag: "YogaLife" },
+                    { name: "Running", secret: "focusing on short, quick strides and midfoot strikes", hack: "using tempo runs to build threshold endurance", alternative: "running on trail surfaces instead of asphalt", result: "aerobic capacity and reduced joint strain", mistake: "increasing your weekly mileage too quickly", tag: "RunnerLife" },
+                    { name: "Pilates", secret: "engaging your transverse abdominis on every exhale", hack: "slowing down the eccentric phase of movements", alternative: "reformer-style resistance bands", result: "deep core strength and postural alignment", mistake: "using momentum instead of muscular control", tag: "PilatesStudio" },
+                    { name: "Nutrition Coaching", secret: "focusing on whole foods and high protein density", hack: "pre-batching protein snacks for post-workout", alternative: "high-fiber complex carbohydrates", result: "sustained energy and muscle repair", mistake: "drastically cutting calories, which stalls metabolism", tag: "HealthyDiet" },
+                    { name: "Sleep Hygiene", secret: "maintaining a cool, dark room and strict wake times", hack: "wearing blue-light blocking glasses after sunset", alternative: "magnesium bisglycinate and herbal teas", result: "deep sleep recovery and hormone balance", mistake: "checking your phone in bed immediately before sleeping", tag: "SleepWell" },
+                    { name: "Bodybuilding", secret: "mind-muscle connection and hitting target volume", hack: "using drop sets on your final isolation movements", alternative: "high-intensity training to failure", result: "hypertrophy and localized muscle pump", mistake: "neglecting recovery phases and quality sleep", tag: "Bodybuilding" },
+                    { name: "Meditation", secret: "observing thoughts neutrally without judgment", hack: "setting a gentle repeating chime timer", alternative: "mindful breath-counting scripts", result: "cortisol reduction and nervous system regulation", mistake: "trying to force your mind to go completely blank", tag: "Mindfulness" },
+                    { name: "Mobility Work", secret: "controlled articular rotations for all major joints", hack: "foam rolling tight spots before active stretching", alternative: "active dynamic joint warmups", result: "optimal range of motion and joint longevity", mistake: "doing static stretches before heavy lifting sessions", tag: "MobilityTraining" },
+                    { name: "Hiking", secret: "pacing yourself uphill and staying hydrated", hack: "using trekking poles to distribute load", alternative: "trail runners with deep vibram lugs", result: "cardiovascular health and nature connection", mistake: "wearing brand new stiff boots on a long trail", tag: "HikingAdventure" },
+                    { name: "Mental Wellness", secret: "practicing daily gratitude and boundary setting", hack: "taking a 10-minute screen-free walk outdoors", alternative: "somatic breathing exercises", result: "reduced anxiety and improved mood balance", mistake: "bottling up stressors instead of processing them", tag: "MentalHealth" },
+                    { name: "Swimming", secret: "focusing on high elbow catch and long glide phases", hack: "using a pull buoy to isolate upper body mechanics", alternative: "interval sets with snorkel guides", result: "low-impact cardiovascular conditioning", mistake: "holding your breath instead of exhaling steadily under water", tag: "SwimTraining" }
+                ]
             },
+            // BUSINESS
             {
-                category: "Quote",
-                title: "✨ Inspiring [Niche] Quote",
-                body: "“The secret to getting ahead in [Niche] is simply getting started.” ✨ Every expert was once a beginner. If you've been waiting for a sign to start your [Niche] journey, this is it! Tag someone who needs this motivation today. #Motivation #[NicheTag] #Inspiration"
+                category: "Business",
+                tags: ["business", "startup", "marketing", "sales", "entrepreneur", "productivity", "smma", "freelancing", "leader", "success", "copywriting", "client", "employee", "work"],
+                structures: [
+                    {
+                        title: "📢 Scale Your [Niche] Business",
+                        body: "Want to scale your [Niche] operations this quarter? 📢 The golden rule is [Secret]. Focusing here drives [Result], allowing you to grow without burning out. #[NicheTag] #Entrepreneur"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Productivity Hack",
+                        body: "Overwhelmed with tasks in [Niche]? 💡 Try this simple adjustment: [Hack]. It secures [Result] and frees up hours for strategic planning. #[NicheTag] #BusinessTips"
+                    },
+                    {
+                        title: "🌱 Sustainable [Niche] Growth",
+                        body: "How to build a healthier [Niche] business: replace aggressive tactics with [Alternative]. 🌱 This approach builds [Result] and keeps client retention high. #[NicheTag] #Ethics"
+                    },
+                    {
+                        title: "⚠️ 1 Costly [Niche] Mistake",
+                        body: "If you are running a [Niche] business, stop doing this: [Mistake]. 🛑 Shift your focus to [Secret] for [Result] and improved cash flow. #[NicheTag] #Marketing"
+                    }
+                ],
+                niches: [
+                    { name: "SaaS Startups", secret: "optimizing user onboarding journeys and trial conversions", hack: "setting automated email triggers for inactive signups", alternative: "product-led organic growth loops", result: "increased lifetime value and low churn", mistake: "spending all your budget on ads before product-market fit", tag: "SaaSStartup" },
+                    { name: "Freelancing", secret: "writing value-based pricing proposals instead of hourly rates", hack: "scheduling client intake forms to filter bad leads", alternative: "retained recurring service contracts", result: "predictable monthly income and better clients", mistake: "trading hours for dollars indefinitely without raising rates", tag: "FreelanceLife" },
+                    { name: "Social Media Agency", secret: "delivering transparent attribution reports showing direct ROI", hack: "using structured content calendars with client auto-approval", alternative: "omnichannel brand positioning services", result: "longer client retention and glowing referrals", mistake: "promising viral growth instead of consistent business metrics", tag: "SMMAgency" },
+                    { name: "B2B Copywriting", secret: "addressing specific buyer objections directly in your headers", hack: "editing copy using the PAS (Problem-Agitate-Solve) formula", alternative: "data-driven case studies", result: "higher conversion rates on landing pages", mistake: "writing generic corporate copy that lacks a clear hook", tag: "Copywriting" },
+                    { name: "Startup Leadership", secret: "empowering team members with high autonomy and clear ownership", hack: "doing a 15-minute daily standup to clear roadblocks", alternative: "asynchronous update sheets", result: "high team velocity and strong company culture", mistake: "micromanaging tasks instead of delegating outcomes", tag: "StartupFounder" },
+                    { name: "Pitching Investors", secret: "telling a compelling customer success story backed by metrics", hack: "limiting your pitch deck to 10 highly visual slides", alternative: "traction-focused proof of concepts", result: "investor confidence and successful funding rounds", mistake: "focusing too much on tech features instead of market demand", tag: "VentureCapital" },
+                    { name: "Email Marketing", secret: "segmenting your list based on user click behaviors", hack: "writing short, curiosity-driven subject lines", alternative: "personalized behavioral flows", result: "open rates above 40% and higher CTR", mistake: "spamming your entire list with the same offer daily", tag: "EmailMarketing" },
+                    { name: "Brand Strategy", secret: "defining a singular core message that resonates with one audience", hack: "creating a visual style guide for all touchpoints", alternative: "customer journey mapping", result: "instant brand recognition and customer loyalty", mistake: "trying to appeal to everyone and diluting your message", tag: "BrandBuilder" },
+                    { name: "Cold Outreach", secret: "personalizing the first line with a specific compliment", hack: "using video pitches instead of long walls of text", alternative: "multichannel relationship building", result: "positive response rates above 15%", mistake: "sending 1000 identical automated emails a day", tag: "SalesOutreach" },
+                    { name: "Product Management", secret: "talking to users directly every week to find pain points", hack: "using impact vs effort matrices to prioritize features", alternative: "rapid prototyping and user testing", result: "products that users actually love and recommend", mistake: "building features based on stakeholder opinions alone", tag: "ProductManager" },
+                    { name: "High-Ticket Sales", secret: "diagnosing the prospect's problem before presenting the price", hack: "using active listening and summarizing their pain points", alternative: "consultative advisory sessions", result: "close rates above 30% without being pushy", mistake: "pitching your product features before understanding their needs", tag: "SalesTips" },
+                    { name: "E-commerce", secret: "optimizing your cart checkout flow for mobile users", hack: "adding 1-click upsells and post-purchase offers", alternative: "influencer product seedings", result: "higher average order values and conversion rates", mistake: "neglecting page load speed on collection pages", tag: "EcommerceBusiness" },
+                    { name: "Remote Work", secret: "setting clear documentation and communication guidelines", hack: "blocking off deep-work hours on shared calendars", alternative: "result-oriented tracking tools", result: "high productivity without zoom fatigue", mistake: "expecting remote employees to be online 9-to-5 without breaks", tag: "RemoteWork" }
+                ]
             },
+            // FINANCE
             {
-                category: "Hiring",
-                title: "💼 [Niche] Team Expansion",
-                body: "We're growing! 💼 We are looking for a passionate [Niche] Specialist to join our remote team. If you love building community and scaling creative solutions, we'd love to meet you. Link in bio to apply! Know someone perfect? Tag them below! #Hiring #Careers #[NicheTag]"
+                category: "Finance",
+                tags: ["money", "finance", "budget", "investing", "crypto", "savings", "wealth", "income", "stocks", "tax", "debt", "retirement"],
+                structures: [
+                    {
+                        title: "📈 Build Wealth with [Niche]",
+                        body: "Want to grow your net worth using [Niche]? 📈 The golden rule is [Secret]. This method secures [Result], bringing you closer to financial freedom. #[NicheTag] #WealthBuilding"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Money Hack",
+                        body: "Struggling to keep track of your cash flow in [Niche]? 💡 Try this: [Hack]. It guarantees [Result] with minimal monthly maintenance. #[NicheTag] #FinancialTips"
+                    },
+                    {
+                        title: "🌱 Sustainable [Niche] Habits",
+                        body: "How to adopt a healthier mindset for [Niche]: swap speculative bets with [Alternative]. 🌱 This strategy builds [Result] and protects your capital. #[NicheTag] #SmartMoney"
+                    },
+                    {
+                        title: "⚠️ Stop Making This [Niche] Mistake",
+                        body: "Are you still [Mistake] in your [Niche] planning? 🛑 Stop immediately! Switch to [Secret] for [Result] and peace of mind. #[NicheTag] #Investing"
+                    }
+                ],
+                niches: [
+                    { name: "Index Funds", secret: "consistently buying low-fee index funds and holding them", hack: "setting up automatic transfers on payday", alternative: "broad-market diversified funds", result: "steady compound growth over time", mistake: "selling your shares during market downturns", tag: "IndexFunds" },
+                    { name: "Budgeting", secret: "categorizing expenses and staying within your limits", hack: "using zero-based budgeting apps or envelope methods", alternative: "the classic 50/30/20 rule", result: "full control over your monthly cash flow", mistake: "not accounting for irregular annual expenses", tag: "BudgetTips" },
+                    { name: "Side Hustles", secret: "building digital assets that can scale without you", hack: "repurposing existing skills into template packs", alternative: "freelance consulting or digital products", result: "diverse streams of passive income", mistake: "undervaluing your hours when starting out", tag: "SideHustle" },
+                    { name: "Credit Score Boost", secret: "keeping credit card utilization below 10% monthly", hack: "setting auto-pay for minimum balances to prevent late fees", alternative: "secured credit cards or reporting utilities", result: "excellent credit scores and low interest rates", mistake: "closing old credit card accounts, which shrinks history", tag: "CreditScore" },
+                    { name: "Debt Payoff", secret: "focusing your extra cash on the highest interest rate debt first", hack: "using the debt snowball method for psychological wins", alternative: "consolidating high-interest cards into a low-rate loan", result: "becoming completely debt-free years ahead of schedule", mistake: "continuing to use your credit cards while paying them off", tag: "DebtFree" },
+                    { name: "Real Estate Investing", secret: "calculating rental cash flow based on conservative occupancy", hack: "house hacking by renting out extra rooms", alternative: "real estate investment trusts", result: "steady monthly cash flow and equity appreciation", mistake: "buying properties based on appreciation hopes instead of cash flow", tag: "RealEstate" },
+                    { name: "Passive Income", secret: "creating assets once and letting systems sell them", hack: "writing short helpful ebooks or design assets", alternative: "dividend-paying stocks and REITs", result: "income that hits your account while you sleep", mistake: "thinking passive income requires zero upfront work", tag: "PassiveIncome" },
+                    { name: "Retirement Planning", secret: "maximizing matches in employer-sponsored retirement plans", hack: "auto-escalating your contribution rate by 1% each year", alternative: "low-cost target date funds", result: "a fully funded retirement nest egg", mistake: "waiting until your 30s or 40s to start contributing", tag: "Retirement" },
+                    { name: "Tax Strategies", secret: "maximizing deductions and utilizing tax-advantaged accounts", hack: "contributing to traditional IRAs to lower taxable income", alternative: "holding assets long-term for capital gains rates", result: "thousands of dollars saved on your tax bills", mistake: "neglecting to keep receipts for business deductions", tag: "TaxTips" },
+                    { name: "High-Yield Savings", secret: "moving your emergency fund to high-yield online banks", hack: "setting automated weekly transfers to savings", alternative: "certificates of deposit for locked rates", result: "earning 4-5x more interest on your cash reserves", mistake: "keeping your emergency cash in a zero-interest checking account", tag: "SavingsGoal" },
+                    { name: "Emergency Funds", secret: "stashing away 3-6 months of basic living expenses", hack: "keeping this fund at a separate bank so you don't spend it", alternative: "highly liquid savings or money market funds", result: "a financial safety net that handles life's surprises", mistake: "using your emergency fund for luxury vacations", tag: "EmergencyFund" },
+                    { name: "Compound Interest", secret: "reinvesting all dividends and leaving the capital untouched", hack: "using compound interest calculators to visualize growth", alternative: "automated dividend reinvestment plans", result: "exponential growth of your initial investments", mistake: "withdrawing earnings early and disrupting compounding", tag: "InvestingTips" },
+                    { name: "Stock Trading", secret: "establishing strict stop-loss orders and risk management", hack: "using paper trading accounts to test strategies first", alternative: "long-term value investing principles", result: "consistent profits while protecting your downside", mistake: "FOMO buying hype stocks at their peak price", tag: "StockMarket" }
+                ]
             },
+            // TRAVEL
             {
-                category: "Engagement",
-                title: "❓ The [Niche] Question",
-                body: "Let's settle this once and for all: what is the most overrated tool or habit in [Niche]? 🤔 We want to hear your honest thoughts! Share your hot takes in the comments below. #QandA #[NicheTag] #Discussion"
+                category: "Travel",
+                tags: ["travel", "trip", "adventure", "wanderlust", "flight", "hotel", "backpack", "roadtrip", "explore", "vacation", "destination"],
+                structures: [
+                    {
+                        title: "✈️ Explore [Niche] Safely",
+                        body: "Planning your next adventure in [Niche]? ✈️ The top tip is [Secret]. Doing this ensures [Result], making your journey unforgettable. #[NicheTag] #TravelGram"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Travel Hack",
+                        body: "Want to save money while exploring [Niche]? 💡 My go-to hack is [Hack]. It delivers [Result] without breaking the bank. #[NicheTag] #TravelHacks"
+                    },
+                    {
+                        title: "🌱 Sustainable [Niche] Guide",
+                        body: "How to travel responsibly in [Niche]: support local by [Alternative]. 🌱 This helps preserve [Result] and benefits the local economy. #[NicheTag] #EcoTravel"
+                    },
+                    {
+                        title: "⚠️ 1 Big [Niche] Mistake",
+                        body: "Avoid this common mistake when planning for [Niche]: [Mistake]. 🛑 Instead, focus on [Secret] for [Result] and zero stress. #[NicheTag] #Wanderlust"
+                    }
+                ],
+                niches: [
+                    { name: "Solo Travel", secret: "joining free walking tours and staying in social hostels", hack: "sharing your live location with family and keeping offline maps", alternative: "booking homestays and local guides", result: "safe, meaningful connections and high independence", mistake: "arriving in a brand new city late at night without booking a hostel", tag: "SoloTraveler" },
+                    { name: "Budget Backpacking", secret: "traveling during shoulder seasons and cooking your own meals", hack: "booking overnight buses to save on accommodation costs", alternative: "street food stalls and public transport", result: "extended travel times for a fraction of the cost", mistake: "packing too much gear, which leads to heavy baggage fees", tag: "BackpackerLife" },
+                    { name: "Luxury Resorts", secret: "booking through travel advisors to get free room upgrades", hack: "traveling mid-week when occupancy rates and prices drop", alternative: "all-inclusive boutique eco-lodges", result: "absolute relaxation and premium VIP services", mistake: "staying inside the resort boundaries and missing local culture", tag: "LuxuryTravel" },
+                    { name: "Road Trips", secret: "downloading offline maps and checking tire pressures before leaving", hack: "packing a cooler with snacks and preparing a collaborative playlist", alternative: "scenic national park detours", result: "freedom of movement and unexpected scenic discoveries", mistake: "planning a strict minute-by-minute schedule with no buffer time", tag: "RoadTrip" },
+                    { name: "Digital Nomadism", secret: "verifying wifi upload speeds before booking month-long stays", hack: "buying local SIM cards at the airport for backup data", alternative: "co-working spaces with active communities", result: "productive work hours combined with global exploration", mistake: "moving to a new destination every week, which leads to burnout", tag: "DigitalNomad" },
+                    { name: "Culinary Travel", secret: "asking locals where they eat instead of searching online reviews", hack: "taking local cooking classes on your first day in a city", alternative: "bustling morning markets and food tours", result: "authentic, unforgettable gastronomic experiences", mistake: "sticking to tourist-trap restaurants near main squares", tag: "FoodTravel" },
+                    { name: "Eco-Tourism", secret: "avoiding animal attractions and choosing certified operators", hack: "carrying a reusable water bottle and zero-waste toiletries", alternative: "locally managed conservation projects", result: "a positive environmental impact and rich nature connections", mistake: "participating in unethical wildlife tours that exploit animals", tag: "EcoFriendly" },
+                    { name: "Hidden Gems", secret: "exploring secondary cities and lesser-known villages", hack: "renting a scooter to venture off the main highway paths", alternative: "hiking trails recommended by regional locals", result: "crowd-free landscapes and authentic cultural encounters", mistake: "visiting only the top 5 Instagrammed spots in a country", tag: "HiddenGems" },
+                    { name: "Packing Hacks", secret: "using compression packing cubes and rolling your clothes", hack: "wearing your heaviest jacket and boots on the airplane", alternative: "a capsule wardrobe that mixes and matches", result: "fitting everything into a single carry-on backpack", mistake: "packing 'just in case' items that you never end up wearing", tag: "PackingTips" },
+                    { name: "Travel Insurance", secret: "reading the fine print regarding adventure activities coverage", hack: "keeping digital copies of your policy on your phone offline", alternative: "comprehensive multi-trip annual plans", result: "absolute security against medical emergencies and delays", mistake: "skipping insurance to save a few dollars on a risky trip", tag: "TravelSmart" },
+                    { name: "Flight Booking", secret: "setting price alerts months in advance and staying flexible", hack: "searching in incognito mode and using positioning flights", alternative: "using airline miles and credit card points", result: "securing international tickets for half the standard price", mistake: "booking tight connections under 1 hour in busy hub airports", tag: "FlightDeals" },
+                    { name: "Photography Travel", secret: "waking up before sunrise to catch the golden hour light", hack: "using a lightweight carbon fiber travel tripod", alternative: "scouting locations using satellite maps", result: "stunning, empty landscape shots with perfect lighting", mistake: "carrying too many heavy lenses, which slows down your hiking", tag: "TravelPhotography" },
+                    { name: "Cruise Trips", secret: "booking excursions independently to avoid cruise line markups", hack: "carrying a magnetic wall hook to hang gear in small cabins", alternative: "smaller river cruises for intimate port stops", result: "hassle-free multi-destination travel and entertainment", mistake: "forgetting to put your phone on airplane mode at sea", tag: "CruiseLife" }
+                ]
             },
+            // FASHION
             {
-                category: "BTS",
-                title: "📸 Behind The Scenes",
-                body: "Ever wondered what goes into creating a premium [Niche] experience? 📸 Here is a sneak peek behind the scenes at our studio today. We are cooking up some amazing new content for you guys. Stay tuned! #BehindTheScenes #[NicheTag] #CreativeLife"
+                category: "Fashion",
+                tags: ["fashion", "style", "beauty", "skincare", "makeup", "ootd", "outfit", "glow", "cosmetic", "clothes", "wardrobe"],
+                structures: [
+                    {
+                        title: "✨ Elevate Your [Niche]",
+                        body: "Want to refine your [Niche] routine? ✨ The secret lies in [Secret]. Doing this yields [Result], keeping you looking and feeling your best. #[NicheTag] #GlowUp"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Styling Hack",
+                        body: "Struggling with [Niche] adjustments? 💡 Try this: [Hack]. It guarantees [Result] with minimal effort. #[NicheTag] #StyleTips"
+                    },
+                    {
+                        title: "🌱 Clean [Niche] Choices",
+                        body: "How to transition to a more conscious [Niche] approach: swap synthetic products with [Alternative]. 🌱 This change promotes [Result] and is better for your environment. #[NicheTag] #Sustainable"
+                    },
+                    {
+                        title: "⚠️ Stop Making This [Niche] Mistake",
+                        body: "Are you still doing this in your [Niche] routine: [Mistake]? 🛑 Stop immediately! Switch to [Secret] for [Result] and healthy results. #[NicheTag] #FashionGuide"
+                    }
+                ],
+                niches: [
+                    { name: "Skincare", secret: "focusing on double cleansing and skin barrier repair", hack: "applying hyaluronic acid onto damp skin for hydration", alternative: "organic plant-based botanical oils", result: "a hydrated, radiant skin barrier", mistake: "over-exfoliating with harsh physical scrubs daily", tag: "SkincareRoutine" },
+                    { name: "Capsule Wardrobe", secret: "investing in high-quality neutral basics that layer easily", hack: "sticking to a 3-color palette to make matching automatic", alternative: "high-quality organic cotton and linen garments", result: "effortless daily outfits and a clutter-free closet", mistake: "buying cheap trending items that go out of style quickly", tag: "CapsuleWardrobe" },
+                    { name: "Makeup Artistry", secret: "prepping your skin with a rich moisturizer before base products", hack: "using cream products before setting with a fine powder", alternative: "mineral-based clean cosmetics", result: "a natural, skin-like finish that lasts all day", mistake: "applying heavy foundation directly onto dry, un-prepped skin", tag: "MakeupTips" },
+                    { name: "Sustainable Fashion", secret: "checking fabric tags for natural fibers and buying secondhand", hack: "renting statement outfits for special events instead of buying", alternative: "upcycled vintage and thrifted pieces", result: "a unique personal style with a low carbon footprint", mistake: "falling for fast-fashion greenwashing campaigns", tag: "SlowFashion" },
+                    { name: "Hair Care", secret: "massaging your scalp with light oils before washing", hack: "using a microfiber towel and sleeping on silk pillowcases", alternative: "sulfate-free, nourishing shampoos", result: "reduced frizz and improved natural shine", mistake: "brushing wet hair roughly from the roots down", tag: "HealthyHair" },
+                    { name: "Thrift Shopping", secret: "visiting thrift stores in affluent neighborhoods for designer items", hack: "inspecting seams and hardware before purchasing", alternative: "gently-used vintage leather and denim", result: "high-quality, unique items for a fraction of retail price", mistake: "buying thrift items that don't fit, hoping to tailor them later", tag: "ThriftFinds" },
+                    { name: "Streetwear", secret: "mixing oversized silhouettes with structured tailored pieces", hack: "focusing on clean, statement footwear to anchor the outfit", alternative: "heavyweight loopback cotton hoodies", result: "a balanced, modern, and comfortable aesthetic", mistake: "over-accessorizing and cluttering the clean lines", tag: "StreetwearCulture" },
+                    { name: "Seasonal Style", secret: "layering textures like wool, leather, and silk", hack: "using a statement trench coat to instantly elevate basics", alternative: "rich autumnal earth tones", result: "stylish, temperature-appropriate daily looks", mistake: "wearing light summery fabrics in freezing winter weather", tag: "OOTD" },
+                    { name: "Fragrance Selection", secret: "spritzing perfume on pulse points and letting it dry naturally", hack: "layering a light citrus scent over a warm woody base", alternative: "natural oil-based solid perfumes", result: "a unique, long-lasting signature scent trail", mistake: "rubbing your wrists together, which crushes the top notes", tag: "PerfumeCollection" },
+                    { name: "Red Carpet Glow", secret: "exfoliating gently and using a hydrating sheet mask", hack: "mixing a drop of liquid highlighter into your foundation", alternative: "organic cold-pressed rosehip seed oil", result: "a luminous, red-carpet ready complexion", mistake: "trying brand new active skin products the night before an event", tag: "BeautyGlow" },
+                    { name: "Footwear Trends", secret: "prioritizing comfort and selecting classic leather silhouettes", hack: "using wooden shoe trees to maintain shoe shape", alternative: "handcrafted Goodyear-welted boots", result: "shoes that look great and last for decades", mistake: "buying uncomfortable heels just because they are trending", tag: "ShoeGame" },
+                    { name: "Accessories", secret: "using gold or silver jewelry to tie hardware colors together", hack: "using a structured belt to define your silhouette in loose dresses", alternative: "timeless silk scarves and leather belts", result: "a polished, intentional, and cohesive look", mistake: "wearing mismatched metals and conflicting statement pieces", tag: "Accessorize" },
+                    { name: "Activewear Styling", secret: "coordinating matching sets with an oversized blazer or trench", hack: "throwing a knit sweater over your shoulders for athleisure vibes", alternative: "recycled nylon moisture-wicking fabrics", result: "a chic, transition-friendly outfit from gym to cafe", mistake: "wearing worn-out, transparent leggings to high-impact classes", tag: "Athleisure" }
+                ]
             },
+            // ART
             {
-                category: "Giveaway",
-                title: "🎉 [Niche] Giveaway!",
-                body: "GIVEAWAY TIME! 🎉 To show our appreciation to our incredible [Niche] community, we are giving away our premium starter kit! \n\nTo enter:\n1. Like this post ❤️\n2. Follow our page\n3. Tag 3 friends below 👇\nWinner announced on Friday! Good luck! #Giveaway #[NicheTag] #Contest"
+                category: "Art",
+                tags: ["art", "design", "illustration", "photography", "video", "creative", "portfolio", "draw", "camera", "podcast", "painting", "visual"],
+                structures: [
+                    {
+                        title: "🎨 Upgrade Your [Niche]",
+                        body: "Want to bring more depth to your [Niche] projects? 🎨 The golden rule is [Secret]. This technique secures [Result], making your portfolio stand out. #[NicheTag] #Creative"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Creative Hack",
+                        body: "Stuck in a creative rut with [Niche]? 💡 Try this simple exercise: [Hack]. It unlocks [Result] and restarts your creative flow. #[NicheTag] #ArtTips"
+                    },
+                    {
+                        title: "🌱 Sustainable [Niche] Practices",
+                        body: "How to establish a sustainable workflow in [Niche]: replace manual repetitive tasks with [Alternative]. 🌱 This shift protects [Result] and saves your creative energy. #[NicheTag] #DesignLife"
+                    },
+                    {
+                        title: "⚠️ 1 Common [Niche] Mistake",
+                        body: "If you are working in [Niche], make sure you aren't doing this: [Mistake]. 🛑 Instead, focus on [Secret] for [Result] and professional output. #[NicheTag] #CreatorTips"
+                    }
+                ],
+                niches: [
+                    { name: "Graphic Design", secret: "establishing a strict typographic hierarchy and grid", hack: "sketching layout thumbnails on paper before opening software", alternative: "component-based vector design systems", result: "clean, readable, and balanced compositions", mistake: "using too many different fonts and conflicting colors", tag: "GraphicDesigner" },
+                    { name: "Creative Photography", secret: "finding unique framing elements and catching golden hour light", hack: "using a prism in front of the lens for organic light leaks", alternative: "manual exposure and prime focal lenses", result: "cinematic, high-contrast, and emotional captures", mistake: "relying solely on post-processing filters to fix poor lighting", tag: "PhotographyTips" },
+                    { name: "Illustration", secret: "studying real-world anatomy and lighting dynamics", hack: "turning your canvas upside down to spot perspective errors", alternative: "textures and custom dry media brushes", result: "expressive characters and dynamic compositions", mistake: "hiding difficult elements like hands or backgrounds", tag: "Illustrator" },
+                    { name: "Video Editing", secret: "cutting on motion to keep transitions invisible and smooth", hack: "editing the audio track and pacing first before color grading", alternative: "nested sequences and keyboard shortcut layouts", result: "highly engaging, fast-paced cinematic videos", mistake: "using flashy transition effects between every single clip", tag: "VideoEditor" },
+                    { name: "3D Modeling", secret: "maintaining clean edge-loop topology for animation setups", hack: "using real-world orthographic photo references for scaling", alternative: "procedural texture and shader node graphs", result: "realistic, easily deform-able 3D meshes", mistake: "building complex high-poly models without saving backups", tag: "3DArtist" },
+                    { name: "Brand Identity", secret: "building a cohesive story based on the client's core values", hack: "testing logo designs in pure black and white first", alternative: "modular logo lockups and custom type treatments", result: "timeless, scalable, and memorable brand marks", mistake: "designing a logo based on transient design trends", tag: "LogoDesign" },
+                    { name: "UI/UX Wireframing", secret: "mapping user flows before designing visual components", hack: "conducting rapid paper-prototype tests with real users", alternative: "low-fidelity gray-box interactive layouts", result: "intuitive, friction-free user journeys", mistake: "adding color and detailed graphics too early in wireframing", tag: "UXDesign" },
+                    { name: "Calligraphy", secret: "maintaining consistent pen angles and downstroke pressure", hack: "drawing guidelines with a light pencil before inking", alternative: "broad-edge or flexible pointed dip pens", result: "elegant, balanced letterforms with clean hairlines", mistake: "rushing the strokes instead of letting muscle memory guide them", tag: "CalligraphyArt" },
+                    { name: "Pottery Art", secret: "centering the clay perfectly on the wheel before throwing", hack: "keeping your hands wet and using uniform steady pressure", alternative: "locally sourced stoneware clays and custom glazes", result: "symmetrical, thin-walled functional vessels", mistake: "pulling the walls up too quickly, which collapses the clay", tag: "Ceramics" },
+                    { name: "Architecture Layout", secret: "maximizing natural light entry and functional flow paths", hack: "building physical cardboard models to test spatial volumes", alternative: "energy-efficient passive solar designs", result: "beautiful, livable, and sustainable buildings", mistake: "ignoring the site context and orientation during initial sketches", tag: "Architecture" },
+                    { name: "Creative Writing", secret: "showing the character's emotions through actions, not telling", hack: "writing without editing during your first morning draft session", alternative: "sensory descriptions and active verbs", result: "immersive worlds and highly relatable characters", mistake: "overusing adjectives and adverbs to force descriptions", tag: "WriterLife" },
+                    { name: "Podcast Production", secret: "treating your recording room with soft sound-absorbing materials", hack: "using a pop filter and speaking 6 inches from the mic", alternative: "dynamic microphones with USB/XLR interfaces", result: "crystal-clear, broadcast-quality vocal tracks", mistake: "recording in a highly reflective room with bare walls", tag: "Podcasting" },
+                    { name: "Watercolor Painting", secret: "working from light values to dark values in layers", hack: "using masking fluid to preserve clean white highlights", alternative: "heavyweight 100% cotton cold-press paper", result: "luminous, transparent, and vibrant paintings", mistake: "adding wet paint over a semi-dry wash, causing blooms", tag: "WatercolorArt" }
+                ]
             },
+            // MINDSET
             {
-                category: "Review",
-                title: "⭐ Customer Feedback",
-                body: "“I started using this [Niche] strategy two weeks ago, and my results have already doubled. Absolute game changer!” ⭐ Reviews like this make our day. We are committed to helping you succeed in [Niche]. Read more success stories via link in bio! #Testimonial #[NicheTag]"
+                category: "Mindset",
+                tags: ["mindset", "productivity", "motivation", "quote", "focus", "goals", "habits", "success", "inspire", "mentalhealth", "stoic", "stress", "journal"],
+                structures: [
+                    {
+                        title: "✨ Master Your [Niche]",
+                        body: "Want to unlock your full potential in [Niche]? ✨ The starting point is [Secret]. This focus leads to [Result], keeping you centered and productive. #[NicheTag] #Mindset"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Productivity Hack",
+                        body: "Feeling scattered in your [Niche] efforts? 💡 Try this: [Hack]. It secures [Result] and keeps your focus razor-sharp. #[NicheTag] #Productivity"
+                    },
+                    {
+                        title: "🌱 Better [Niche] Habits",
+                        body: "How to build a healthier approach to [Niche]: replace chaotic patterns with [Alternative]. 🌱 This change promotes [Result] and prevents burnout. #[NicheTag] #DailyHabits"
+                    },
+                    {
+                        title: "⚠️ 1 Dangerous [Niche] Trap",
+                        body: "Beware of this common trap in [Niche]: [Mistake]. 🛑 Instead, practice [Secret] to ensure you achieve [Result] daily. #[NicheTag] #Focus"
+                    }
+                ],
+                niches: [
+                    { name: "Morning Routines", secret: "waking up at a consistent time and delaying screen time", hack: "preparing your clothes and workspace the night before", alternative: "10 minutes of reading and light stretching", result: "a calm, intentional start to your day", mistake: "checking email or social media the second you wake up", tag: "MorningRoutine" },
+                    { name: "Deep Work", secret: "blocking off uninterrupted 90-minute time slots", hack: "putting your phone in another room during work hours", alternative: "full-screen focus modes and noise-cancelling setups", result: "maximum cognitive output and high-quality work", mistake: "constantly multitasking and checking notifications", tag: "DeepWork" },
+                    { name: "Goal Setting", secret: "breaking large yearly goals into actionable weekly tasks", hack: "writing down your goals daily in a visible notebook", alternative: "outcome-independent action metrics", result: "consistent progress and absolute clarity of focus", mistake: "setting vague, unmeasurable goals with no deadlines", tag: "GoalDigger" },
+                    { name: "Habit Building", secret: "pairing a new habit with an existing daily anchor activity", hack: "starting with a habit that takes under 2 minutes to complete", alternative: "visual habit-tracker calendars on your wall", result: "permanent lifestyle changes that stick effortlessly", mistake: "trying to change 5 habits at the same time", tag: "HabitStacking" },
+                    { name: "Stoicism", secret: "focusing solely on what is within your direct control", hack: "re-framing obstacles as opportunities to practice virtue", alternative: "daily evening reflections and self-examinations", result: "unshakable inner peace and resilience", mistake: "worrying about external opinions or future events", tag: "StoicMindset" },
+                    { name: "Overcoming Procrastination", secret: "forgiving yourself for past delay and starting immediately", hack: "using the 5-second rule: count down 5-4-3-2-1 and act", alternative: "breaking the task into micro-steps", result: "broken momentum and instant action states", mistake: "waiting for the 'perfect mood' or inspiration to strike", tag: "JustStart" },
+                    { name: "Journaling", secret: "writing freely without self-censorship or editing", hack: "using pre-set morning pages prompts to guide writing", alternative: "5-minute evening bulleted gratitude logs", result: "mental clarity and processed emotions", mistake: "expecting your journal entries to read like published literature", tag: "JournalingCommunity" },
+                    { name: "Time Blocking", secret: "allocating specific tasks to colored blocks on calendar", hack: "scheduling buffer blocks for unexpected tasks", alternative: "the Pomodoro method of 25m work, 5m rest", result: "organized days and reduced cognitive load", mistake: "over-scheduling every minute without planning breaks", tag: "TimeManagement" },
+                    { name: "Stress Management", secret: "activating the parasympathetic nervous system through breath", hack: "practicing box breathing: inhale, hold, exhale, hold for 4s", alternative: "regular digital detox weekends", result: "lowered cortisol levels and calm reactivity", mistake: "relying on quick distractions instead of resolving stressors", tag: "StressFree" },
+                    { name: "Sleep Quality", secret: "dimming overhead lights 2 hours before going to bed", hack: "keeping a notepad by the bed to write down random thoughts", alternative: "cool bedroom temperatures and blackout curtains", result: "restorative REM sleep and high morning energy", mistake: "consuming caffeine or heavy meals past 4 PM", tag: "SleepHygiene" },
+                    { name: "Creative Flow", secret: "removing fear of failure during initial draft phases", hack: "changing your physical environment to spark inspiration", alternative: "ambient lo-fi music playlists", result: "uninterrupted creative ideas and high output", mistake: "editing your work while you are still generating ideas", tag: "CreativeFlow" },
+                    { name: "Mindfulness", secret: "grounding yourself in the sensory details of the present", hack: "doing a 5-4-3-2-1 sensory check-in whenever anxious", alternative: "silent walking meditations in nature", result: "mental presence and reduced anxiety loops", mistake: "dwelling on past regrets or future anxiety", tag: "MindfulnessPractice" },
+                    { name: "Lifelong Learning", secret: "reading daily and taking structured notes", hack: "listening to educational podcasts during commutes", alternative: "building a personal knowledge database (second brain)", result: "expanded perspectives and continuous personal growth", mistake: "consuming content passively without taking notes or applying it", tag: "ContinuousGrowth" }
+                ]
             },
-            {
-                category: "Milestone",
-                title: "🏆 Celebrating [Niche] Milestone",
-                body: "We just hit a massive milestone in our [Niche] journey! 🏆 None of this would be possible without your constant support, feedback, and engagement. Thank you for being the best part of our community. Onward and upward! #Milestone #[NicheTag] #ThankYou"
-            },
-            {
-                category: "Personal",
-                title: "👤 My [Niche] Story",
-                body: "When I first started in [Niche], I had no idea what I was doing. 👤 I made every mistake in the book. But the key was not giving up when things got tough. Here is the biggest lesson I learned: [insert lesson]. What's yours? #PersonalStory #[NicheTag]"
-            },
-            {
-                category: "Marketing",
-                title: "📢 [Niche] Growth Strategy",
-                body: "Want to scale your business? Focus on [Niche] integration. 📢 Building a strong presence in [Niche] is the single best way to capture warm leads and turn followers into loyal advocates. Link in bio for our free playbook! #[NicheTag] #MarketingTips"
-            },
-            {
-                category: "Tutorial",
-                title: "🛠️ Quick [Niche] Guide",
-                body: "A step-by-step guide to mastering [Niche] basics: \n1️⃣ Step One: Establish your goals.\n2️⃣ Step Two: Choose the right tools.\n3️⃣ Step Three: Track your progress.\nRead the full detailed article in our bio link! #HowTo #[NicheTag] #Tutorial"
-            },
-            {
-                category: "Announcement",
-                title: "📢 Exciting [Niche] Update",
-                body: "We have some massive upgrades coming to our [Niche] lineup! 📢 We've listened to your feedback and made things faster, smoother, and more intuitive. Swipe left for a preview of the new interface! #[NicheTag] #ProductUpdate"
-            },
-            {
-                category: "Interactive",
-                title: "📊 [Niche] Poll",
-                body: "Quick poll: How many hours a week do you spend on [Niche] activities? \nA) Under 5 hours\nB) 5-15 hours\nC) 15-30 hours\nD) 30+ hours (Full time!)\nDrop your letter in the comments below! 👇 #Poll #[NicheTag]"
-            },
+            // LIFESTYLE
             {
                 category: "Lifestyle",
-                title: "✨ Living the [Niche] Way",
-                body: "Creating a lifestyle centered around [Niche] isn't always easy, but it is incredibly rewarding. ✨ It's about finding balance, staying inspired, and continuously learning. How do you integrate this into your daily routine? #[NicheTag] #Lifestyle"
-            },
-            {
-                category: "Trend",
-                title: "🔥 Trending in [Niche]",
-                body: "Have you noticed this new trend in [Niche]? 🔥 Everyone is talking about [Trend Topic] right now. Here is our take on why this is a massive shift, and how you can capitalize on it before it becomes saturated. #[NicheTag] #Trends"
-            },
-            {
-                category: "Community",
-                title: "🤝 [Niche] Spotlight",
-                body: "Shouting out our amazing [Niche] community member: @creative_user! 🤝 They've been using our resources to build something truly special. Swipe to see their work. Want to be featured next week? Tag us in your posts! #[NicheTag] #Spotlight"
-            },
-            {
-                category: "FAQ",
-                title: "❓ [Niche] FAQ Answered",
-                body: "A question we get asked constantly is: 'How do I start in [Niche] with zero budget?' ❓ The short answer is: start free, build consistency, and reinvest your returns. Swipe left for the detailed breakdown! #[NicheTag] #FAQ"
-            },
-            {
-                category: "Mistakes",
-                title: "⚠️ 3 [Niche] Mistakes",
-                body: "Avoid these 3 common mistakes in [Niche]: \n❌ Mistake 1: Ignoring analytics.\n❌ Mistake 2: Sticking to old methods.\n❌ Mistake 3: Lack of consistency.\nWhich of these have you made? Be honest! 👇 #CommonMistakes #[NicheTag]"
+                tags: ["lifestyle", "home", "decor", "plants", "gardening", "minimal", "organization", "diy", "declutter", "hobbies", "interior", "workspace"],
+                structures: [
+                    {
+                        title: "🏡 Enhance Your [Niche]",
+                        body: "Want to bring more harmony to your [Niche] space? 🏡 The secret is [Secret]. This simple upgrade creates [Result], making your home a sanctuary. #[NicheTag] #HomeDecor"
+                    },
+                    {
+                        title: "💡 Simple [Niche] Organization Hack",
+                        body: "Tired of clutter in your [Niche] setup? 💡 My favorite hack is [Hack]. It guarantees [Result] with zero extra storage needed. #[NicheTag] #Declutter"
+                    },
+                    {
+                        title: "🌱 Sustainable [Niche] Living",
+                        body: "How to adopt a greener approach to [Niche]: swap standard habits with [Alternative]. 🌱 This choice supports [Result] and cuts down waste. #[NicheTag] #EcoFriendly"
+                    },
+                    {
+                        title: "⚠️ 1 Big [Niche] Mistake",
+                        body: "If you are managing [Niche], avoid this common error: [Mistake]. 🛑 Focus on [Secret] instead for [Result] and long-term enjoyment. #[NicheTag] #Lifestyle"
+                    }
+                ],
+                niches: [
+                    { name: "Plant Care", secret: "checking soil moisture deeply before watering", hack: "using self-watering terracotta spikes for consistent moisture", alternative: "organic compost and natural insecticidal soaps", result: "lush green leaves and healthy roots", mistake: "watering your plants on a strict weekly schedule without checking", tag: "PlantParent" },
+                    { name: "Minimalism", secret: "evaluating every item's utility and emotional value", hack: "applying the one-in, one-out rule for purchases", alternative: "a capsule collection of multi-use items", result: "a clean, intentional, and peaceful environment", mistake: "decluttering too fast and throwing away useful tools", tag: "MinimalistHome" },
+                    { name: "Home Organization", secret: "assigning a designated 'home' to every object", hack: "using clear labels and modular drawer dividers", alternative: "vertical storage hangers", result: "saving time and reducing daily stress", mistake: "buying storage boxes before sorting your belongings", tag: "Organization" },
+                    { name: "DIY Furniture", secret: "sanding surfaces thoroughly before applying paint or stain", hack: "using pocket hole jigs for strong, hidden screw joints", alternative: "reclaimed pallets and natural wood wax finishes", result: "custom, sturdy furniture with rustic charm", mistake: "skipping the primer coat when painting dark woods", tag: "DIYHome" },
+                    { name: "Interior Lighting", secret: "layering ambient, task, and accent lighting sources", hack: "using warm 2700K smart LED bulbs with dimmer switches", alternative: "placing brass floor lamps in dark corners", result: "a cozy, warm, and inviting room atmosphere", mistake: "relying solely on bright white overhead ceiling lights", tag: "InteriorDesign" },
+                    { name: "Smart Home Setup", secret: "building automation routines based on motion sensors", hack: "setting up NFC tags for quick scene toggles", alternative: "local hub controllers for privacy", result: "a seamless, energy-saving home ecosystem", mistake: "buying conflicting smart systems that don't talk to each other", tag: "SmartHome" },
+                    { name: "Eco Living", secret: "replacing single-use plastics with reusable silicone", hack: "making your own all-purpose spray using vinegar and citrus", alternative: "beeswax wraps and bulk refills", result: "reduced household waste and lower expenses", mistake: "throwing away working plastic items to buy bamboo ones", tag: "ZeroWaste" },
+                    { name: "Apartment Styling", secret: "using mirrors to reflect light and make spaces feel larger", hack: "buying furniture with hidden storage compartments", alternative: "floating shelves to utilize empty wall space", result: "a spacious, highly functional home layout", mistake: "choosing massive, heavy furniture for a tiny living room", tag: "ApartmentTherapy" },
+                    { name: "Kitchen Organization", secret: "grouping cooking tools near the stove zone", hack: "storing grains and spices in clear labeled jars", alternative: "magnetic knife strips and pot lid racks", result: "smooth, stress-free cooking and meal prep", mistake: "keeping expired spices at the back of the pantry", tag: "KitchenOrganization" },
+                    { name: "Workspace Setup", secret: "positioning your desk near natural light sources", hack: "using cable sleeves under the desk to hide wires", alternative: "ergonomic mesh chairs and active monitor arms", result: "high focus levels and zero neck fatigue", mistake: "working on your bed or sofa, which ruins posture", tag: "OfficeDesign" },
+                    { name: "Pet-Friendly Spaces", secret: "choosing durable, scratch-resistant performance fabrics", hack: "building a designated pet cleaning station near the door", alternative: "non-toxic houseplants like spider plants", result: "a beautiful home that is safe for your pets", mistake: "decorating with lilies or other toxic plants", tag: "PetFriendly" },
+                    { name: "Outdoor Patios", secret: "using weather-resistant teak wood and string lights", hack: "layering outdoor rugs to define seating zones", alternative: "drought-tolerant potted succulents", result: "a perfect open-air lounge for entertaining guests", mistake: "leaving unprotected fabrics outdoors in heavy rain", tag: "PatioDesign" },
+                    { name: "Closet Organization", secret: "hanging clothes by category and color gradient", hack: "using slim velvet hangers to save hanging space", alternative: "folding sweaters using the KonMari file method", result: "getting dressed in seconds and protecting fabrics", mistake: "stuffing offseason clothes into the main wardrobe area", tag: "ClosetGoals" }
+                ]
             }
         ];
 
-        const industryNiches = [
-            { name: "Social Media", tag: "SocialMedia" },
-            { name: "Digital Marketing", tag: "Marketing" },
-            { name: "Software Engineering", tag: "Coding" },
-            { name: "Fitness & Wellness", tag: "Fitness" },
-            { name: "Healthy Cooking", tag: "HealthyEating" },
-            { name: "Travel & Adventure", tag: "Travel" },
-            { name: "Real Estate & Property", tag: "RealEstate" },
-            { name: "Personal Finance", tag: "Finance" },
-            { name: "Skincare & Beauty", tag: "Skincare" },
-            { name: "Online Education", tag: "Education" },
-            { name: "Graphic Design", tag: "GraphicDesign" },
-            { name: "Creative Photography", tag: "Photography" },
-            { name: "Mindfulness & Yoga", tag: "Mindfulness" },
-            { name: "Career Coaching", tag: "Career" },
-            { name: "E-commerce Business", tag: "Ecommerce" },
-            { name: "Gardening & Plants", tag: "Gardening" },
-            { name: "Home DIY & Decor", tag: "DIYHome" },
-            { name: "Content Creation", tag: "ContentCreator" },
-            { name: "Blogging & Writing", tag: "Writing" },
-            { name: "Indie SaaS Development", tag: "SaaS" },
-            { name: "Event Planning", tag: "EventPlanning" },
-            { name: "Coffee & Cafe Culture", tag: "CoffeeLovers" },
-            { name: "Web Development", tag: "WebDev" },
-            { name: "Cryptocurrency", tag: "Crypto" },
-            { name: "Minimalism & Organization", tag: "Minimalism" },
-            { name: "AI & Future Tech", tag: "AI" }
+        // Generate exactly 650 high-quality unique templates (10 categories * 13 niches * 5 structures = 650)
+        const categoryEmojis = {
+            "Food": "🍳",
+            "Tech": "💻",
+            "Fitness": "🏋️",
+            "Business": "📢",
+            "Finance": "📈",
+            "Travel": "✈️",
+            "Fashion": "✨",
+            "Art": "🎨",
+            "Mindset": "🧠",
+            "Lifestyle": "🏡"
+        };
+
+        const styleStructures = [
+            {
+                title: "How to Master [Niche] 🚀",
+                body: "Ready to level up your [Niche] skills? 🚀 Here is a quick 3-step guide:\n\n1️⃣ Master the core: [Secret]. This is where most people fail.\n2️⃣ Save time with this hack: [Hack].\n3️⃣ Avoid the trap of [Mistake] and switch to [Alternative].\n\nFollowing these steps will guarantee you get [Result] every single time. Try it and let me know how it goes! #[NicheTag] #[Category]"
+            },
+            {
+                title: "Stop making this [Niche] mistake! 🛑",
+                body: "Unpopular opinion: [Mistake] is holding you back in [Niche]. 🛑\n\nMost people think they need complicated setups, but the real secret to unlocking [Result] is simply [Secret].\n\nIf you're pressed for time, just try [Hack]. It works wonders.\n\nStop following outdated advice and start focusing on what actually works. 📈 #[NicheTag] #[Category]"
+            },
+            {
+                title: "Your ultimate [Niche] Checklist 📋",
+                body: "If you want to achieve [Result] in [Niche], save this post and check these 5 things: 📋\n\n✅ Core focus: [Secret]\n✅ Quick shortcut: [Hack]\n✅ Better option: [Alternative]\n✅ Goal: [Result]\n❌ Danger zone: Don't do this: [Mistake]\n\nWhich of these are you focusing on today? 👇 #[NicheTag] #[Category]"
+            },
+            {
+                title: "How I unlocked [Result] in [Niche] ✨",
+                body: "I used to spend hours struggling with [Niche]. My biggest bottleneck was always [Mistake]. 🤦‍♂️\n\nEverything changed when I shifted to [Secret].\n\nTo make things even easier, I started [Hack] as a daily shortcut.\n\nNow, instead of the old way, I use [Alternative] for a cleaner flow.\n\nThe results? I finally got [Result]! If you're stuck, this is your sign to make the switch. 🌟 #[NicheTag] #[Category]"
+            },
+            {
+                title: "The truth about [Niche] 💡",
+                body: "Let's talk about [Niche]. 💡 Too many people get stuck [Mistake] because they don't know any better.\n\nBut if you want to see [Result], the magic lies in [Secret].\n\nIt doesn't have to be difficult. Using [Alternative] and applying [Hack] can change the game completely.\n\nStart small, stay consistent, and focus on the fundamentals. What is your biggest challenge here? Let's discuss! 💬 #[NicheTag] #[Category]"
+            }
         ];
 
-        // Generate exactly 520 high-quality templates (20 structures * 26 niches = 520)
-        baseTemplateStructures.forEach(structure => {
-            industryNiches.forEach(niche => {
-                const titleStr = structure.title.replaceAll("[Niche]", niche.name);
-                const bodyStr = structure.body
-                    .replaceAll("[Niche]", niche.name)
-                    .replaceAll("[NicheTag]", niche.tag);
-                prebuiltCaptionTemplates.push({
-                    category: structure.category,
-                    title: titleStr,
-                    body: bodyStr
+        baseTemplateStructures.forEach(catGroup => {
+            const category = catGroup.category;
+            const tags = catGroup.tags;
+            const emoji = categoryEmojis[category] || "📝";
+            
+            catGroup.niches.forEach(niche => {
+                styleStructures.forEach(structure => {
+                    const titleStr = `${emoji} ${structure.title.replace("[Niche]", niche.name).replace("[Result]", niche.result)}`;
+                    
+                    const bodyStr = structure.body
+                        .replaceAll("[Niche]", niche.name)
+                        .replaceAll("[Secret]", niche.secret || "")
+                        .replaceAll("[Hack]", niche.hack || "")
+                        .replaceAll("[Alternative]", niche.alternative || "")
+                        .replaceAll("[Result]", niche.result || "")
+                        .replaceAll("[Mistake]", niche.mistake || "")
+                        .replaceAll("[NicheTag]", niche.tag || "")
+                        .replaceAll("[Category]", category);
+                    
+                    const extraTags = [
+                        niche.name.toLowerCase(), 
+                        niche.tag.toLowerCase(), 
+                        category.toLowerCase()
+                    ];
+                    if (niche.secret) extraTags.push(...niche.secret.toLowerCase().split(/\s+/));
+                    if (niche.hack) extraTags.push(...niche.hack.toLowerCase().split(/\s+/));
+                    if (niche.result) extraTags.push(...niche.result.toLowerCase().split(/\s+/));
+                    if (niche.mistake) extraTags.push(...niche.mistake.toLowerCase().split(/\s+/));
+                    
+                    const combinedTags = Array.from(new Set([...tags, ...extraTags]))
+                        .filter(t => t && t.length > 2)
+                        .map(t => t.replace(/[#,!?.\(\)]/g, ''));
+                    
+                    prebuiltCaptionTemplates.push({
+                        category: category,
+                        title: titleStr,
+                        body: bodyStr,
+                        tags: combinedTags
+                    });
                 });
             });
         });
 
-        function renderTemplatesList() {
+        function renderTemplatesList(templatesToRender = prebuiltCaptionTemplates) {
             const grid = document.getElementById('templatesListGrid');
             if (!grid) return;
             grid.innerHTML = '';
-            prebuiltCaptionTemplates.forEach(t => {
+            
+            if (templatesToRender.length === 0) {
+                grid.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-dim);">
+                        <i class="fas fa-search" style="font-size: 2.2rem; opacity: 0.3; margin-bottom: 12px; color: var(--accent);"></i>
+                        <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">No matching templates found</p>
+                        <p style="font-size: 0.76rem; opacity: 0.8;">Try searching for a different keyword or category.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            templatesToRender.forEach(t => {
                 const card = document.createElement('div');
                 card.className = 'template-card-item';
                 card.style.padding = '12px';
@@ -6370,47 +6715,223 @@
                 card.style.cursor = 'pointer';
                 card.style.background = 'var(--surface-lighter)';
                 card.onclick = () => {
-                    // Update template preview textbox at the bottom
                     const previewContainer = document.getElementById('templatePreviewContainer');
                     const previewText = document.getElementById('templatePreviewText');
                     
                     if (previewContainer && previewText) {
                         previewText.value = t.body;
                         previewContainer.style.display = 'flex';
-                        
-                        // Scroll to show preview if needed
                         previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                     }
                     
-                    // Visual feedback
                     document.querySelectorAll('.template-card-item').forEach(c => c.style.borderColor = 'var(--border)');
                     card.style.borderColor = 'var(--accent)';
                     
                     showToast('Template selected! Preview it below.', 'info');
                 };
                 card.innerHTML = `
-                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-                        <span style="font-weight:700;font-size:0.75rem;color:var(--accent);text-transform:uppercase;">${t.category}</span>
-                        <span style="font-size:0.8rem;font-weight:600;color:var(--text-main);">${t.title}</span>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;align-items:center;">
+                        <span style="font-weight:700;font-size:0.7rem;color:var(--accent);text-transform:uppercase;background:rgba(124, 58, 237, 0.1);padding:2px 6px;border-radius:4px;">${t.category}</span>
+                        <span style="font-size:0.78rem;font-weight:700;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;text-align:right;">${t.title}</span>
                     </div>
-                    <p style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0;">${t.body}</p>
+                    <p style="font-size:0.78rem;color:var(--text-dim);line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0;white-space:pre-wrap;">${t.body.replace(/\n\n/g, ' ')}</p>
                 `;
                 grid.appendChild(card);
             });
         }
 
+        const synonymMap = {
+            "food": ["food", "cooking", "recipe", "meal", "kitchen", "cafe", "restaurant", "dining", "eat", "bake", "coffee", "chef", "pasta", "vegan", "grill", "smoothie", "lunch", "dinner", "breakfast", "pastry", "culinary", "street food", "soup", "fermentation", "sourdough", "baking", "tea", "brewing", "delicious", "tasty", "hungry", "foodie"],
+            "tech": ["tech", "coding", "software", "programming", "saas", "developer", "web", "app", "uiux", "design", "computer", "git", "python", "javascript", "developer", "engineering", "database", "sql", "api", "docker", "typescript", "react", "html", "css", "code", "coder", "programmer", "development", "ai", "security", "cyber", "mobile", "ios", "android", "testing", "deploy", "containers"],
+            "fitness": ["gym", "workout", "wellness", "yoga", "nutrition", "diet", "meditation", "supplements", "exercise", "weightloss", "running", "stretch", "hiit", "muscle", "cardio", "strength", "health", "healthy", "fit", "run", "pilates", "bodybuilding", "sleep", "hygiene", "mobility", "hiking", "swimming", "sports", "athlete"],
+            "business": ["business", "startup", "marketing", "sales", "entrepreneur", "productivity", "smma", "freelancing", "leader", "success", "copywriting", "client", "employee", "work", "b2b", "agency", "pitching", "investors", "email marketing", "strategy", "brand", "outreach", "product management", "e-commerce", "remote work", "founder", "ceo", "company", "career"],
+            "finance": ["money", "finance", "investing", "crypto", "budget", "savings", "tax", "stocks", "wealth", "passive income", "retirement", "debt", "credit score", "high-yield", "interest", "compound", "saving", "cash", "rich", "income", "shares", "portfolio"],
+            "travel": ["travel", "trip", "hotel", "flight", "explore", "vacation", "adventure", "roadtrip", "wanderlust", "destination", "backpack", "resort", "solo travel", "nomad", "eco-tourism", "cruise", "packing", "insurance", "booking", "tourism", "sightseeing", "explore"],
+            "fashion": ["beauty", "skincare", "makeup", "fashion", "style", "outfit", "cosmetics", "glow", "hair", "ootd", "clothes", "wardrobe", "capsule", "thrift", "streetwear", "fragrance", "scent", "perfume", "accessories", "activewear", "athleisure", "lookbook", "chic"],
+            "art": ["art", "design", "illustration", "photography", "video", "creative", "portfolio", "uiux", "draw", "camera", "podcast", "painting", "visual", "watercolor", "pottery", "ceramics", "architecture", "writing", "calligraphy", "graphic design", "editing", "3d modeling", "branding", "artist"],
+            "mindset": ["mindset", "productivity", "motivation", "quote", "focus", "goals", "habits", "success", "inspire", "mentalhealth", "stoic", "stress", "journal", "morning routine", "deep work", "procrastination", "time blocking", "meditation", "mindfulness", "growth", "learning"],
+            "lifestyle": ["lifestyle", "home", "decor", "plants", "gardening", "minimal", "organization", "diy", "declutter", "hobbies", "interior", "workspace", "smart home", "eco living", "apartment", "pet-friendly", "patio", "closet", "design", "plants", "eco"]
+        };
+
+        const suggestedKeywords = [
+            { label: "Food 🍳", query: "food" },
+            { label: "Coding 💻", query: "tech" },
+            { label: "Gym 🏋️", query: "fitness" },
+            { label: "Startup 📢", query: "business" },
+            { label: "Money 📈", query: "finance" },
+            { label: "Travel ✈️", query: "travel" },
+            { label: "Style ✨", query: "fashion" },
+            { label: "Art 🎨", query: "art" },
+            { label: "Habits 🌱", query: "mindset" },
+            { label: "Home 🏡", query: "lifestyle" }
+        ];
+
+        function handleTemplateSearch() {
+            const searchInput = document.getElementById('templateSearchInput');
+            const clearBtn = document.getElementById('templateSearchClearBtn');
+            const summaryEl = document.getElementById('templateSearchSummary');
+            
+            if (!searchInput) return;
+            const query = searchInput.value.toLowerCase().trim();
+            
+            if (clearBtn) {
+                clearBtn.style.display = query ? 'block' : 'none';
+            }
+            
+            document.querySelectorAll('.suggested-tag-btn').forEach(btn => {
+                if (btn.dataset.query === query) {
+                    btn.classList.add('active');
+                    btn.style.background = 'var(--accent)';
+                    btn.style.color = 'white';
+                    btn.style.borderColor = 'var(--accent)';
+                } else {
+                    btn.classList.remove('active');
+                    btn.style.background = 'var(--surface-lighter)';
+                    btn.style.color = 'var(--text-dim)';
+                    btn.style.borderColor = 'var(--border)';
+                }
+            });
+            
+            if (!query) {
+                if (summaryEl) summaryEl.style.display = 'none';
+                renderTemplatesList(prebuiltCaptionTemplates);
+                return;
+            }
+            
+            const matchedCategories = [];
+            for (const [categoryKey, synonyms] of Object.entries(synonymMap)) {
+                if (categoryKey.includes(query) || query.includes(categoryKey)) {
+                    matchedCategories.push(categoryKey);
+                } else {
+                    const hasSynonymMatch = synonyms.some(syn => syn === query || syn.includes(query) || query.includes(syn));
+                    if (hasSynonymMatch) {
+                        matchedCategories.push(categoryKey);
+                    }
+                }
+            }
+            
+            const queryTokens = query.split(/\s+/).filter(t => t.length > 1);
+            
+            const scoredTemplates = prebuiltCaptionTemplates.map(t => {
+                let score = 0;
+                const titleLower = t.title.toLowerCase();
+                const bodyLower = t.body.toLowerCase();
+                const catLower = t.category.toLowerCase();
+                
+                if (titleLower.includes(query)) score += 30;
+                if (catLower.includes(query)) score += 20;
+                if (bodyLower.includes(query)) score += 10;
+                
+                if (t.tags) {
+                    t.tags.forEach(tag => {
+                        const tagLower = tag.toLowerCase();
+                        if (tagLower === query) score += 25;
+                        else if (tagLower.includes(query) || query.includes(tagLower)) score += 12;
+                    });
+                }
+                
+                matchedCategories.forEach(cat => {
+                    if (t.category.toLowerCase() === cat.toLowerCase()) {
+                        score += 15;
+                    }
+                    const synonyms = synonymMap[cat];
+                    if (synonyms) {
+                        synonyms.forEach(syn => {
+                            if (t.tags.includes(syn) || titleLower.includes(syn)) score += 4;
+                        });
+                    }
+                });
+                
+                queryTokens.forEach(token => {
+                    if (titleLower.includes(token)) score += 8;
+                    if (catLower.includes(token)) score += 5;
+                    if (bodyLower.includes(token)) score += 2;
+                    if (t.tags.includes(token)) score += 6;
+                });
+                
+                return { template: t, score: score };
+            });
+            
+            const filtered = scoredTemplates
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .map(item => item.template);
+            
+            renderTemplatesList(filtered);
+            
+            if (summaryEl) {
+                summaryEl.style.display = 'block';
+                summaryEl.textContent = `Found ${filtered.length} template${filtered.length === 1 ? '' : 's'} related to "${query}"`;
+            }
+        }
+
+        // Setup suggested tags and search on load
+        const suggestedTagsContainer = document.getElementById('templateSuggestedTags');
+        if (suggestedTagsContainer) {
+            suggestedTagsContainer.innerHTML = '';
+            suggestedKeywords.forEach(keyword => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'suggested-tag-btn';
+                btn.dataset.query = keyword.query;
+                btn.style.padding = '5px 10px';
+                btn.style.borderRadius = '20px';
+                btn.style.fontSize = '0.74rem';
+                btn.style.fontWeight = '600';
+                btn.style.border = '1px solid var(--border)';
+                btn.style.background = 'var(--surface-lighter)';
+                btn.style.color = 'var(--text-dim)';
+                btn.style.cursor = 'pointer';
+                btn.style.transition = 'all 0.2s';
+                btn.style.flexShrink = '0';
+                
+                btn.onmouseover = () => {
+                    if (!btn.classList.contains('active')) {
+                        btn.style.background = 'var(--surface-dark)';
+                        btn.style.color = 'var(--text-main)';
+                    }
+                };
+                btn.onmouseout = () => {
+                    if (!btn.classList.contains('active')) {
+                        btn.style.background = 'var(--surface-lighter)';
+                        btn.style.color = 'var(--text-dim)';
+                    }
+                };
+                
+                btn.onclick = () => {
+                    const searchInput = document.getElementById('templateSearchInput');
+                    if (searchInput) {
+                        if (btn.classList.contains('active')) {
+                            searchInput.value = '';
+                        } else {
+                            searchInput.value = keyword.query;
+                        }
+                        handleTemplateSearch();
+                    }
+                };
+                btn.textContent = keyword.label;
+                suggestedTagsContainer.appendChild(btn);
+            });
+        }
+
         const templateSearchInput = document.getElementById('templateSearchInput');
         if (templateSearchInput) {
-            templateSearchInput.onkeyup = () => {
-                const query = templateSearchInput.value.toLowerCase();
-                const cards = document.getElementById('templatesListGrid').querySelectorAll('.template-card-item');
-                cards.forEach((card, idx) => {
-                    const t = prebuiltCaptionTemplates[idx];
-                    const match = t.title.toLowerCase().includes(query) || t.body.toLowerCase().includes(query) || t.category.toLowerCase().includes(query);
-                    card.style.display = match ? 'block' : 'none';
-                });
+            templateSearchInput.addEventListener('input', handleTemplateSearch);
+        }
+
+        const templateSearchClearBtn = document.getElementById('templateSearchClearBtn');
+        if (templateSearchClearBtn) {
+            templateSearchClearBtn.onclick = () => {
+                const searchInput = document.getElementById('templateSearchInput');
+                if (searchInput) {
+                    searchInput.value = '';
+                    handleTemplateSearch();
+                }
             };
         }
+        
+        // Render initial templates
+        renderTemplatesList();
 
         // Template Copy Button
         const templateCopyBtn = document.getElementById('templateCopyBtn');
