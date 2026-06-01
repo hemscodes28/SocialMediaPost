@@ -2986,6 +2986,16 @@
                         <input type="text" id="templateSearchInput" placeholder="Search 1000+ templates..." style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 0.82rem; outline: none; background: var(--surface-lighter); margin-bottom: 8px;">
                         
                         <div id="templatesListGrid" style="flex: 1; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding-right: 4px;"></div>
+                        
+                        <!-- Template Preview Container -->
+                        <div id="templatePreviewContainer" style="display: none; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 6px;">
+                            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-main); margin-bottom: -4px;">📋 Selected Template Preview:</label>
+                            <textarea id="templatePreviewText" rows="4" style="width: 100%; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-size: 0.82rem; outline: none; resize: none; font-family: inherit; background: var(--surface-lighter); color: var(--text-main); line-height: 1.5;"></textarea>
+                            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px;">
+                                <button class="btn btn-glass" id="templateCopyBtn" type="button" style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700;"><i class="far fa-copy"></i> Copy</button>
+                                <button class="btn btn-primary" id="templateApproveBtn" type="button" style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: var(--accent); border: none; color: white;"><i class="fas fa-check"></i> Approve &amp; Use</button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Dock Panel 3: Live Post Previews -->
@@ -3000,7 +3010,7 @@
                         </div>
 
                         <!-- Preview Frame container (CHANGE 5 - SEQUENTIAL & VISUAL CHROMES) -->
-                        <div style="flex: 1; background: var(--surface-lighter); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 16px; min-height: 0; position: relative;">
+                        <div style="flex: 1; background: var(--surface-lighter); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 16px; min-height: 0; position: relative;">
                             
                             <!-- Empty State Placeholder (Fix 4) -->
                             <div id="previewEmptyPlaceholder" style="display: none; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--text-dim); text-align: center; padding: 40px 20px; width: 100%;">
@@ -3014,7 +3024,7 @@
                                     <div id="igAvatar" style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(45deg, #f09433, #dc2743, #cc2366); color: white; display: grid; place-items: center; font-size: 0.75rem; font-weight: 700;">U</div>
                                     <div style="font-size: 0.8rem; font-weight: 700; color: #262626; text-align: left;" id="igUsername">user_name</div>
                                 </div>
-                                <div id="mockInstaImage" style="width: 100%; aspect-ratio: 1.6; background: var(--surface-lighter); display: grid; place-items: center; color: var(--text-dim); font-size: 0.85rem; overflow: hidden;">
+                                <div id="mockInstaImage" style="width: 100%; height: 180px; background: var(--surface-lighter); display: grid; place-items: center; color: var(--text-dim); font-size: 0.85rem; overflow: hidden;">
                                     <i class="fas fa-image" style="font-size: 2rem; opacity: 0.4;"></i>
                                 </div>
                                 <!-- Instagram Chrome Icons -->
@@ -6197,14 +6207,155 @@
         }
 
         // Templates list implementation
-        const prebuiltCaptionTemplates = [
-            { category: "Launch", title: "🚀 Product Launch", body: "BIG NEWS! 🚀 We are officially launching [Product Name] today! This has been months in the making and we can't wait for you to experience it. Use code START at checkout! #NewLaunch #Innovation #ProductRelease" },
-            { category: "Promo", title: "🎁 Limited Promotion", body: "ALERT! 🚨 For a very limited time, enjoy 20% OFF on all collections! perfect time to grab your favorites or try something new. Use code code at checkout. Hurry, sale ends soon! #FlashSale #Discount #ShopNow" },
-            { category: "Tips", title: "💡 Expert Tip", body: "Here is a quick tip to instantly improve your daily output: [Insert specific tip]. 💡 Focus on consistency rather than intensity. Drop a double-tap if you found this helpful! #ExpertTips #LifeHacks #Knowledge" },
-            { category: "Quote", title: "✨ Inspiration Quote", body: "Every expert was once a beginner. The secret to getting ahead is simply getting started. ✨ What is one goal you are chasing this week? Let us know below! #Motivation #SuccessMindset #DailyDrive" },
-            { category: "Hiring", title: "💼 We Are Hiring!", body: "We're expanding our team! 💼 Looking for a passionate [Role Name] to join us in building the future of social automation. Link in bio to apply. Know someone perfect? Tag them below! #Hiring #Careers #JobOpening" },
-            { category: "Promo", title: "🎉 Seasonal Celebration", body: "Wishing our amazing community a beautiful season! 🎉 To celebrate, we are hosting an exclusive giveaway. Swipe left to see how you can win premium packages! #Celebration #Giveaway #CommunityLove" }
+        const prebuiltCaptionTemplates = [];
+        
+        // Define base templates and niches to generate 500+ combinations
+        const baseTemplateStructures = [
+            {
+                category: "Launch",
+                title: "🚀 New [Niche] Launch",
+                body: "BIG NEWS! 🚀 We are officially launching our new [Niche] platform today! This project has been months in the making, and we are so excited to share it with you. For the next 24 hours only, get early-bird access with 20% off. Use code START at checkout! #NewLaunch #Innovation #[NicheTag] #[NicheTag]Life"
+            },
+            {
+                category: "Promo",
+                title: "🎁 Limited [Niche] Offer",
+                body: "🚨 FLASH SALE! For a very limited time, enjoy 25% OFF on all [Niche] programs and resources! It's the perfect opportunity to invest in yourself and take your skills to the next level. Use code UPGRADE at checkout. Hurry, this offer ends soon! #FlashSale #Discount #[NicheTag]"
+            },
+            {
+                category: "Tips",
+                title: "💡 Expert [Niche] Tip",
+                body: "Here is a quick [Niche] tip to instantly level up your routine: focus on quality over quantity. 💡 In [Niche], consistency and small habits lead to massive breakthroughs over time. What's your go-to hack? Drop it in the comments below! #[NicheTag] #ExpertTips #LifeHacks"
+            },
+            {
+                category: "Quote",
+                title: "✨ Inspiring [Niche] Quote",
+                body: "“The secret to getting ahead in [Niche] is simply getting started.” ✨ Every expert was once a beginner. If you've been waiting for a sign to start your [Niche] journey, this is it! Tag someone who needs this motivation today. #Motivation #[NicheTag] #Inspiration"
+            },
+            {
+                category: "Hiring",
+                title: "💼 [Niche] Team Expansion",
+                body: "We're growing! 💼 We are looking for a passionate [Niche] Specialist to join our remote team. If you love building community and scaling creative solutions, we'd love to meet you. Link in bio to apply! Know someone perfect? Tag them below! #Hiring #Careers #[NicheTag]"
+            },
+            {
+                category: "Engagement",
+                title: "❓ The [Niche] Question",
+                body: "Let's settle this once and for all: what is the most overrated tool or habit in [Niche]? 🤔 We want to hear your honest thoughts! Share your hot takes in the comments below. #QandA #[NicheTag] #Discussion"
+            },
+            {
+                category: "BTS",
+                title: "📸 Behind The Scenes",
+                body: "Ever wondered what goes into creating a premium [Niche] experience? 📸 Here is a sneak peek behind the scenes at our studio today. We are cooking up some amazing new content for you guys. Stay tuned! #BehindTheScenes #[NicheTag] #CreativeLife"
+            },
+            {
+                category: "Giveaway",
+                title: "🎉 [Niche] Giveaway!",
+                body: "GIVEAWAY TIME! 🎉 To show our appreciation to our incredible [Niche] community, we are giving away our premium starter kit! \n\nTo enter:\n1. Like this post ❤️\n2. Follow our page\n3. Tag 3 friends below 👇\nWinner announced on Friday! Good luck! #Giveaway #[NicheTag] #Contest"
+            },
+            {
+                category: "Review",
+                title: "⭐ Customer Feedback",
+                body: "“I started using this [Niche] strategy two weeks ago, and my results have already doubled. Absolute game changer!” ⭐ Reviews like this make our day. We are committed to helping you succeed in [Niche]. Read more success stories via link in bio! #Testimonial #[NicheTag]"
+            },
+            {
+                category: "Milestone",
+                title: "🏆 Celebrating [Niche] Milestone",
+                body: "We just hit a massive milestone in our [Niche] journey! 🏆 None of this would be possible without your constant support, feedback, and engagement. Thank you for being the best part of our community. Onward and upward! #Milestone #[NicheTag] #ThankYou"
+            },
+            {
+                category: "Personal",
+                title: "👤 My [Niche] Story",
+                body: "When I first started in [Niche], I had no idea what I was doing. 👤 I made every mistake in the book. But the key was not giving up when things got tough. Here is the biggest lesson I learned: [insert lesson]. What's yours? #PersonalStory #[NicheTag]"
+            },
+            {
+                category: "Marketing",
+                title: "📢 [Niche] Growth Strategy",
+                body: "Want to scale your business? Focus on [Niche] integration. 📢 Building a strong presence in [Niche] is the single best way to capture warm leads and turn followers into loyal advocates. Link in bio for our free playbook! #[NicheTag] #MarketingTips"
+            },
+            {
+                category: "Tutorial",
+                title: "🛠️ Quick [Niche] Guide",
+                body: "A step-by-step guide to mastering [Niche] basics: \n1️⃣ Step One: Establish your goals.\n2️⃣ Step Two: Choose the right tools.\n3️⃣ Step Three: Track your progress.\nRead the full detailed article in our bio link! #HowTo #[NicheTag] #Tutorial"
+            },
+            {
+                category: "Announcement",
+                title: "📢 Exciting [Niche] Update",
+                body: "We have some massive upgrades coming to our [Niche] lineup! 📢 We've listened to your feedback and made things faster, smoother, and more intuitive. Swipe left for a preview of the new interface! #[NicheTag] #ProductUpdate"
+            },
+            {
+                category: "Interactive",
+                title: "📊 [Niche] Poll",
+                body: "Quick poll: How many hours a week do you spend on [Niche] activities? \nA) Under 5 hours\nB) 5-15 hours\nC) 15-30 hours\nD) 30+ hours (Full time!)\nDrop your letter in the comments below! 👇 #Poll #[NicheTag]"
+            },
+            {
+                category: "Lifestyle",
+                title: "✨ Living the [Niche] Way",
+                body: "Creating a lifestyle centered around [Niche] isn't always easy, but it is incredibly rewarding. ✨ It's about finding balance, staying inspired, and continuously learning. How do you integrate this into your daily routine? #[NicheTag] #Lifestyle"
+            },
+            {
+                category: "Trend",
+                title: "🔥 Trending in [Niche]",
+                body: "Have you noticed this new trend in [Niche]? 🔥 Everyone is talking about [Trend Topic] right now. Here is our take on why this is a massive shift, and how you can capitalize on it before it becomes saturated. #[NicheTag] #Trends"
+            },
+            {
+                category: "Community",
+                title: "🤝 [Niche] Spotlight",
+                body: "Shouting out our amazing [Niche] community member: @creative_user! 🤝 They've been using our resources to build something truly special. Swipe to see their work. Want to be featured next week? Tag us in your posts! #[NicheTag] #Spotlight"
+            },
+            {
+                category: "FAQ",
+                title: "❓ [Niche] FAQ Answered",
+                body: "A question we get asked constantly is: 'How do I start in [Niche] with zero budget?' ❓ The short answer is: start free, build consistency, and reinvest your returns. Swipe left for the detailed breakdown! #[NicheTag] #FAQ"
+            },
+            {
+                category: "Mistakes",
+                title: "⚠️ 3 [Niche] Mistakes",
+                body: "Avoid these 3 common mistakes in [Niche]: \n❌ Mistake 1: Ignoring analytics.\n❌ Mistake 2: Sticking to old methods.\n❌ Mistake 3: Lack of consistency.\nWhich of these have you made? Be honest! 👇 #CommonMistakes #[NicheTag]"
+            }
         ];
+
+        const industryNiches = [
+            { name: "Social Media", tag: "SocialMedia" },
+            { name: "Digital Marketing", tag: "Marketing" },
+            { name: "Software Engineering", tag: "Coding" },
+            { name: "Fitness & Wellness", tag: "Fitness" },
+            { name: "Healthy Cooking", tag: "HealthyEating" },
+            { name: "Travel & Adventure", tag: "Travel" },
+            { name: "Real Estate & Property", tag: "RealEstate" },
+            { name: "Personal Finance", tag: "Finance" },
+            { name: "Skincare & Beauty", tag: "Skincare" },
+            { name: "Online Education", tag: "Education" },
+            { name: "Graphic Design", tag: "GraphicDesign" },
+            { name: "Creative Photography", tag: "Photography" },
+            { name: "Mindfulness & Yoga", tag: "Mindfulness" },
+            { name: "Career Coaching", tag: "Career" },
+            { name: "E-commerce Business", tag: "Ecommerce" },
+            { name: "Gardening & Plants", tag: "Gardening" },
+            { name: "Home DIY & Decor", tag: "DIYHome" },
+            { name: "Content Creation", tag: "ContentCreator" },
+            { name: "Blogging & Writing", tag: "Writing" },
+            { name: "Indie SaaS Development", tag: "SaaS" },
+            { name: "Event Planning", tag: "EventPlanning" },
+            { name: "Coffee & Cafe Culture", tag: "CoffeeLovers" },
+            { name: "Web Development", tag: "WebDev" },
+            { name: "Cryptocurrency", tag: "Crypto" },
+            { name: "Minimalism & Organization", tag: "Minimalism" },
+            { name: "AI & Future Tech", tag: "AI" }
+        ];
+
+        // Generate exactly 520 high-quality templates (20 structures * 26 niches = 520)
+        baseTemplateStructures.forEach(structure => {
+            industryNiches.forEach(niche => {
+                const titleStr = structure.title.replaceAll("[Niche]", niche.name);
+                const bodyStr = structure.body
+                    .replaceAll("[Niche]", niche.name)
+                    .replaceAll("[NicheTag]", niche.tag);
+                prebuiltCaptionTemplates.push({
+                    category: structure.category,
+                    title: titleStr,
+                    body: bodyStr
+                });
+            });
+        });
 
         function renderTemplatesList() {
             const grid = document.getElementById('templatesListGrid');
@@ -6219,16 +6370,30 @@
                 card.style.cursor = 'pointer';
                 card.style.background = 'var(--surface-lighter)';
                 card.onclick = () => {
-                    // composerMainEditor assignment removed to keep caption only in upper box
-                    switchRightPanel('preview'); // Switch to live preview when template is applied
-                    showToast('Template applied!', 'success');
+                    // Update template preview textbox at the bottom
+                    const previewContainer = document.getElementById('templatePreviewContainer');
+                    const previewText = document.getElementById('templatePreviewText');
+                    
+                    if (previewContainer && previewText) {
+                        previewText.value = t.body;
+                        previewContainer.style.display = 'flex';
+                        
+                        // Scroll to show preview if needed
+                        previewContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    
+                    // Visual feedback
+                    document.querySelectorAll('.template-card-item').forEach(c => c.style.borderColor = 'var(--border)');
+                    card.style.borderColor = 'var(--accent)';
+                    
+                    showToast('Template selected! Preview it below.', 'info');
                 };
                 card.innerHTML = `
                     <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
                         <span style="font-weight:700;font-size:0.75rem;color:var(--accent);text-transform:uppercase;">${t.category}</span>
                         <span style="font-size:0.8rem;font-weight:600;color:var(--text-main);">${t.title}</span>
                     </div>
-                    <p style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${t.body}</p>
+                    <p style="font-size:0.78rem;color:var(--text-dim);line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin:0;">${t.body}</p>
                 `;
                 grid.appendChild(card);
             });
@@ -6244,6 +6409,39 @@
                     const match = t.title.toLowerCase().includes(query) || t.body.toLowerCase().includes(query) || t.category.toLowerCase().includes(query);
                     card.style.display = match ? 'block' : 'none';
                 });
+            };
+        }
+
+        // Template Copy Button
+        const templateCopyBtn = document.getElementById('templateCopyBtn');
+        if (templateCopyBtn) {
+            templateCopyBtn.onclick = () => {
+                const previewText = document.getElementById('templatePreviewText');
+                if (previewText && previewText.value) {
+                    navigator.clipboard.writeText(previewText.value);
+                    showToast('Template copied to clipboard!', 'success');
+                }
+            };
+        }
+
+        // Template Approve & Use Button
+        const templateApproveBtn = document.getElementById('templateApproveBtn');
+        if (templateApproveBtn) {
+            templateApproveBtn.onclick = () => {
+                const previewText = document.getElementById('templatePreviewText');
+                if (previewText && composerMainEditor) {
+                    // Copy to the main editor (which syncs to platform captions automatically)
+                    composerMainEditor.value = previewText.value;
+                    composerMainEditor.dispatchEvent(new Event('input'));
+                    
+                    showToast('Template approved and loaded!', 'success');
+                    
+                    // Move to preview with the image and caption!
+                    switchRightPanel('preview'); 
+                    if (typeof updateSequentialPreview === 'function') {
+                        updateSequentialPreview();
+                    }
+                }
             };
         }
 
