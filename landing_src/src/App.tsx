@@ -1,5 +1,15 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+
+interface FeatureItem {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  bg: string;
+  glow: string;
+  details: string;
+  badge?: string;
+}
 import { 
   Sparkles, 
   CalendarDays, 
@@ -85,6 +95,7 @@ const logos = [
 export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [activeFeature, setActiveFeature] = useState<number | null>(null);
 
   const handleNavigation = (dest: string) => {
     window.location.href = dest;
@@ -98,54 +109,84 @@ export default function App() {
     }
   };
 
-  const features = [
+  const features: FeatureItem[] = [
     {
       icon: <Sparkles className="w-6 h-6 text-indigo-600" />,
       title: "AI Magic Captions",
       description: "Upload your media and let AI craft engaging, hashtag-rich captions tailored for Instagram and LinkedIn culture.",
       bg: "rgba(79,70,229,0.08)",
-      glow: "rgba(79,70,229,0.15)"
+      glow: "rgba(79,70,229,0.15)",
+      details: "Our AI Caption Generator is powered by GPT-4o — the most advanced multimodal AI from OpenAI. Simply upload your image or type a topic, choose your tone (professional, fun, inspirational, etc.), and click Generate. The AI analyzes your image visually, understands your context, and writes platform-perfect captions complete with relevant hashtags.\n\n✦ Supports Instagram, LinkedIn, and Threads\n✦ Generates all 3 platform captions simultaneously\n✦ Understands image content via computer vision\n✦ Customizable tone selection\n✦ Extracts and formats hashtags automatically"
     },
     {
       icon: <CalendarDays className="w-6 h-6 text-emerald-600" />,
       title: "Smart Scheduling",
       description: "Queue posts for the perfect moment. Our persistent scheduler ensures your content goes live exactly when planned.",
       bg: "rgba(16,185,129,0.08)",
-      glow: "rgba(16,185,129,0.15)"
+      glow: "rgba(16,185,129,0.15)",
+      details: "Post Pilot.ai's Smart Scheduler uses APScheduler with SQLite persistence — meaning your scheduled posts survive server restarts and won't be lost. Pick any future date and time, and your post will be published automatically even if you're offline.\n\n✦ Set exact date and time for future publishing\n✦ Schedules survive server restarts (SQLite persistence)\n✦ Supports all platforms: Instagram, LinkedIn, Threads\n✦ View and manage all pending jobs from your dashboard\n✦ Failed jobs are logged with error details for review"
     },
     {
       icon: <Users className="w-6 h-6 text-blue-600" />,
       title: "Multi-Account Control",
-      description: "Connect multiple Instagram and LinkedIn profiles. Switch targets instantly when creating or publishing content.",
+      description: "Connect multiple Instagram, LinkedIn, and Threads profiles. Switch targets instantly when creating or publishing content.",
       bg: "rgba(37,99,235,0.08)",
-      glow: "rgba(37,99,235,0.15)"
+      glow: "rgba(37,99,235,0.15)",
+      details: "Manage all your social media identities from one place. Post Pilot.ai lets you connect and switch between multiple accounts per platform, so you can publish personal and brand content without logging in and out.\n\n✦ Multiple Instagram business/creator accounts\n✦ Multiple LinkedIn personal profiles\n✦ Multiple Threads accounts\n✦ Select target account per post in the composer\n✦ Each account is securely stored with OAuth tokens"
     },
     {
       icon: <InstagramIcon className="w-6 h-6 text-pink-600" />,
       title: "Instagram Publishing",
       description: "Single images and carousels with cloud-hosted media. Real-time previews before you hit publish.",
       bg: "rgba(225,48,108,0.08)",
-      glow: "rgba(225,48,108,0.15)"
+      glow: "rgba(225,48,108,0.15)",
+      details: "Connect your Instagram Business or Creator account via Meta OAuth and publish directly from the dashboard. Supports both single photo posts and multi-image carousel posts. Images are auto-uploaded to cloud hosting before publishing.\n\n✦ Single image posts with AI captions\n✦ Carousel posts (up to 10 images)\n✦ Real-time post preview before publishing\n✦ Auto cloud hosting via Catbox/ImgBB/Imgur\n✦ Long-lived token auto-refresh (60-day tokens)"
     },
     {
       icon: <LinkedinIcon className="w-6 h-6 text-sky-700" />,
       title: "LinkedIn Publishing",
       description: "Share professional updates with text or rich image posts. Manage member accounts from one command center.",
       bg: "rgba(10,102,194,0.08)",
-      glow: "rgba(10,102,194,0.15)"
+      glow: "rgba(10,102,194,0.15)",
+      details: "Connect LinkedIn personal profiles via OAuth and publish professional content directly. Post Pilot.ai uses the official LinkedIn REST API v2 for secure, reliable publishing to your professional network.\n\n✦ Text-only posts and image posts\n✦ AI generates structured LinkedIn content: hook, body, CTA, hashtags\n✦ Multiple member accounts supported\n✦ Secure OAuth 2.0 token management\n✦ Instant publish or schedule for later"
     },
     {
       icon: <LayoutDashboard className="w-6 h-6 text-amber-600" />,
       title: "Profile Dashboard",
       description: "Track published, scheduled, and failed posts. View connected accounts and posting history at a glance.",
       bg: "rgba(245,158,11,0.08)",
-      glow: "rgba(245,158,11,0.15)"
+      glow: "rgba(245,158,11,0.15)",
+      details: "Your central command center for everything. The Profile Dashboard gives you a bird's-eye view of your entire social media activity — connected accounts, post history, and scheduled jobs — all in one beautiful interface.\n\n✦ Summary stats: total posts, platforms, schedules\n✦ Complete post history with thumbnails and captions\n✦ Connected accounts status for all platforms\n✦ Scheduled jobs with countdown timers\n✦ One-click retry for failed posts"
+    },
+    {
+      icon: <img src="./threads (1).png" className="w-6 h-6 object-contain" alt="Threads Icon" />,
+      title: "Threads Publishing",
+      description: "Publish directly to Meta Threads. Connect your account via OAuth and post text, images, and media with full AI caption support.",
+      bg: "rgba(0,0,0,0.05)",
+      glow: "rgba(0,0,0,0.12)",
+      details: "Post Pilot.ai now supports Meta Threads — the fast-growing text and media platform by Meta. Connect your Threads account and publish alongside Instagram and LinkedIn in one unified workflow.\n\n✦ OAuth-based secure account connection\n✦ Post text, images, and media to Threads\n✦ AI generates Threads-specific captions: short, punchy, conversational\n✦ Schedule Threads posts for automatic publishing\n✦ Multi-account Threads support\n✦ Real-time post preview in Threads format"
+    },
+    {
+      icon: <span className="text-2xl">🤖</span>,
+      title: "AI Caption Assistant",
+      description: "Advanced AI that reads your image, understands your topic, and generates platform-specific captions with tone control for all 3 platforms at once.",
+      bg: "rgba(139,92,246,0.08)",
+      glow: "rgba(139,92,246,0.15)",
+      details: "The AI Caption Assistant is an upgrade over basic caption generation. It uses GPT-4o's vision capability to read and understand your uploaded image, then combines that with your typed topic to produce deeply relevant, creative captions for all platforms simultaneously.\n\n✦ Image vision: AI sees and describes your photo\n✦ Topic-aware: combine image + typed topic for richer results\n✦ Generates Instagram, LinkedIn & Threads captions in one click\n✦ Tone selector: Professional, Fun, Inspirational, Motivational\n✦ Separate hashtag extraction per platform\n✦ No more generic captions — every output is unique"
+    },
+    {
+      icon: <span className="text-2xl">📋</span>,
+      title: "1000+ Post Templates",
+      description: "Choose from a growing library of ready-made post templates for every niche, platform, and occasion. Customize and publish in seconds.",
+      bg: "rgba(245,158,11,0.08)",
+      glow: "rgba(245,158,11,0.15)",
+      details: "Skip the blank page. Post Pilot.ai includes a growing library of 1000+ professionally crafted post templates across every category and platform. Pick a template, fill in your details, and post in seconds.\n\n✦ 1000+ templates across all niches\n✦ Categories: Business, Lifestyle, Fitness, Food, Tech, Travel & more\n✦ Platform-specific: separate templates for Instagram, LinkedIn, Threads\n✦ Customizable: edit any template before posting\n✦ AI-enhanced: apply AI Magic to refine any template\n✦ New templates added regularly"
     }
   ];
 
   const steps = [
     { num: 1, title: "Create Account", desc: "Sign up free and access your personal command center." },
-    { num: 2, title: "Connect Accounts", desc: "Link Instagram and LinkedIn profiles securely via OAuth." },
+    { num: 2, title: "Connect Accounts", desc: "Link Instagram, LinkedIn, and Threads profiles securely via OAuth." },
     { num: 3, title: "Create Content", desc: "Upload media, use AI Magic for captions, preview posts live." },
     { num: 4, title: "Publish or Schedule", desc: "Post instantly or queue for the perfect time slot." }
   ];
@@ -157,23 +198,31 @@ export default function App() {
     },
     {
       q: "Which platforms are supported?",
-      a: "Instagram (single image and carousel) and LinkedIn (text and image posts). More platforms may be added in future updates."
+      a: "Instagram (single image and carousel), LinkedIn (text and image posts), and now Threads (text and media posts). More platforms coming soon!"
     },
     {
       q: "How does AI caption generation work?",
-      a: "Upload your media in Create & Post, then click AI Magic. Our AI analyzes your content and generates platform-appropriate captions with relevant hashtags."
+      a: "Upload your media in Create & Post, then click AI Magic. Our AI (GPT-4o) analyzes your image visually, combines it with your topic, and generates platform-appropriate captions with relevant hashtags for Instagram, LinkedIn, and Threads simultaneously."
     },
     {
       q: "Can I schedule posts in advance?",
-      a: "Absolutely. Use the Schedule button when creating content, pick your date and time, and our persistent scheduler handles the rest."
+      a: "Absolutely. Use the Schedule button when creating content, pick your date and time, and our persistent scheduler handles the rest — even surviving server restarts."
+    },
+    {
+      q: "What is Threads integration?",
+      a: "Post Pilot.ai now supports Meta Threads. Connect your Threads account via OAuth and publish text, images, and media with full AI caption support and scheduling."
+    },
+    {
+      q: "What are the 1000+ templates?",
+      a: "A growing library of professionally crafted post templates across every niche and platform. Pick a template, customize it, apply AI Magic if needed, and publish in seconds."
     }
   ];
 
   const stats = [
-    { value: "100%", label: "Dashboard Theme Match" },
-    { value: "6", label: "Core Modules" },
-    { value: "1", label: "Unified Command Center" },
-    { value: "∞", label: "Creative Possibilities" }
+    { value: "3+", label: "Platforms Supported" },
+    { value: "1000+", label: "Post Templates" },
+    { value: "GPT-4o", label: "AI Engine" },
+    { value: "24/7", label: "Smart Scheduler" }
   ];
 
   return (
@@ -315,62 +364,45 @@ export default function App() {
                   <span>Sign In</span>
                 </motion.button>
               </div>
-
-              {/* Simple Stats display */}
-              <div className="flex items-center gap-8 mt-8 border-t border-slate-200/80 pt-6 w-full">
-                <div>
-                  <div className="text-xl md:text-2xl font-bold font-display text-slate-900">2+</div>
-                  <div className="text-[12px] text-slate-500">Platforms</div>
-                </div>
-                <div className="w-px h-8 bg-slate-200" />
-                <div>
-                  <div className="text-xl md:text-2xl font-bold font-display text-slate-900">10</div>
-                  <div className="text-[12px] text-slate-500">Images per Post</div>
-                </div>
-                <div className="w-px h-8 bg-slate-200" />
-                <div>
-                  <div className="text-xl md:text-2xl font-bold font-display text-slate-900">24/7</div>
-                  <div className="text-[12px] text-slate-500">Smart Scheduler</div>
-                </div>
-              </div>
             </motion.div>
           </div>
 
           {/* Floating Bottom Navbar inside Hero Container */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[90%] sm:w-auto">
-            <motion.nav
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[95%] sm:w-auto">
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="flex items-center justify-between sm:justify-start bg-white/80 backdrop-blur-2xl px-2 py-2 rounded-full shadow-lg border border-slate-200/50 gap-4"
+              className="flex items-center bg-white/90 backdrop-blur-2xl px-6 py-4 rounded-[28px] shadow-xl border border-slate-200/50 gap-6 sm:gap-8"
             >
-              <div className="w-8 h-8 bg-blue-600 shadow-md rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
+              <div className="w-10 h-10 bg-blue-600 shadow-md rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
                 ✦
               </div>
 
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => handleScroll('features')}
-                  className="text-[12px] font-semibold text-slate-500 hover:text-slate-900 px-3 py-1.5 transition-colors cursor-pointer rounded-full"
-                >
-                  Features
-                </button>
-                <button 
-                  onClick={() => handleScroll('platforms')}
-                  className="text-[12px] font-semibold text-slate-500 hover:text-slate-900 px-3 py-1.5 transition-colors cursor-pointer rounded-full"
-                >
-                  Platforms
-                </button>
-              </div>
+              <div className="flex items-center gap-4 sm:gap-8 pr-2">
+                {/* 3+ Platforms */}
+                <div className="flex flex-col items-start">
+                  <div className="text-lg sm:text-xl font-extrabold font-display text-slate-900 leading-none">3+</div>
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">platforms</div>
+                </div>
 
-              <button
-                onClick={() => handleNavigation('/static/signup.html')}
-                className="flex items-center gap-1.5 bg-blue-600 px-4 py-2 rounded-full text-[12px] font-bold text-white shadow-sm hover:bg-blue-700 transition-all cursor-pointer shrink-0"
-              >
-                <span>Get started</span>
-                <ChevronDown className="w-3 h-3 -rotate-90" />
-              </button>
-            </motion.nav>
+                <div className="w-px h-8 bg-slate-200 shrink-0" />
+
+                {/* 10 per post */}
+                <div className="flex flex-col items-start">
+                  <div className="text-lg sm:text-xl font-extrabold font-display text-slate-900 leading-none">10</div>
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">per post</div>
+                </div>
+
+                <div className="w-px h-8 bg-slate-200 shrink-0" />
+
+                {/* 24/7 smart scheduler */}
+                <div className="flex flex-col items-start">
+                  <div className="text-lg sm:text-xl font-extrabold font-display text-slate-900 leading-none">24/7</div>
+                  <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">smart scheduler</div>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
         </section>
@@ -396,7 +428,11 @@ export default function App() {
                   <img
                     src={logo.src}
                     alt={logo.name}
-                    className="h-10 w-24 object-contain relative z-10 transition-all duration-300 group-hover:brightness-0 group-hover:invert"
+                    className={`h-10 w-24 object-contain relative z-10 transition-all duration-300 ${
+                      logo.name === 'Threads' || logo.name === 'TikTok'
+                        ? '' 
+                        : 'group-hover:brightness-0 group-hover:invert'
+                    }`}
                   />
                 )}
               </div>
@@ -447,10 +483,19 @@ export default function App() {
                   {feat.description}
                 </p>
 
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors group-hover:text-blue-700">
+                <button
+                  onClick={() => setActiveFeature(idx)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors group-hover:gap-2.5 cursor-pointer"
+                >
                   <span>Learn more</span>
                   <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </div>
+                </button>
+
+                {'badge' in feat && feat.badge && (
+                  <span className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    {feat.badge as string}
+                  </span>
+                )}
               </motion.article>
             ))}
           </div>
@@ -478,10 +523,14 @@ export default function App() {
                 <LinkedinIcon className="w-4 h-4 text-blue-600" />
                 <span>LinkedIn — Text &amp; Image Posts</span>
               </div>
+              <div className="inline-flex items-center gap-2 bg-slate-950/[0.04] border border-slate-200 px-5 py-2.5 rounded-full text-sm font-semibold text-slate-800">
+                <img src="./threads (1).png" className="w-4 h-4 object-contain" alt="Threads logo" />
+                <span>Threads — Text &amp; Media</span>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
             <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center">
@@ -503,6 +552,18 @@ export default function App() {
               </div>
               <p className="text-sm text-slate-500 leading-relaxed">
                 OAuth-connect professional profiles, craft thought-leadership copy with AI assistance, attach images when needed, and publish to selected member accounts instantly.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-sm flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
+                  <img src="./threads (1).png" className="w-5.5 h-5.5 object-contain" alt="Threads" />
+                </div>
+                <h3 className="font-display text-lg font-bold text-slate-900">Threads Workflow</h3>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Connect your Threads account via secure OAuth, compose text-based updates or upload images, generate optimized captions with AI assistance, and schedule or publish instantly.
               </p>
             </div>
           </div>
@@ -653,6 +714,60 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* Feature Detail Popup Modal */}
+      {activeFeature !== null && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setActiveFeature(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-8 relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setActiveFeature(null)}
+              className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4 text-slate-600" />
+            </button>
+
+            <div className="flex items-center gap-4 mb-5">
+              <div
+                style={{ backgroundColor: features[activeFeature].bg }}
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+              >
+                {features[activeFeature].icon}
+              </div>
+              <div>
+                <h3 className="font-display text-xl font-bold text-slate-900">{features[activeFeature].title}</h3>
+                {'badge' in features[activeFeature] && (features[activeFeature] as any).badge && (
+                  <span className="inline-block mt-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    {(features[activeFeature] as any).badge}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-slate-50 rounded-2xl p-5 border border-slate-100">
+              {(features[activeFeature] as any).details}
+            </div>
+
+            <button
+              onClick={() => setActiveFeature(null)}
+              className="mt-6 w-full bg-blue-600 text-white font-bold py-3 rounded-2xl hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              Got it!
+            </button>
+          </motion.div>
+        </div>
+      )}
 
     </main>
   );
