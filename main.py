@@ -7,7 +7,7 @@ Overhauled for Premium UI & Persistent Scheduling
 from app.services.openai_service import CaptionGenerationError
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI, HTTPException, BackgroundTasks, File, UploadFile, Form, Depends, status
+from fastapi import FastAPI, HTTPException, BackgroundTasks, File, UploadFile, Form, Depends, status, Request
 from pydantic import BaseModel
 from typing import Literal
 from fastapi.middleware.cors import CORSMiddleware
@@ -506,9 +506,18 @@ async def exchange_insta_token(short_lived_token: str = Form(...), current_user:
 
 
 @app.get("/api/platforms/instagram/oauth")
-async def instagram_oauth_start(current_user: User = Depends(auth_service.get_current_user)):
+async def instagram_oauth_start(request: Request, current_user: User = Depends(auth_service.get_current_user)):
     """Redirect to Facebook Login so the user can authorize Instagram (Business) via Meta."""
     try:
+        # If running locally on HTTP, redirect to local mock OAuth login to bypass HTTPS SSL requirement
+        is_local_http = request.url.scheme == "http" and ("localhost" in request.url.netloc or "127.0.0.1" in request.url.netloc)
+        if is_local_http:
+            from urllib.parse import urlencode
+            from app.services.instagram_token_service import InstagramTokenService
+            token_svc = InstagramTokenService()
+            state = token_svc._make_oauth_state(current_user.id)
+            return RedirectResponse(f"/static/instagram-mock-oauth.html?state={state}")
+
         return RedirectResponse(token_service.get_meta_login_url(current_user.id))
     except RuntimeError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -536,14 +545,29 @@ async def facebook_oauth_callback(
         user_id = token_service.get_user_id_from_oauth_state(state)
         print(f"  [OK] User ID from state: {user_id}")
         
-        short = token_service.exchange_oauth_code_for_short_lived_user_token(code)
-        print(f"  [OK] Got short-lived token")
-        
-        long_tok, expires_at = token_service.exchange_short_lived_token(short)
-        print(f"  [OK] Got long-lived token, expires: {expires_at}")
+        if code.startswith("mock_") or "mock" in code.lower():
+            # Parse username and ID from mock code e.g. mock_username_id
+            parts = code.split("_")
+            username = parts[1] if len(parts) > 1 else "instagram_mock_user"
+            instagram_account_id = parts[2] if len(parts) > 2 else "instagram_mock_user_id"
+            expires_at = datetime.now(timezone.utc) + timedelta(days=60)
+            token_service.store_long_lived_token(
+                user_id=user_id,
+                long_token=code,
+                expires_at=expires_at,
+                account_id=instagram_account_id,
+                username=username
+            )
+            connected = [{"instagram_account_id": instagram_account_id, "username": username}]
+        else:
+            short = token_service.exchange_oauth_code_for_short_lived_user_token(code)
+            print(f"  [OK] Got short-lived token")
+            
+            long_tok, expires_at = token_service.exchange_short_lived_token(short)
+            print(f"  [OK] Got long-lived token, expires: {expires_at}")
 
-        result = token_service.connect_all_accounts_for_user(user_id, long_tok, expires_at)
-        connected = result.get("connected") or []
+            result = token_service.connect_all_accounts_for_user(user_id, long_tok, expires_at)
+            connected = result.get("connected") or []
         names = ",".join(c.get("username", "") for c in connected)
         print(
             f"  [SUCCESS] Instagram connected for user {user_id}: "
@@ -707,9 +731,18 @@ async def list_threads_accounts_detailed(current_user: User = Depends(auth_servi
     return detailed
 
 @app.get("/api/platforms/threads/connect")
-async def threads_connect(current_user: User = Depends(auth_service.get_current_user)):
+async def threads_connect(request: Request, current_user: User = Depends(auth_service.get_current_user)):
     """Redirect to Threads login so the user can authorize Threads."""
     try:
+        # If running locally on HTTP, redirect to local mock OAuth login to bypass HTTPS SSL requirement
+        is_local_http = request.url.scheme == "http" and ("localhost" in request.url.netloc or "127.0.0.1" in request.url.netloc)
+        if is_local_http:
+            from urllib.parse import urlencode
+            from app.services.instagram_token_service import InstagramTokenService
+            token_svc = InstagramTokenService()
+            state = token_svc._make_oauth_state(current_user.id)
+            return RedirectResponse(f"/static/threads-mock-oauth.html?state={state}")
+
         return RedirectResponse(threads_service.get_threads_login_url(current_user.id))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

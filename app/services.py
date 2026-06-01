@@ -333,6 +333,11 @@ class InstagramService:
     
     def create_media_container(self, image_url: str, caption: str, access_token: str, instagram_account_id: Optional[str] = None) -> str:
         """Create Instagram media container"""
+        if access_token.startswith("mock_") or "mock" in access_token.lower():
+            print(f"[INSTAGRAM MOCK] Creating media container for caption: {caption}")
+            import time
+            return f"ig_mock_container_{int(time.time())}"
+
         target_account_id = instagram_account_id or settings.INSTAGRAM_ACCOUNT_ID
         url = f"{settings.GRAPH_API_BASE}/{target_account_id}/media"
         payload = {
@@ -371,6 +376,11 @@ class InstagramService:
 
     def create_carousel_media(self, image_urls: List[str], caption: str, access_token: str, instagram_account_id: Optional[str] = None) -> str:
         """Create a carousel (multi-photo) media container."""
+        if access_token.startswith("mock_") or "mock" in access_token.lower():
+            print(f"[INSTAGRAM MOCK] Creating carousel container for caption: {caption}")
+            import time
+            return f"ig_mock_carousel_{int(time.time())}"
+
         target_account_id = instagram_account_id or settings.INSTAGRAM_ACCOUNT_ID
         child_ids: List[str] = []
 
@@ -431,6 +441,11 @@ class InstagramService:
     
     def publish_media_container(self, creation_id: str, access_token: str, instagram_account_id: Optional[str] = None) -> str:
         """Publish Instagram media container"""
+        if access_token.startswith("mock_") or "mock" in access_token.lower() or creation_id.startswith("ig_mock_"):
+            print(f"[INSTAGRAM MOCK] Publishing container {creation_id}")
+            import time
+            return f"ig_mock_post_{int(time.time())}"
+
         target_account_id = instagram_account_id or settings.INSTAGRAM_ACCOUNT_ID
         url = f"{settings.GRAPH_API_BASE}/{target_account_id}/media_publish"
         payload = {
@@ -476,6 +491,18 @@ class InstagramService:
     
     def get_account_info(self, access_token: str, instagram_account_id: Optional[str] = None) -> dict:
         """Get Instagram account info"""
+        if access_token.startswith("mock_") or "mock" in access_token.lower():
+            return {
+                "id": instagram_account_id or "instagram_mock_env_id",
+                "username": "instagram_mock_user",
+                "name": "Mock Instagram User",
+                "profile_picture_url": None,
+                "followers_count": 1280,
+                "follows_count": 340,
+                "media_count": 42,
+                "biography": "Mock Instagram profile for local development and testing."
+            }
+
         target_account_id = instagram_account_id or settings.INSTAGRAM_ACCOUNT_ID
         url = f"{settings.GRAPH_API_BASE}/{target_account_id}"
         

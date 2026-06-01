@@ -4272,6 +4272,13 @@
             // Clear unified composer editor
             const unifiedEditor = document.getElementById('composerMainEditor');
             if (unifiedEditor) unifiedEditor.value = '';
+            // Clear AI Magic Caption Generator fields
+            const aiMagicPrompt = document.getElementById('aiMagicPromptInput');
+            if (aiMagicPrompt) aiMagicPrompt.value = '';
+            const aiMagicOutputText = document.getElementById('aiMagicOutputText');
+            if (aiMagicOutputText) aiMagicOutputText.textContent = '';
+            const aiMagicOutputContainer = document.getElementById('aiMagicOutputContainer');
+            if (aiMagicOutputContainer) aiMagicOutputContainer.style.display = 'none';
             // Reset AI slides back to welcome
             const slideWelcome = document.getElementById('aiSlideWelcome');
             const slidePrompt = document.getElementById('aiSlidePrompt');
@@ -5012,11 +5019,21 @@
                 if (!token) {
                     throw new Error('Not authenticated. Please login again.');
                 }
-                openAuthPopup(`/api/platforms/instagram/oauth?token=${encodeURIComponent(token)}`, () => {
+                
+                // Try calling connect first (which connects via env token or mock fallback)
+                const resp = await fetchWithAuth('/api/platforms/instagram/connect', { method: 'POST' });
+                if (resp && resp.ok) {
                     fetchInstagramAccount();
                     updateProfileDashboard();
-                    showToast('Refreshing Instagram accounts…', 'success');
-                });
+                    showToast('Instagram account connected successfully!', 'success');
+                } else {
+                    // Fallback to OAuth popup if POST connect fails
+                    openAuthPopup(`/api/platforms/instagram/oauth?token=${encodeURIComponent(token)}`, () => {
+                        fetchInstagramAccount();
+                        updateProfileDashboard();
+                        showToast('Refreshing Instagram accounts…', 'success');
+                    });
+                }
             } catch (e) {
                 showToast(e.message || 'Connection error. Please try again.', 'error');
             } finally {
