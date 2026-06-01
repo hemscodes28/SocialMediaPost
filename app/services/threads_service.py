@@ -220,8 +220,10 @@ class ThreadsService:
         except Exception as e:
             if isinstance(e, HTTPException):
                 raise
-            print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
-            return f"threads_mock_fallback_{int(time.time())}"
+            if access_token.startswith("mock_") or "mock" in access_token.lower():
+                print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
+                return f"threads_mock_fallback_{int(time.time())}"
+            raise HTTPException(status_code=400, detail=f"Threads direct post failed: {e}")
 
     def post_image(self, threads_account_id: str, text: str, image_url: str, access_token: str) -> str:
         """Publish an image thread with caption."""
@@ -250,8 +252,10 @@ class ThreadsService:
         except Exception as e:
             if isinstance(e, HTTPException):
                 raise
-            print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
-            return f"threads_mock_fallback_{int(time.time())}"
+            if access_token.startswith("mock_") or "mock" in access_token.lower():
+                print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
+                return f"threads_mock_fallback_{int(time.time())}"
+            raise HTTPException(status_code=400, detail=f"Threads direct post failed: {e}")
 
     def publish_container(self, threads_account_id: str, creation_id: str, access_token: str) -> str:
         url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads_publish"

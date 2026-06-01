@@ -282,22 +282,29 @@ class ImageService:
             )
 
     def upload_to_cloud(self, file_path: Path) -> str:
-        """Upload to configured cloud service. Prioritizes Catbox as ImgBB is often blocked by Meta."""
-        # Try Catbox first as it's currently the most reliable for Instagram
+        """Upload to configured cloud service. Prioritizes ImgBB if configured, falling back to Catbox/Imgur."""
+        if settings.IMGBB_API_KEY:
+            try:
+                return self.upload_to_imgbb(file_path)
+            except Exception as e:
+                print(f"⚠ ImgBB upload failed, falling back: {e}")
+
+        # Fallback to Catbox
         try:
             return self.upload_to_catbox(file_path)
         except Exception as e:
             print(f"⚠ Catbox upload failed, falling back: {e}")
             
-        if settings.IMGBB_API_KEY:
-            return self.upload_to_imgbb(file_path)
-        elif settings.IMGUR_CLIENT_ID:
-            return self.upload_to_imgur(file_path)
-        else:
-            raise HTTPException(
-                status_code=500,
-                detail="No image hosting service configured"
-            )
+        if settings.IMGUR_CLIENT_ID:
+            try:
+                return self.upload_to_imgur(file_path)
+            except Exception as e:
+                print(f"⚠ Imgur upload failed: {e}")
+
+        raise HTTPException(
+            status_code=500,
+            detail="No working image hosting service configured or all services failed"
+        )
     
     def cleanup_file(self, file_path: Path):
         """Delete temporary file"""
