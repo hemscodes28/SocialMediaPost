@@ -537,6 +537,25 @@ class InstagramService:
                 detail=f"Failed to fetch account info: {str(e)}"
             )
 
+    def get_permalink(self, media_id: str, access_token: str) -> str:
+        """Retrieve the public permalink for a published Instagram media ID."""
+        if not media_id or media_id.startswith("ig_mock_"):
+            return "https://www.instagram.com/"
+        url = f"{settings.GRAPH_API_BASE}/{media_id}"
+        params = {
+            'fields': 'permalink',
+            'access_token': access_token
+        }
+        try:
+            response = requests.get(url, params=params, timeout=15)
+            if response.status_code == 200:
+                res_url = response.json().get("permalink")
+                if res_url:
+                    return res_url
+        except Exception as e:
+            print(f"[WARN] Failed to retrieve permalink for Instagram post {media_id}: {e}")
+        return "https://www.instagram.com/"
+
     def check_token_status(self) -> dict:
         """Check if the current access token is valid or expired"""
         url = f"{settings.GRAPH_API_BASE}/me"

@@ -975,15 +975,16 @@ async def post_threads(
         else:
             post_id = threads_service.post_text(threads_account_id, text or "", acc["access_token"])
 
+        post_url = threads_service.get_permalink(post_id, acc["access_token"])
         scheduler_svc.record_direct_post(
             current_user.id,
             "threads",
             "published",
-            post_id=post_id,
-            image_url=hosted_urls[0] if hosted_urls else None,
+            post_id=post_url,
+            image_url=",".join(hosted_urls) if hosted_urls else None,
             caption=text or ""
         )
-        return {"success": True, "post_id": post_id, "message": "Elite content published to Threads!"}
+        return {"success": True, "post_id": post_url, "post_url": post_url, "message": "Elite content published to Threads!"}
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -1062,17 +1063,18 @@ async def post_insta_direct(
         container_id = instagram_service.create_media_container(hosted_url, text or "", page_token, ig_id)
         time.sleep(3) # Wait for processing
         post_id = instagram_service.publish_media_container(container_id, page_token, ig_id)
+        post_url = instagram_service.get_permalink(post_id, page_token)
         
         image_service.cleanup_file(file_path)
         scheduler_svc.record_direct_post(
             current_user.id,
             "instagram",
             "published",
-            post_id=post_id,
+            post_id=post_url,
             image_url=hosted_url,
             caption=text or ""
         )
-        return {"success": True, "post_id": post_id, "message": "Elite content published to Instagram!"}
+        return {"success": True, "post_id": post_url, "post_url": post_url, "message": "Elite content published to Instagram!"}
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -1107,16 +1109,17 @@ async def post_insta_carousel(
         creation_id = instagram_service.create_carousel_media(hosted_urls, text or "", page_token, ig_id)
         time.sleep(5) # Wait for processing
         post_id = instagram_service.publish_media_container(creation_id, page_token, ig_id)
+        post_url = instagram_service.get_permalink(post_id, page_token)
         
         scheduler_svc.record_direct_post(
             current_user.id,
             "instagram",
             "published",
-            post_id=post_id,
-            image_url=hosted_urls[0] if hosted_urls else None,
+            post_id=post_url,
+            image_url=",".join(hosted_urls) if hosted_urls else None,
             caption=text or ""
         )
-        return {"success": True, "post_id": post_id, "message": "Elite carousel published to Instagram!"}
+        return {"success": True, "post_id": post_url, "post_url": post_url, "message": "Elite carousel published to Instagram!"}
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -1141,11 +1144,20 @@ async def post_li_direct(
         elif file:
             upload_files.extend([file])
             
+        hosted_urls = []
         if upload_files:
             file_paths = []
             for uf in upload_files:
                 p = await image_service.save_upload(uf)
                 file_paths.append(str(p))
+                
+            for fp in file_paths:
+                try:
+                    h_url = image_service.upload_to_cloud(Path(fp))
+                    if h_url:
+                        hosted_urls.append(h_url)
+                except Exception as ex:
+                    print(f"[WARN] Failed to upload LinkedIn image to cloud for history: {ex}")
                 
             if len(file_paths) > 1:
                 post_id = linkedin_service.post_images(member_urn, text or "", file_paths, account.access_token)
@@ -1157,14 +1169,21 @@ async def post_li_direct(
         else:
             post_id = linkedin_service.post_text(member_urn, text or "", account.access_token)
             
+        post_url = post_id
+        if post_id and post_id.startswith("urn:li:"):
+            post_url = f"https://www.linkedin.com/feed/update/{post_id}/"
+        elif not post_id or not post_id.startswith("http"):
+            post_url = "https://www.linkedin.com/"
+
         scheduler_svc.record_direct_post(
             current_user.id,
             "linkedin",
             "published",
-            post_id=post_id,
+            post_id=post_url,
+            image_url=",".join(hosted_urls) if hosted_urls else None,
             caption=text or ""
         )
-        return {"success": True, "post_id": post_id, "message": "Elite content published to LinkedIn!"}
+        return {"success": True, "post_id": post_url, "post_url": post_url, "message": "Elite content published to LinkedIn!"}
     except HTTPException as e:
         raise e
     except Exception as e:

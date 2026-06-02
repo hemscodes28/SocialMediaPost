@@ -314,6 +314,25 @@ class ThreadsService:
             raise HTTPException(status_code=400, detail=f"Threads Publish Error: {result['error'].get('message')}")
         return result["id"]
 
+    def get_permalink(self, media_id: str, access_token: str) -> str:
+        """Retrieve the public permalink for a published Threads media ID."""
+        if not media_id or media_id.startswith("threads_mock_"):
+            return "https://www.threads.net/"
+        url = f"https://graph.threads.net/v1.0/{media_id}"
+        params = {
+            'fields': 'permalink',
+            'access_token': access_token
+        }
+        try:
+            response = requests.get(url, params=params, timeout=15)
+            if response.status_code == 200:
+                res_url = response.json().get("permalink")
+                if res_url:
+                    return res_url
+        except Exception as e:
+            print(f"[WARN] Failed to retrieve permalink for Threads post {media_id}: {e}")
+        return "https://www.threads.net/"
+
     def get_threads_login_url(self, user_id: int) -> str:
         from urllib.parse import urlencode
         from app.services.instagram_token_service import InstagramTokenService

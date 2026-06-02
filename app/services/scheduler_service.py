@@ -77,8 +77,9 @@ def _run_instagram_post(
         creation_id = svc.create_media_container(hosted_image_url, caption, access_token, ig_id)
         import time; time.sleep(2)
         post_id = svc.publish_media_container(creation_id, access_token, ig_id)
-        _update_status(job_id, "published", post_id=post_id)
-        print(f"✅ Scheduled Instagram post published — post_id={post_id}  job_id={job_id}")
+        post_url = svc.get_permalink(post_id, access_token)
+        _update_status(job_id, "published", post_id=post_url)
+        print(f"✅ Scheduled Instagram post published — post_id={post_url}  job_id={job_id}")
     except Exception as e:
         _update_status(job_id, "failed", error=str(e))
         print(f"❌ Scheduled Instagram post failed — job_id={job_id}  error={e}")
@@ -111,8 +112,9 @@ def _run_instagram_carousel(
         creation_id = svc.create_carousel_media(hosted_image_urls, caption, access_token, ig_id)
         import time; time.sleep(2)
         post_id = svc.publish_media_container(creation_id, access_token, ig_id)
-        _update_status(job_id, "published", post_id=post_id)
-        print(f"✅ Scheduled Instagram carousel published — post_id={post_id}  job_id={job_id}")
+        post_url = svc.get_permalink(post_id, access_token)
+        _update_status(job_id, "published", post_id=post_url)
+        print(f"✅ Scheduled Instagram carousel published — post_id={post_url}  job_id={job_id}")
     except Exception as e:
         _update_status(job_id, "failed", error=str(e))
         print(f"❌ Scheduled Instagram carousel failed — job_id={job_id}  error={e}")
@@ -139,8 +141,13 @@ def _run_linkedin_post(
             post_id = svc.post_image(member_urn, text, file_path, access_token)
         else:
             post_id = svc.post_text(member_urn, text, access_token)
-        _update_status(job_id, "published", post_id=post_id)
-        print(f"✅ Scheduled LinkedIn post published — post_id={post_id}  job_id={job_id}")
+        post_url = post_id
+        if post_id and post_id.startswith("urn:li:"):
+            post_url = f"https://www.linkedin.com/feed/update/{post_id}/"
+        elif not post_id or not post_id.startswith("http"):
+            post_url = "https://www.linkedin.com/"
+        _update_status(job_id, "published", post_id=post_url)
+        print(f"✅ Scheduled LinkedIn post published — post_id={post_url}  job_id={job_id}")
     except Exception as e:
         _update_status(job_id, "failed", error=str(e))
         print(f"❌ Scheduled LinkedIn post failed — job_id={job_id}  error={e}")
@@ -173,8 +180,9 @@ def _run_threads_post(
         else:
             post_id = threads_service.post_text(threads_account_id, caption, access_token)
             
-        _update_status(job_id, "published", post_id=post_id)
-        print(f"✅ Scheduled Threads post published — post_id={post_id}  job_id={job_id}")
+        post_url = threads_service.get_permalink(post_id, access_token)
+        _update_status(job_id, "published", post_id=post_url)
+        print(f"✅ Scheduled Threads post published — post_id={post_url}  job_id={job_id}")
     except Exception as e:
         _update_status(job_id, "failed", error=str(e))
         print(f"❌ Scheduled Threads post failed — job_id={job_id}  error={e}")
@@ -225,7 +233,7 @@ def schedule_instagram_carousel(
     username: Optional[str] = None,
 ) -> str:
     job_id = str(uuid.uuid4())
-    _store_meta(job_id, "instagram_carousel", scheduled_at, user_id, image_url=hosted_image_urls[0] if hosted_image_urls else None, caption=caption)
+    _store_meta(job_id, "instagram_carousel", scheduled_at, user_id, image_url=",".join(hosted_image_urls) if hosted_image_urls else None, caption=caption)
     scheduler.add_job(
         _run_instagram_carousel,
         trigger="date",
@@ -257,10 +265,10 @@ def schedule_linkedin_post(
 ) -> str:
     job_id = str(uuid.uuid4())
     image_url = None
-    if file_path:
+    if file_paths:
+        image_url = ",".join([f"/uploads/{Path(fp).name}" for fp in file_paths])
+    elif file_path:
         image_url = f"/uploads/{Path(file_path).name}"
-    elif file_paths:
-        image_url = f"/uploads/{Path(file_paths[0]).name}"
         
     _store_meta(job_id, "linkedin", scheduled_at, user_id, caption=text, image_url=image_url)
     scheduler.add_job(
@@ -293,8 +301,10 @@ def schedule_threads_post(
 ) -> str:
     job_id = str(uuid.uuid4())
     preview_url = image_url
-    if not preview_url and image_urls:
-        preview_url = image_urls[0]
+    if image_urls:
+        preview_url = ",".join(image_urls)
+    elif not preview_url:
+        preview_url = None
         
     _store_meta(job_id, "threads", scheduled_at, user_id, image_url=preview_url, caption=caption)
     scheduler.add_job(
