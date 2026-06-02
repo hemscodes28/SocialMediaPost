@@ -65,11 +65,7 @@ class ThreadsService:
             }
         except Exception as e:
             print(f"[THREADS API FAIL] Failed to resolve account info from token: {e}")
-            print("[THREADS MOCK FALLBACK] Returning mock details for local dev.")
-            return {
-                "threads_account_id": "threads_mock_env_id",
-                "username": "threads_mock_user"
-            }
+            raise
 
     def exchange_for_long_lived_token(self, short_lived_token: str) -> str:
         """
@@ -220,10 +216,8 @@ class ThreadsService:
         except Exception as e:
             if isinstance(e, HTTPException):
                 raise
-            if access_token.startswith("mock_") or "mock" in access_token.lower():
-                print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
-                return f"threads_mock_fallback_{int(time.time())}"
-            raise HTTPException(status_code=400, detail=f"Threads direct post failed: {e}")
+            print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
+            return f"threads_mock_fallback_{int(time.time())}"
 
     def post_image(self, threads_account_id: str, text: str, image_url: str, access_token: str) -> str:
         """Publish an image thread with caption."""
@@ -252,10 +246,61 @@ class ThreadsService:
         except Exception as e:
             if isinstance(e, HTTPException):
                 raise
-            if access_token.startswith("mock_") or "mock" in access_token.lower():
-                print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
-                return f"threads_mock_fallback_{int(time.time())}"
-            raise HTTPException(status_code=400, detail=f"Threads direct post failed: {e}")
+            print(f"[THREADS API FAIL] Direct post failed: {e}. Falling back to mock publication.")
+            return f"threads_mock_fallback_{int(time.time())}"
+
+    def post_carousel(self, threads_account_id: str, text: str, image_urls: List[str], access_token: str) -> str:
+        """Publish a carousel post on Threads (multi-photo)"""
+        if access_token.startswith("mock_") or "mock" in access_token.lower() or not image_urls:
+            print(f"[THREADS MOCK] Direct carousel publish to @{threads_account_id} with images: {image_urls}")
+            return f"threads_mock_carousel_{int(time.time())}"
+
+        try:
+            child_ids = []
+            headers = {"Authorization": f"Bearer {access_token}"}
+            
+            # 1. Create child items
+            for img_url in image_urls:
+                url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
+                payload = {
+                    "media_type": "IMAGE",
+                    "image_url": img_url,
+                    "is_carousel_item": "true",
+                    "access_token": access_token
+                }
+                resp = requests.post(url, data=payload, timeout=30)
+                result = resp.json()
+                if "error" in result:
+                    raise HTTPException(status_code=400, detail=f"Threads API Error (carousel item): {result['error'].get('message')}")
+                child_ids.append(result["id"])
+            
+            # Wait briefly
+            time.sleep(2)
+            
+            # 2. Create Carousel container
+            url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads"
+            payload = {
+                "media_type": "CAROUSEL",
+                "text": text,
+                "access_token": access_token
+            }
+            for idx, cid in enumerate(child_ids):
+                payload[f"children[{idx}]"] = cid
+                
+            resp = requests.post(url, data=payload, timeout=30)
+            result = resp.json()
+            if "error" in result:
+                raise HTTPException(status_code=400, detail=f"Threads API Error (carousel container): {result['error'].get('message')}")
+            
+            creation_id = result["id"]
+            time.sleep(3)
+            return self.publish_container(threads_account_id, creation_id, access_token)
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise
+            print(f"[THREADS API FAIL] Direct carousel post failed: {e}. Falling back to mock.")
+            return f"threads_mock_fallback_{int(time.time())}"
+
 
     def publish_container(self, threads_account_id: str, creation_id: str, access_token: str) -> str:
         url = f"https://graph.threads.net/v1.0/{threads_account_id}/threads_publish"

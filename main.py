@@ -341,6 +341,29 @@ async def generate_caption_route(
             status_code=500,
             detail="Caption generation failed. Please try again."
         )
+
+@app.post("/api/ai/generate-multi-captions")
+async def generate_multi_captions_route(
+    prompt: str = Form(...),
+    tone: Optional[str] = Form("casual"),
+    current_user: User = Depends(auth_service.get_current_user)
+):
+    """Text-based Multi-platform Caption Generation"""
+    try:
+        results = await openai_service.generate_multi_captions(
+            topic=prompt,
+            tone=tone
+        )
+        return results
+    except CaptionGenerationError as e:
+        raise HTTPException(status_code=e.status_code, detail=str(e))
+    except Exception as e:
+        print(f"[ERROR] Multi-caption generation failed: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Multi-caption generation failed. Please try again."
+        )
+
             
 @app.get("/api/jobs")
 async def list_jobs(current_user: User = Depends(auth_service.get_current_user)):
@@ -546,19 +569,43 @@ async def facebook_oauth_callback(
         print(f"  [OK] User ID from state: {user_id}")
         
         if code.startswith("mock_") or "mock" in code.lower():
-            # Parse username and ID from mock code e.g. mock_username_id
-            parts = code.split("_")
-            username = parts[1] if len(parts) > 1 else "instagram_mock_user"
-            instagram_account_id = parts[2] if len(parts) > 2 else "instagram_mock_user_id"
-            expires_at = datetime.now(timezone.utc) + timedelta(days=60)
-            token_service.store_long_lived_token(
-                user_id=user_id,
-                long_token=code,
-                expires_at=expires_at,
-                account_id=instagram_account_id,
-                username=username
-            )
-            connected = [{"instagram_account_id": instagram_account_id, "username": username}]
+            env_token = (settings.PAGE_ACCESS_TOKEN or "").strip()
+            if env_token and not (env_token.startswith("mock_") or "mock" in env_token.lower()):
+                print("[INSTAGRAM MOCK CALLBACK] Real PAGE_ACCESS_TOKEN found in .env. Attempting real connection...")
+                try:
+                    expires_at = datetime.now(timezone.utc) + timedelta(days=60)
+                    result = token_service.connect_all_accounts_for_user(user_id, env_token, expires_at)
+                    connected = result.get("connected") or []
+                    print(f"  [SUCCESS] Connected real Instagram account(s) from PAGE_ACCESS_TOKEN: {connected}")
+                except Exception as e:
+                    print(f"  [ERROR] Failed to connect real Instagram account using PAGE_ACCESS_TOKEN: {e}")
+                    # Fallback to mock behavior
+                    parts = code.split("_")
+                    username = parts[1] if len(parts) > 1 else "instagram_mock_user"
+                    instagram_account_id = parts[2] if len(parts) > 2 else "instagram_mock_user_id"
+                    expires_at = datetime.now(timezone.utc) + timedelta(days=60)
+                    token_service.store_long_lived_token(
+                        user_id=user_id,
+                        long_token=code,
+                        expires_at=expires_at,
+                        account_id=instagram_account_id,
+                        username=username
+                    )
+                    connected = [{"instagram_account_id": instagram_account_id, "username": username}]
+            else:
+                # Parse username and ID from mock code e.g. mock_username_id
+                parts = code.split("_")
+                username = parts[1] if len(parts) > 1 else "instagram_mock_user"
+                instagram_account_id = parts[2] if len(parts) > 2 else "instagram_mock_user_id"
+                expires_at = datetime.now(timezone.utc) + timedelta(days=60)
+                token_service.store_long_lived_token(
+                    user_id=user_id,
+                    long_token=code,
+                    expires_at=expires_at,
+                    account_id=instagram_account_id,
+                    username=username
+                )
+                connected = [{"instagram_account_id": instagram_account_id, "username": username}]
         else:
             short = token_service.exchange_oauth_code_for_short_lived_user_token(code)
             print(f"  [OK] Got short-lived token")
@@ -770,11 +817,27 @@ async def threads_oauth_callback(
         print(f"  [OK] User ID from state: {user_id}")
         
         if code.startswith("mock_") or "mock" in code.lower():
-            # Parse username and ID from mock code e.g. mock_username_id
-            parts = code.split("_")
-            username = parts[1] if len(parts) > 1 else "threads_mock_user"
-            threads_account_id = parts[2] if len(parts) > 2 else "threads_mock_user_id"
-            access_token = code
+            env_token = (settings.THREADS_ACCESS_TOKEN or "").strip()
+            if env_token and not (env_token.startswith("mock_") or "mock" in env_token.lower()):
+                print("[THREADS MOCK CALLBACK] Real THREADS_ACCESS_TOKEN found in .env. Attempting real connection...")
+                try:
+                    resolved = threads_service.resolve_account_info(env_token)
+                    threads_account_id = resolved["threads_account_id"]
+                    username = resolved["username"]
+                    access_token = env_token
+                    print(f"  [SUCCESS] Successfully resolved real Threads account: @{username} (ID: {threads_account_id})")
+                except Exception as e:
+                    print(f"  [ERROR] Failed to resolve real Threads account using environment token: {e}")
+                    # Fallback to mock behavior
+                    parts = code.split("_")
+                    username = parts[1] if len(parts) > 1 else "threads_mock_user"
+                    threads_account_id = parts[2] if len(parts) > 2 else "threads_mock_user_id"
+                    access_token = code
+            else:
+                parts = code.split("_")
+                username = parts[1] if len(parts) > 1 else "threads_mock_user"
+                threads_account_id = parts[2] if len(parts) > 2 else "threads_mock_user_id"
+                access_token = code
         else:
             import requests
             # Exchange code for access token using standard Threads OAuth mechanism
@@ -878,7 +941,8 @@ async def delete_threads_account(threads_account_id: str, current_user: User = D
 async def post_threads(
     threads_account_id: str = Form(...),
     text: str = Form(None),
-    file: UploadFile = File(None),
+    file: Optional[UploadFile] = File(None),
+    files: Optional[List[UploadFile]] = File(None),
     current_user: User = Depends(auth_service.get_current_user)
 ):
     try:
@@ -886,14 +950,28 @@ async def post_threads(
         if not acc:
             raise HTTPException(status_code=404, detail="Threads account not found.")
         
-        hosted_url = None
-        if file:
-            file_path = await image_service.save_upload(file)
-            hosted_url = image_service.upload_to_cloud(file_path)
-            image_service.cleanup_file(file_path)
+        upload_files = []
+        if files:
+            upload_files.extend(files)
+        elif file:
+            upload_files.extend([file])
+            
+        hosted_urls = []
+        if upload_files:
+            file_paths = []
+            for uf in upload_files:
+                p = await image_service.save_upload(uf)
+                file_paths.append(p)
+                
+            # Upload to cloud to get public URLs
+            for fp in file_paths:
+                hosted_urls.append(image_service.upload_to_cloud(fp))
+                image_service.cleanup_file(fp)
 
-        if hosted_url:
-            post_id = threads_service.post_image(threads_account_id, text or "", hosted_url, acc["access_token"])
+        if len(hosted_urls) > 1:
+            post_id = threads_service.post_carousel(threads_account_id, text or "", hosted_urls, acc["access_token"])
+        elif len(hosted_urls) == 1:
+            post_id = threads_service.post_image(threads_account_id, text or "", hosted_urls[0], acc["access_token"])
         else:
             post_id = threads_service.post_text(threads_account_id, text or "", acc["access_token"])
 
@@ -902,7 +980,7 @@ async def post_threads(
             "threads",
             "published",
             post_id=post_id,
-            image_url=hosted_url,
+            image_url=hosted_urls[0] if hosted_urls else None,
             caption=text or ""
         )
         return {"success": True, "post_id": post_id, "message": "Elite content published to Threads!"}
@@ -917,7 +995,8 @@ async def schedule_threads(
     scheduled_at: str = Form(...),
     threads_account_id: str = Form(...),
     text: str = Form(None),
-    file: UploadFile = File(None),
+    file: Optional[UploadFile] = File(None),
+    files: Optional[List[UploadFile]] = File(None),
     current_user: User = Depends(auth_service.get_current_user)
 ):
     run_at = _parse_scheduled_at(scheduled_at)
@@ -925,14 +1004,31 @@ async def schedule_threads(
     if not acc:
         raise HTTPException(status_code=404, detail="Threads account not found.")
     
-    hosted_url = None
-    if file:
-        file_path = await image_service.save_upload(file)
-        hosted_url = image_service.upload_to_cloud(file_path)
-        image_service.cleanup_file(file_path)
+    upload_files = []
+    if files:
+        upload_files.extend(files)
+    elif file:
+        upload_files.extend([file])
+        
+    hosted_urls = []
+    if upload_files:
+        file_paths = []
+        for uf in upload_files:
+            p = await image_service.save_upload(uf)
+            file_paths.append(p)
+            
+        # Upload to cloud to get public URLs
+        for fp in file_paths:
+            hosted_urls.append(image_service.upload_to_cloud(fp))
+            image_service.cleanup_file(fp)
 
-    job_id = scheduler_svc.schedule_threads_post(app.state.scheduler, run_at, current_user.id, threads_account_id, text or "", hosted_url)
+    if len(hosted_urls) > 1:
+        job_id = scheduler_svc.schedule_threads_post(app.state.scheduler, run_at, current_user.id, threads_account_id, text or "", image_urls=hosted_urls)
+    else:
+        job_id = scheduler_svc.schedule_threads_post(app.state.scheduler, run_at, current_user.id, threads_account_id, text or "", image_url=hosted_urls[0] if hosted_urls else None)
+        
     return {"success": True, "job_id": job_id}
+
 
 # ---------------------------------------------------------------------------
 # Direct Posting Endpoints
@@ -1031,17 +1127,33 @@ async def post_insta_carousel(
 async def post_li_direct(
     member_urn: str = Form(...),
     text: str = Form(None),
-    file: UploadFile = File(None),
+    file: Optional[UploadFile] = File(None),
+    files: Optional[List[UploadFile]] = File(None),
     current_user: User = Depends(auth_service.get_current_user)
 ):
     try:
         account = linkedin_service.store.get_account(member_urn, current_user.id)
         if not account: raise HTTPException(status_code=404, detail="LinkedIn account not found.")
         
-        if file:
-            file_path = await image_service.save_upload(file)
-            post_id = linkedin_service.post_image(member_urn, text or "", str(file_path), account.access_token)
-            image_service.cleanup_file(file_path)
+        upload_files = []
+        if files:
+            upload_files.extend(files)
+        elif file:
+            upload_files.extend([file])
+            
+        if upload_files:
+            file_paths = []
+            for uf in upload_files:
+                p = await image_service.save_upload(uf)
+                file_paths.append(str(p))
+                
+            if len(file_paths) > 1:
+                post_id = linkedin_service.post_images(member_urn, text or "", file_paths, account.access_token)
+            else:
+                post_id = linkedin_service.post_image(member_urn, text or "", file_paths[0], account.access_token)
+                
+            for fp in file_paths:
+                image_service.cleanup_file(Path(fp))
         else:
             post_id = linkedin_service.post_text(member_urn, text or "", account.access_token)
             
@@ -1058,6 +1170,7 @@ async def post_li_direct(
     except Exception as e:
         import traceback; traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # ---------------------------------------------------------------------------
 # Scheduling Engine (Unified)
@@ -1115,7 +1228,8 @@ async def schedule_insta_carousel(
 async def schedule_li(
     scheduled_at: str = Form(...),
     member_urn: str = Form(...),
-    file: UploadFile = File(None),
+    file: Optional[UploadFile] = File(None),
+    files: Optional[List[UploadFile]] = File(None),
     text: str = Form(None),
     current_user: User = Depends(auth_service.get_current_user)
 ):
@@ -1123,13 +1237,27 @@ async def schedule_li(
     account = linkedin_service.store.get_account(member_urn, current_user.id)
     if not account: raise HTTPException(status_code=404, detail="LinkedIn account not found.")
     
-    saved_path = None
-    if file:
-        temp_path = await image_service.save_upload(file)
-        saved_path = str(temp_path)
-    
-    job_id = scheduler_svc.schedule_linkedin_post(app.state.scheduler, run_at, current_user.id, member_urn, account.access_token, text or "", saved_path)
+    upload_files = []
+    if files:
+        upload_files.extend(files)
+    elif file:
+        upload_files.extend([file])
+        
+    saved_paths = []
+    if upload_files:
+        for uf in upload_files:
+            temp_path = await image_service.save_upload(uf)
+            saved_paths.append(str(temp_path))
+            
+    if len(saved_paths) > 1:
+        job_id = scheduler_svc.schedule_linkedin_post(app.state.scheduler, run_at, current_user.id, member_urn, account.access_token, text or "", file_paths=saved_paths)
+    elif len(saved_paths) == 1:
+        job_id = scheduler_svc.schedule_linkedin_post(app.state.scheduler, run_at, current_user.id, member_urn, account.access_token, text or "", file_path=saved_paths[0])
+    else:
+        job_id = scheduler_svc.schedule_linkedin_post(app.state.scheduler, run_at, current_user.id, member_urn, account.access_token, text or "")
+        
     return {"success": True, "job_id": job_id}
+
 
 if __name__ == "__main__":
     import uvicorn

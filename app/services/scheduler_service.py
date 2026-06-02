@@ -124,13 +124,18 @@ def _run_linkedin_post(
     access_token: str,
     text: str,
     file_path: Optional[str] = None,
+    file_paths: Optional[list[str]] = None,
 ):
     """Execute a scheduled LinkedIn post."""
     from app.services.linkedin_service import LinkedInService
     _update_status(job_id, "running")
     try:
         svc = LinkedInService()
-        if file_path:
+        if file_paths and len(file_paths) > 1:
+            post_id = svc.post_images(member_urn, text, file_paths, access_token)
+        elif file_paths and len(file_paths) == 1:
+            post_id = svc.post_image(member_urn, text, file_paths[0], access_token)
+        elif file_path:
             post_id = svc.post_image(member_urn, text, file_path, access_token)
         else:
             post_id = svc.post_text(member_urn, text, access_token)
@@ -141,12 +146,14 @@ def _run_linkedin_post(
         print(f"❌ Scheduled LinkedIn post failed — job_id={job_id}  error={e}")
 
 
+
 def _run_threads_post(
     job_id: str,
     user_id: int,
     threads_account_id: str,
     caption: str,
     image_url: Optional[str] = None,
+    image_urls: Optional[list[str]] = None,
 ):
     """Execute a scheduled Threads post."""
     from app.services.threads_service import threads_service
@@ -157,7 +164,11 @@ def _run_threads_post(
             raise Exception("Threads account not found or access denied.")
         
         access_token = acc["access_token"]
-        if image_url:
+        if image_urls and len(image_urls) > 1:
+            post_id = threads_service.post_carousel(threads_account_id, caption, image_urls, access_token)
+        elif image_urls and len(image_urls) == 1:
+            post_id = threads_service.post_image(threads_account_id, caption, image_urls[0], access_token)
+        elif image_url:
             post_id = threads_service.post_image(threads_account_id, caption, image_url, access_token)
         else:
             post_id = threads_service.post_text(threads_account_id, caption, access_token)
@@ -167,6 +178,7 @@ def _run_threads_post(
     except Exception as e:
         _update_status(job_id, "failed", error=str(e))
         print(f"❌ Scheduled Threads post failed — job_id={job_id}  error={e}")
+
 
 
 # ---------------------------------------------------------------------------
@@ -241,9 +253,15 @@ def schedule_linkedin_post(
     access_token: str,
     text: str,
     file_path: Optional[str] = None,
+    file_paths: Optional[list[str]] = None,
 ) -> str:
     job_id = str(uuid.uuid4())
-    image_url = f"/uploads/{Path(file_path).name}" if file_path else None
+    image_url = None
+    if file_path:
+        image_url = f"/uploads/{Path(file_path).name}"
+    elif file_paths:
+        image_url = f"/uploads/{Path(file_paths[0]).name}"
+        
     _store_meta(job_id, "linkedin", scheduled_at, user_id, caption=text, image_url=image_url)
     scheduler.add_job(
         _run_linkedin_post,
@@ -255,6 +273,7 @@ def schedule_linkedin_post(
             "access_token": access_token,
             "text": text,
             "file_path": file_path,
+            "file_paths": file_paths,
         },
         id=job_id,
         replace_existing=False,
@@ -270,9 +289,14 @@ def schedule_threads_post(
     threads_account_id: str,
     caption: str,
     image_url: Optional[str] = None,
+    image_urls: Optional[list[str]] = None,
 ) -> str:
     job_id = str(uuid.uuid4())
-    _store_meta(job_id, "threads", scheduled_at, user_id, image_url=image_url, caption=caption)
+    preview_url = image_url
+    if not preview_url and image_urls:
+        preview_url = image_urls[0]
+        
+    _store_meta(job_id, "threads", scheduled_at, user_id, image_url=preview_url, caption=caption)
     scheduler.add_job(
         _run_threads_post,
         trigger="date",
@@ -283,12 +307,14 @@ def schedule_threads_post(
             "threads_account_id": threads_account_id,
             "caption": caption,
             "image_url": image_url,
+            "image_urls": image_urls,
         },
         id=job_id,
         replace_existing=False,
         misfire_grace_time=300,
     )
     return job_id
+
 
 
 def record_direct_post(

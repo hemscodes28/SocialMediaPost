@@ -259,6 +259,85 @@ class LinkedInService:
         post_response.raise_for_status()
         return post_response.json().get("id")
 
+    def post_images(self, member_urn: str, text: str, image_paths: List[str], token: str) -> str:
+        """Post multiple images to LinkedIn"""
+        if not image_paths:
+            return self.post_text(member_urn, text, token)
+        if len(image_paths) == 1:
+            return self.post_image(member_urn, text, image_paths[0], token)
+            
+        media_items = []
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "X-Restli-Protocol-Version": "2.0.0",
+            "Content-Type": "application/json"
+        }
+        
+        for idx, image_path in enumerate(image_paths):
+            # 1. Register Upload
+            register_url = "https://api.linkedin.com/v2/assets?action=registerUpload"
+            register_payload = {
+                "registerUploadRequest": {
+                    "recipes": ["urn:li:digitalmediaRecipe:feedshare-image"],
+                    "owner": member_urn,
+                    "serviceRelationships": [
+                        {
+                            "relationshipType": "OWNER",
+                            "identifier": "urn:li:userGeneratedContent"
+                        }
+                    ]
+                }
+            }
+            reg_response = requests.post(register_url, json=register_payload, headers=headers)
+            reg_response.raise_for_status()
+            reg_data = reg_response.json()
+            
+            upload_url = reg_data["value"]["uploadMechanism"]["com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest"]["uploadUrl"]
+            asset_urn = reg_data["value"]["asset"]
+
+            # 2. Upload Binary
+            with open(image_path, "rb") as f:
+                upload_headers = {"Authorization": f"Bearer {token}"}
+                upload_resp = requests.put(upload_url, data=f, headers=upload_headers)
+                upload_resp.raise_for_status()
+                
+            media_items.append({
+                "status": "READY",
+                "description": {
+                    "text": f"Post Image {idx + 1}"
+                },
+                "media": asset_urn,
+                "title": {
+                    "text": f"Image {idx + 1}"
+                }
+            })
+            
+        # Small delay to ensure LinkedIn processes the assets
+        time.sleep(2)
+
+        # 3. Create UGC Post
+        post_url = "https://api.linkedin.com/v2/ugcPosts"
+        post_payload = {
+            "author": member_urn,
+            "lifecycleState": "PUBLISHED",
+            "specificContent": {
+                "com.linkedin.ugc.ShareContent": {
+                    "shareCommentary": {
+                        "text": text
+                    },
+                    "shareMediaCategory": "IMAGE",
+                    "media": media_items
+                }
+            },
+            "visibility": {
+                "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
+            }
+        }
+        post_response = requests.post(post_url, json=post_payload, headers=headers)
+        post_response.raise_for_status()
+        return post_response.json().get("id")
+
+
     def get_connection_count(self, member_urn: str, access_token: str) -> Optional[int]:
         """First-degree connection count via LinkedIn networkSizes (requires partner scopes)."""
         headers = {

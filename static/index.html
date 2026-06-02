@@ -987,7 +987,7 @@
         .ig-media img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -1106,7 +1106,7 @@
         .li-media img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -1224,6 +1224,73 @@
             flex-direction: column;
             gap: 12px;
         }
+
+        /* Carousel/Slider Preview Styles */
+        .preview-slider-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #FAFAFA;
+        }
+        .preview-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            width: 100%;
+            height: auto;
+        }
+        .preview-slider::-webkit-scrollbar {
+            display: none;
+        }
+        .preview-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-slide img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+        .slider-dots-container {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #b2b2b2;
+            transition: all 0.2s ease;
+        }
+        .slider-dot.active {
+            transform: scale(1.2);
+        }
+
+        /* Upload Mode Switch Styles */
+        .upload-mode-btn {
+            background: transparent;
+            color: var(--text-dim);
+            border: none;
+        }
+        .upload-mode-btn.active {
+            background: var(--accent) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(0, 149, 246, 0.3);
+        }
+
 
         /* --- SCHEDULER VIEW --- */
         .jobs-list {
@@ -2525,7 +2592,7 @@
                     <p id="threadsUserLabel" style="color: var(--text-dim); font-size: 0.9rem; margin-bottom: 24px;">
                         Connect a Meta Threads account using direct credentials or environment token to publish thread posts and media assets.</p>
                     <button id="addThreadsAccount" class="btn btn-threads" style="width: 100%;">Add Threads Account</button>
-                    <button id="connectThreadsEnv" class="btn btn-threads-env" style="width: 100%; margin-top: 12px;">Connect via Environment Token</button>
+                    <button id="connectThreadsEnv" class="btn btn-threads-env" style="width: 100%; margin-top: 12px; display: none !important;">Connect via Environment Token</button>
                     <button id="refreshThreads" class="btn btn-glass"
                         style="width: 100%; margin-top: 12px; border: none; font-size: 0.8rem; color: var(--text-dim);">Refresh
                         connection</button>
@@ -2818,6 +2885,14 @@
                     <div style="background: var(--surface-dark); padding: 18px; border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; gap: 10px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.8px;">Upload Media</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 4px; background: var(--surface-lighter); padding: 4px; border-radius: 8px; border: 1px solid var(--border);">
+                            <button id="uploadModeSingle" type="button" class="upload-mode-btn active" style="flex: 1; padding: 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease;">
+                                <i class="fas fa-image" style="margin-right: 4px;"></i> Single Media
+                            </button>
+                            <button id="uploadModeMulti" type="button" class="upload-mode-btn" style="flex: 1; padding: 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease;">
+                                <i class="fas fa-images" style="margin-right: 4px;"></i> Carousel (Multi)
+                            </button>
                         </div>
                         <div id="dropZone" style="border: 2px dashed var(--border); border-radius: 12px; padding: 20px 16px; background: rgba(255, 255, 255, 0.015); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: 0.2s; min-height: 110px; position: relative;">
                             <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--surface-lighter); display: grid; place-items: center; color: var(--accent); font-size: 1.35rem; border: 1px solid var(--border);">
@@ -3182,6 +3257,7 @@
                         <div class="ig-media">
                             <img id="igPreviewImg" alt="Instagram preview image" style="display:none;">
                             <i class="fab fa-instagram placeholder-logo" id="igPlaceholder"></i>
+                            <div id="igCarouselContainer" style="width: 100%; display: none;"></div>
                         </div>
                         <div class="ig-footer">
                             <div class="ig-icon-row">
@@ -3213,6 +3289,7 @@
                         <div class="li-media">
                             <img id="liPreviewImg" alt="LinkedIn preview image" style="display:none;">
                             <i class="fab fa-linkedin-in" style="font-size:3rem; color:rgba(234,242,255,0.75);" id="liPlaceholder"></i>
+                            <div id="liCarouselContainer" style="width: 100%; display: none;"></div>
                         </div>
                         <div class="li-actions">
                             <div class="li-act">Like</div>
@@ -3237,7 +3314,8 @@
                         </div>
                         <div class="ig-media" style="aspect-ratio: auto; min-height: 100px; padding: 14px; display: block; background: #FFF;">
                             <div class="ig-caption-text" id="thCaptionRender" style="font-size:0.95rem; margin-bottom: 12px; font-weight: normal; color: #262626;"></div>
-                            <img id="thPreviewImg" alt="Threads preview image" style="display:none; width: 100%; border-radius: 8px; border: 1px solid var(--border);">
+                            <img id="thPreviewImg" alt="Threads preview image" style="display:none; width: 100%; max-height: none; object-fit: contain; border-radius: 8px; border: 1px solid var(--border);">
+                            <div id="thCarouselContainer" style="width: 100%; display: none;"></div>
                         </div>
                     </div>
                 </div>
@@ -3592,7 +3670,7 @@
                     btn.textContent = 'Add Instagram Account';
                     btn.className = 'btn btn-insta-connected';
 
-                    accounts.forEach(acc => {
+                     accounts.forEach((acc, idx) => {
                         // Checkbox
                         if (select) {
                             const div = document.createElement('div');
@@ -3608,20 +3686,19 @@
                             select.appendChild(div);
                         }
 
-                        // Connection List Card with Disconnect/Trash Button
+                        // Connection List Card with Disconnect/Trash Button (Uniform premium style)
                         if (listContainer) {
                             const item = document.createElement('div');
                             item.className = 'acc-item';
-                            item.style.display = 'flex';
-                            item.style.justifyContent = 'space-between';
-                            item.style.alignItems = 'center';
-                            item.style.margin = '4px 0';
+                            item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--glass-bg, rgba(255,255,255,0.04));margin-bottom:8px;border:1px solid rgba(255,255,255,0.07);';
+                            const initial = (acc.username || 'I').charAt(0).toUpperCase();
                             item.innerHTML = `
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-check-circle" style="color: #4caf50;"></i>
-                                    <span>@${acc.username}</span>
+                                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;">${initial}</div>
+                                <div style="flex:1;min-width:0;text-align:left;">
+                                    <div style="font-weight:600;color:var(--text-main);font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@${escapeHtml(acc.username)}</div>
+                                    <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">Account ${idx + 1} &bull; <span style="color:#4caf50;">&#9679; Connected</span></div>
                                 </div>
-                                <button class="btn-disconnect-insta" data-id="${acc.instagram_account_id}" data-username="${acc.username}" style="background: none; border: none; color: #ff5252; cursor: pointer; padding: 4px 8px; font-size: 0.85rem; display: flex; align-items: center;">
+                                <button class="btn-disconnect-insta" data-id="${acc.instagram_account_id}" data-username="${acc.username}" title="Remove account" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.8rem;display:flex;align-items:center;gap:4px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,82,82,0.1)'" onmouseout="this.style.background='none'">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             `;
@@ -3722,7 +3799,7 @@
                         btn.className = 'btn btn-linkedin-connected';
                     }
 
-                    list.forEach(acc => {
+                    list.forEach((acc, idx) => {
                         // Checkbox
                         if (select) {
                             const div = document.createElement('div');
@@ -3739,14 +3816,21 @@
                             select.appendChild(div);
                         }
 
-                        // Connection List Card with delete action
+                        // Connection List Card with delete action (Uniform premium style)
                         const item = document.createElement('div');
                         item.className = 'acc-item';
+                        item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:var(--glass-bg, rgba(255,255,255,0.04));margin-bottom:8px;border:1px solid rgba(255,255,255,0.07);';
+                        const initial = (acc.name || 'L').charAt(0).toUpperCase();
                         const urnSafe = encodeURIComponent(acc.member_urn);
                         item.innerHTML = `
-                            <i class="fas fa-check-circle"></i>
-                            <span style="flex:1">${acc.name}</span>
-                            <button class="btn btn-ghost btn-sm li-delete" data-urn="${urnSafe}" style="margin-left:8px">Remove</button>
+                            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, #0a66c2, #3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;">${initial}</div>
+                            <div style="flex:1;min-width:0;text-align:left;">
+                                <div style="font-weight:600;color:var(--text-main);font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(acc.name)}</div>
+                                <div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">Profile ${idx + 1} &bull; <span style="color:#4caf50;">&#9679; Connected</span></div>
+                            </div>
+                            <button class="li-delete" data-urn="${urnSafe}" title="Remove account" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.8rem;display:flex;align-items:center;gap:4px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,82,82,0.1)'" onmouseout="this.style.background='none'">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         `;
                         listContainer.appendChild(item);
                         // Attach delete handler
@@ -4257,12 +4341,39 @@
         const removeBtn = document.getElementById('removeMediaBtn');
         const previewBtn = document.getElementById('previewBtn');
 
+        const uploadModeSingle = document.getElementById('uploadModeSingle');
+        const uploadModeMulti = document.getElementById('uploadModeMulti');
+        if (uploadModeSingle && uploadModeMulti) {
+            uploadModeSingle.onclick = (e) => {
+                e.stopPropagation();
+                uploadModeSingle.classList.add('active');
+                uploadModeMulti.classList.remove('active');
+                if (fileInput) {
+                    fileInput.multiple = false;
+                    if (fileInput.files && fileInput.files.length > 1) {
+                        resetPublisherForm();
+                        showToast('Switched to Single Media. Files reset.', 'info');
+                    }
+                }
+            };
+            uploadModeMulti.onclick = (e) => {
+                e.stopPropagation();
+                uploadModeMulti.classList.add('active');
+                uploadModeSingle.classList.remove('active');
+                if (fileInput) {
+                    fileInput.multiple = true;
+                    showToast('Switched to Carousel (Multi-Media) mode.', 'info');
+                }
+            };
+        }
+
         dropZone.onclick = (e) => {
             if (e.target.closest('#removeMediaBtn') || e.target.closest('#composerRemovePreviewBtn')) return;
             fileInput.click();
         };
 
         function resetPublisherForm() {
+            clearBlobUrls();
             fileInput.value = '';
             fileImg.style.display = 'none';
             fileImg.removeAttribute('src');
@@ -4346,6 +4457,7 @@
         };
 
         function handleFiles(files) {
+            clearBlobUrls();
             if (!files || files.length === 0) return;
 
             const fileList = Array.from(files);
@@ -4402,6 +4514,76 @@
             }
         }
 
+        // --- BLOB URL & CAROUSEL HELPERS ---
+        let globalBlobUrls = [];
+        function clearBlobUrls() {
+            globalBlobUrls.forEach(url => {
+                try {
+                    URL.revokeObjectURL(url);
+                } catch(e) {}
+            });
+            globalBlobUrls = [];
+        }
+        function createBlobUrl(file) {
+            if (!file) return '';
+            const url = URL.createObjectURL(file);
+            globalBlobUrls.push(url);
+            return url;
+        }
+
+        function buildCarouselHTML(files, sliderIdPrefix) {
+            let slidesHtml = '';
+            let dotsHtml = '';
+            const uniqueId = sliderIdPrefix + '_' + Math.floor(Math.random() * 1000000);
+            
+            Array.from(files).forEach((file, idx) => {
+                const url = createBlobUrl(file);
+                slidesHtml += `
+                    <div class="preview-slide" style="flex: 0 0 100%; width: 100%; scroll-snap-align: start; display: flex; align-items: center; justify-content: center;">
+                        <img src="${url}" style="width: 100%; height: auto; object-fit: contain; display: block;" alt="slide ${idx}">
+                    </div>
+                `;
+                dotsHtml += `
+                    <div class="slider-dot ${idx === 0 ? 'active' : ''}" style="width: 6px; height: 6px; border-radius: 50%; background: #b2b2b2; transition: all 0.2s ease;"></div>
+                `;
+            });
+
+            return `
+                <div class="preview-slider-container" style="position: relative; width: 100%; overflow: hidden;">
+                    <div class="preview-slider" id="${uniqueId}_slider" style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; width: 100%; height: auto;">
+                        ${slidesHtml}
+                    </div>
+                    <div class="slider-dots-container" id="${uniqueId}_dots" style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; z-index: 10; pointer-events: none;">
+                        ${dotsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function initCarouselListeners(containerEl, uniqueId) {
+            setTimeout(() => {
+                const slider = containerEl.querySelector(`#${uniqueId}_slider`);
+                const dotsContainer = containerEl.querySelector(`#${uniqueId}_dots`);
+                if (slider && dotsContainer) {
+                    slider.addEventListener('scroll', () => {
+                        const width = slider.offsetWidth;
+                        if (width === 0) return;
+                        const index = Math.round(slider.scrollLeft / width);
+                        const dots = dotsContainer.querySelectorAll('.slider-dot');
+                        dots.forEach((dot, idx) => {
+                            if (idx === index) {
+                                dot.classList.add('active');
+                                dot.style.background = '#0095f6'; // active color (Instagram blue fallback)
+                            } else {
+                                dot.classList.remove('active');
+                                dot.style.background = '#b2b2b2'; // inactive color
+                            }
+                        });
+                    });
+                }
+            }, 50);
+        }
+
         // --- PREVIEW MODAL LOGIC ---
         const previewModal = document.getElementById('previewModal');
         const previewCloseBtn = document.getElementById('previewCloseBtn');
@@ -4447,27 +4629,102 @@
         }
 
         function updatePreviewImages() {
-            const previewImg = document.getElementById('composerImagePreviewImg');
-            const src = (previewImg && previewImg.src && previewImg.src.startsWith('data:')) 
-                ? previewImg.src 
-                : ((fileImg && fileImg.src && fileImg.src.startsWith('data:')) ? fileImg.src : '');
-            const hasSrc = !!src;
+            const files = fileInput.files;
+            
+            // Clear any previous carousel HTML in containers
+            const igCarousel = document.getElementById('igCarouselContainer');
+            const liCarousel = document.getElementById('liCarouselContainer');
+            const thCarousel = document.getElementById('thCarouselContainer');
+            
+            if (igCarousel) { igCarousel.style.display = 'none'; igCarousel.innerHTML = ''; }
+            if (liCarousel) { liCarousel.style.display = 'none'; liCarousel.innerHTML = ''; }
+            if (thCarousel) { thCarousel.style.display = 'none'; thCarousel.innerHTML = ''; }
 
-            if (hasSrc) {
-                igPreviewImg.src = src;
-                liPreviewImg.src = src;
-                thPreviewImg.src = src;
-                igPreviewImg.style.display = 'block';
-                liPreviewImg.style.display = 'block';
-                thPreviewImg.style.display = 'block';
-                igPlaceholder.style.display = 'none';
-                liPlaceholder.style.display = 'none';
+            const hasFiles = files && files.length > 0;
+            
+            const igMedia = document.querySelector('.ig-media');
+            const liMedia = document.querySelector('.li-media');
+
+            if (hasFiles) {
+                if (files.length > 1) {
+                    // Render carousel slider
+                    const igCarouselHTML = buildCarouselHTML(files, 'ig_modal');
+                    const liCarouselHTML = buildCarouselHTML(files, 'li_modal');
+                    const thCarouselHTML = buildCarouselHTML(files, 'th_modal');
+                    
+                    if (igCarousel) {
+                        igCarousel.innerHTML = igCarouselHTML;
+                        igCarousel.style.display = 'block';
+                        initCarouselListeners(igCarousel, 'ig_modal');
+                    }
+                    if (liCarousel) {
+                        liCarousel.innerHTML = liCarouselHTML;
+                        liCarousel.style.display = 'block';
+                        initCarouselListeners(liCarousel, 'li_modal');
+                    }
+                    if (thCarousel) {
+                        thCarousel.innerHTML = thCarouselHTML;
+                        thCarousel.style.display = 'block';
+                        initCarouselListeners(thCarousel, 'th_modal');
+                    }
+                    
+                    igPreviewImg.style.display = 'none';
+                    liPreviewImg.style.display = 'none';
+                    thPreviewImg.style.display = 'none';
+                    igPlaceholder.style.display = 'none';
+                    liPlaceholder.style.display = 'none';
+                    
+                    // Remove fixed aspect ratio / heights when image is loaded
+                    if (igMedia) { igMedia.style.aspectRatio = 'auto'; igMedia.style.height = 'auto'; }
+                    if (liMedia) { liMedia.style.aspectRatio = 'auto'; liMedia.style.height = 'auto'; }
+                } else {
+                    // Single file
+                    const url = createBlobUrl(files[0]);
+                    igPreviewImg.src = url;
+                    liPreviewImg.src = url;
+                    thPreviewImg.src = url;
+                    
+                    igPreviewImg.style.display = 'block';
+                    liPreviewImg.style.display = 'block';
+                    thPreviewImg.style.display = 'block';
+                    igPlaceholder.style.display = 'none';
+                    liPlaceholder.style.display = 'none';
+                    
+                    // Remove fixed aspect ratio / heights when image is loaded
+                    if (igMedia) { igMedia.style.aspectRatio = 'auto'; igMedia.style.height = 'auto'; }
+                    if (liMedia) { liMedia.style.aspectRatio = 'auto'; liMedia.style.height = 'auto'; }
+                }
             } else {
-                igPreviewImg.style.display = 'none';
-                liPreviewImg.style.display = 'none';
-                thPreviewImg.style.display = 'none';
-                igPlaceholder.style.display = 'block';
-                liPlaceholder.style.display = 'block';
+                // Check if there is an image preview source (fallback for single URL etc.)
+                const previewImg = document.getElementById('composerImagePreviewImg');
+                const fallbackSrc = (previewImg && previewImg.src && previewImg.src.startsWith('data:')) 
+                    ? previewImg.src 
+                    : ((fileImg && fileImg.src && fileImg.src.startsWith('data:')) ? fileImg.src : '');
+                
+                if (fallbackSrc) {
+                    igPreviewImg.src = fallbackSrc;
+                    liPreviewImg.src = fallbackSrc;
+                    thPreviewImg.src = fallbackSrc;
+                    
+                    igPreviewImg.style.display = 'block';
+                    liPreviewImg.style.display = 'block';
+                    thPreviewImg.style.display = 'block';
+                    igPlaceholder.style.display = 'none';
+                    liPlaceholder.style.display = 'none';
+                    
+                    if (igMedia) { igMedia.style.aspectRatio = 'auto'; igMedia.style.height = 'auto'; }
+                    if (liMedia) { liMedia.style.aspectRatio = 'auto'; liMedia.style.height = 'auto'; }
+                } else {
+                    igPreviewImg.style.display = 'none';
+                    liPreviewImg.style.display = 'none';
+                    thPreviewImg.style.display = 'none';
+                    igPlaceholder.style.display = 'block';
+                    liPlaceholder.style.display = 'block';
+                    
+                    // Restore default styles
+                    if (igMedia) { igMedia.style.aspectRatio = ''; igMedia.style.height = ''; }
+                    if (liMedia) { liMedia.style.aspectRatio = ''; liMedia.style.height = ''; }
+                }
             }
         }
 
@@ -4824,7 +5081,6 @@
                 ? previewImg.src 
                 : ((fileImg && fileImg.src && fileImg.src.startsWith('data:')) ? fileImg.src : null);
 
-            const hasFile = !!fileInput.files[0] || !!imgUrl;
             const checkInsta = document.getElementById('checkInsta').checked;
             const checkLinkedin = document.getElementById('checkLinkedin').checked;
             const checkThreads = document.getElementById('checkThreads').checked;
@@ -4844,16 +5100,74 @@
                 if (checkThreads) mockTh.style.display = 'block';
                 else mockTh.style.display = 'none';
             }
-            if (imgUrl) {
-                document.getElementById('mockInstaImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
-                document.getElementById('mockLinkedinImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+
+            const files = fileInput.files;
+            const hasFile = (files && files.length > 0) || !!imgUrl;
+
+            if (files && files.length > 0) {
+                if (files.length > 1) {
+                    const igCarouselHTML = buildCarouselHTML(files, 'ig_inpage');
+                    const liCarouselHTML = buildCarouselHTML(files, 'li_inpage');
+                    const thCarouselHTML = buildCarouselHTML(files, 'th_inpage');
+                    
+                    const mockInstaImage = document.getElementById('mockInstaImage');
+                    const mockLinkedinImage = document.getElementById('mockLinkedinImage');
+                    const mockThreadsImage = document.getElementById('mockThreadsImage');
+                    
+                    if (mockInstaImage) {
+                        mockInstaImage.style.height = 'auto';
+                        mockInstaImage.innerHTML = igCarouselHTML;
+                        initCarouselListeners(mockInstaImage, 'ig_inpage');
+                    }
+                    if (mockLinkedinImage) {
+                        mockLinkedinImage.style.height = 'auto';
+                        mockLinkedinImage.innerHTML = liCarouselHTML;
+                        initCarouselListeners(mockLinkedinImage, 'li_inpage');
+                    }
+                    if (mockThreadsImage) {
+                        mockThreadsImage.style.height = 'auto';
+                        mockThreadsImage.innerHTML = thCarouselHTML;
+                        initCarouselListeners(mockThreadsImage, 'th_inpage');
+                    }
+                } else {
+                    const url = createBlobUrl(files[0]);
+                    document.getElementById('mockInstaImage').innerHTML = `<img src="${url}" style="width:100%; height:auto; object-fit:contain; display:block;">`;
+                    document.getElementById('mockInstaImage').style.height = 'auto';
+                    document.getElementById('mockLinkedinImage').innerHTML = `<img src="${url}" style="width:100%; height:auto; object-fit:contain; display:block;">`;
+                    document.getElementById('mockLinkedinImage').style.height = 'auto';
+                    const mockThImage = document.getElementById('mockThreadsImage');
+                    if (mockThImage) {
+                        mockThImage.innerHTML = `<img src="${url}" style="width:100%; height:auto; object-fit:contain; display:block; border-radius: 8px;">`;
+                        mockThImage.style.height = 'auto';
+                    }
+                }
+            } else if (imgUrl) {
+                document.getElementById('mockInstaImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:auto; object-fit:contain; display:block;">`;
+                document.getElementById('mockInstaImage').style.height = 'auto';
+                document.getElementById('mockLinkedinImage').innerHTML = `<img src="${imgUrl}" style="width:100%; height:auto; object-fit:contain; display:block;">`;
+                document.getElementById('mockLinkedinImage').style.height = 'auto';
                 const mockThImage = document.getElementById('mockThreadsImage');
-                if (mockThImage) mockThImage.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover; border-radius: 8px;">`;
+                if (mockThImage) {
+                    mockThImage.innerHTML = `<img src="${imgUrl}" style="width:100%; height:auto; object-fit:contain; display:block; border-radius: 8px;">`;
+                    mockThImage.style.height = 'auto';
+                }
             } else {
-                document.getElementById('mockInstaImage').innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
-                document.getElementById('mockLinkedinImage').innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
-                const mockThImage = document.getElementById('mockThreadsImage');
-                if (mockThImage) mockThImage.innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5; color: #666;"></i>`;
+                const mockInstaImage = document.getElementById('mockInstaImage');
+                const mockLinkedinImage = document.getElementById('mockLinkedinImage');
+                const mockThreadsImage = document.getElementById('mockThreadsImage');
+                
+                if (mockInstaImage) {
+                    mockInstaImage.innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
+                    mockInstaImage.style.height = '180px';
+                }
+                if (mockLinkedinImage) {
+                    mockLinkedinImage.innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5;"></i>`;
+                    mockLinkedinImage.style.height = '180px';
+                }
+                if (mockThreadsImage) {
+                    mockThreadsImage.innerHTML = `<i class="fas fa-image" style="font-size: 2rem; opacity: 0.5; color: #666;"></i>`;
+                    mockThreadsImage.style.height = '180px';
+                }
             }
 
             let instaCap = document.getElementById('instaCaption').value;
@@ -5047,20 +5361,12 @@
                     throw new Error('Not authenticated. Please login again.');
                 }
                 
-                // Try calling connect first (which connects via env token or mock fallback)
-                const resp = await fetchWithAuth('/api/platforms/instagram/connect', { method: 'POST' });
-                if (resp && resp.ok) {
+                // Open the Instagram OAuth popup directly, so the user is asked for preferences/login
+                openAuthPopup(`/api/platforms/instagram/oauth?token=${encodeURIComponent(token)}`, () => {
                     fetchInstagramAccount();
                     updateProfileDashboard();
-                    showToast('Instagram account connected successfully!', 'success');
-                } else {
-                    // Fallback to OAuth popup if POST connect fails
-                    openAuthPopup(`/api/platforms/instagram/oauth?token=${encodeURIComponent(token)}`, () => {
-                        fetchInstagramAccount();
-                        updateProfileDashboard();
-                        showToast('Refreshing Instagram accounts…', 'success');
-                    });
-                }
+                    showToast('Instagram accounts updated!', 'success');
+                });
             } catch (e) {
                 showToast(e.message || 'Connection error. Please try again.', 'error');
             } finally {
@@ -5141,12 +5447,12 @@
                             const initial = (acc.username || 'T').charAt(0).toUpperCase();
                             item.innerHTML =
                                 '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#222,#555);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;">' + initial + '</div>' +
-                                '<div style="flex:1;min-width:0;">' +
+                                '<div style="flex:1;min-width:0;text-align:left;">' +
                                   '<div style="font-weight:600;color:var(--text-main);font-size:0.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">@' + escapeHtml(acc.username) + '</div>' +
                                   '<div style="font-size:0.72rem;color:var(--text-dim);margin-top:2px;">Account ' + (idx + 1) + ' &bull; <span style="color:#4caf50;">&#9679; Connected</span></div>' +
                                 '</div>' +
                                 '<button class="btn-disconnect-threads" data-id="' + acc.threads_account_id + '" title="Remove account" style="background:none;border:none;color:#ff5252;cursor:pointer;padding:4px 8px;font-size:0.8rem;display:flex;align-items:center;gap:4px;border-radius:6px;transition:background 0.2s;" onmouseover="this.style.background=\'rgba(255,82,82,0.1)\'" onmouseout="this.style.background=\'none\'">' +
-                                  '<i class="fas fa-times"></i></button>';
+                                  '<i class="fas fa-trash-alt"></i></button>';
                             listContainer.appendChild(item);
                         }
                     });
@@ -5833,19 +6139,23 @@
         }
 
         // --- OPENAI FETCH WRAPPER ---
-        async function callOpenAI(messages, apiKey) {
+        async function callOpenAI(messages, apiKey, jsonMode = false) {
+            const bodyData = {
+                model: 'gpt-4o',
+                messages: messages,
+                max_tokens: 1000,
+                temperature: 0.8
+            };
+            if (jsonMode) {
+                bodyData.response_format = { type: "json_object" };
+            }
             const resp = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${apiKey}`
                 },
-                body: JSON.stringify({
-                    model: 'gpt-4o',
-                    messages: messages,
-                    max_tokens: 600,
-                    temperature: 0.8
-                })
+                body: JSON.stringify(bodyData)
             });
             if (resp.status === 401) throw new Error('OPENAI_401');
             if (resp.status === 429) throw new Error('OPENAI_429');
@@ -5875,21 +6185,35 @@
                     if (apiKey) {
                         // === OPENAI PATH ===
                         let messages = [];
-                        const systemMsg = { role: 'system', content: `You are a social media expert. Write engaging, platform-optimized captions in a ${tone} tone. Include relevant emojis and 3-5 hashtags. Keep it concise and compelling.` };
+                        const systemMsg = {
+                            role: 'system',
+                            content: `You are a social media expert. Write platform-optimized captions for all three social media platforms: Instagram, LinkedIn, and Threads.
+You MUST return valid JSON with keys: instagram, linkedin, and threads.
+
+Tone: ${tone}
+
+Rules:
+- instagram: Fun, engaging, emojis, exactly 5 hashtags.
+- linkedin: Professional, viral-style structure with hook, 2-3 short paragraphs, CTA, and 4-5 hashtags.
+- threads: Short, punchy, conversational, and direct. Emojis welcome, limit hashtags to 0 or 1 relevant hashtags.`
+                        };
 
                         if (hasFile) {
                             // Method B: Image-based caption using OpenAI Vision
                             const b64 = await getFileBase64(fileInput.files[0]);
                             const userContent = [
                                 { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b64}`, detail: 'low' } },
-                                { type: 'text', text: promptText ? `Write a ${tone} social media caption for this image. Context: ${promptText}` : `Write a compelling ${tone} social media caption for this image. Include relevant hashtags.` }
+                                { type: 'text', text: promptText ? `Write platform-specific social media captions for this image. Context: ${promptText}` : `Write compelling platform-specific social media captions for this image.` }
                             ];
                             messages = [systemMsg, { role: 'user', content: userContent }];
                         } else {
                             // Method A: Text prompt-based caption
-                            messages = [systemMsg, { role: 'user', content: `Write a ${tone} social media caption about: "${promptText}". Make it engaging with emojis and 3-5 relevant hashtags.` }];
+                            messages = [systemMsg, { role: 'user', content: `Write platform-specific social media captions about: "${promptText}".` }];
                         }
-                        generatedText = await callOpenAI(messages, apiKey);
+                        const jsonStr = await callOpenAI(messages, apiKey, true);
+                        const data = JSON.parse(jsonStr);
+                        window.currentGeneratedCaptions = data;
+                        generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                     } else {
                         // === BACKEND / FALLBACK PATH ===
                         if (hasFile) {
@@ -5902,38 +6226,36 @@
                             const resp = await fetchWithAuth('/api/ai/analyze-image', { method: 'POST', body: fd });
                             if (resp && resp.ok) {
                                 const data = await resp.json();
-                                // Backend returns: instagram, linkedin, threads (multi-caption) or full_caption, caption (single)
-                                generatedText = data.instagram || data.full_caption || data.caption || '';
-                                if (!generatedText && data.linkedin) generatedText = data.linkedin;
-                                
-                                // Sync back to specific captions if needed
-                                const ic = document.getElementById('instaCaption');
-                                const lc = document.getElementById('linkedinCaption');
-                                const tc = document.getElementById('threadsCaption');
-                                if (data.instagram && ic) ic.value = data.instagram;
-                                if (data.linkedin && lc) lc.value = data.linkedin;
-                                if (data.threads && tc) tc.value = data.threads;
+                                window.currentGeneratedCaptions = data;
+                                generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                             } else {
                                 throw new Error('AI image analysis failed');
                             }
                         } else {
-                            // Use backend /generate-caption (or /api/ai/generate-caption)
+                            // Use backend /api/ai/generate-multi-captions
                             const fd = new FormData();
                             fd.append('prompt', promptText);
-                            fd.append('platform', 'instagram');
                             if (tone) fd.append('tone', tone);
 
-                            const resp = await fetchWithAuth('/generate-caption', { method: 'POST', body: fd });
+                            const resp = await fetchWithAuth('/api/ai/generate-multi-captions', { method: 'POST', body: fd });
                             if (resp && resp.ok) {
                                 const data = await resp.json();
-                                generatedText = data.full_caption || data.caption || '';
+                                window.currentGeneratedCaptions = data;
+                                generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                             } else {
                                 // Fallback to local template if backend fails or is offline
+                                const fallbackData = {};
                                 if (tone === 'formal') {
-                                    generatedText = `Dear Professionals,\n\nWe are pleased to share: "${promptText}". 👔\n\nThis represents a significant milestone in our ongoing efforts to deliver high-quality solutions.\n\nSincerely, Post Pilot\n\n#Professional #Innovation`;
+                                    fallbackData.instagram = `We are pleased to share: "${promptText}". 👔 #Professional #Innovation`;
+                                    fallbackData.linkedin = `Dear Professionals,\n\nWe are pleased to share: "${promptText}". 👔\n\nThis represents a significant milestone in our ongoing efforts to deliver high-quality solutions.\n\nSincerely, Post Pilot\n\n#Professional #Innovation`;
+                                    fallbackData.threads = `Pleased to share: "${promptText}".`;
                                 } else {
-                                    generatedText = `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia`;
+                                    fallbackData.instagram = `🚀 ${promptText} #ContentCreator #PostPilotAI #SocialMedia`;
+                                    fallbackData.linkedin = `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia`;
+                                    fallbackData.threads = `🚀 ${promptText}`;
                                 }
+                                window.currentGeneratedCaptions = fallbackData;
+                                generatedText = `Instagram:\n${fallbackData.instagram}\n\nLinkedIn:\n${fallbackData.linkedin}\n\nThreads:\n${fallbackData.threads}`;
                                 showToast('Using local template fallback.', 'warning');
                             }
                         }
@@ -5966,7 +6288,28 @@
 
         if (aiMagicUseBtn) {
             aiMagicUseBtn.onclick = () => {
-                if (aiMagicOutputText && composerMainEditor) {
+                if (window.currentGeneratedCaptions) {
+                    const ic = document.getElementById('instaCaption');
+                    const lc = document.getElementById('linkedinCaption');
+                    const tc = document.getElementById('threadsCaption');
+                    if (ic && window.currentGeneratedCaptions.instagram) {
+                        ic.value = window.currentGeneratedCaptions.instagram;
+                        ic.dispatchEvent(new Event('input'));
+                    }
+                    if (lc && window.currentGeneratedCaptions.linkedin) {
+                        lc.value = window.currentGeneratedCaptions.linkedin;
+                        lc.dispatchEvent(new Event('input'));
+                    }
+                    if (tc && window.currentGeneratedCaptions.threads) {
+                        tc.value = window.currentGeneratedCaptions.threads;
+                        tc.dispatchEvent(new Event('input'));
+                    }
+                    if (composerMainEditor) {
+                        composerMainEditor.value = "[Multiple platform-specific captions loaded]";
+                    }
+                    showToast('Platform-specific captions loaded!', 'success');
+                    switchRightPanel('preview'); // Switch to preview tab to see it!
+                } else if (aiMagicOutputText && composerMainEditor) {
                     composerMainEditor.value = aiMagicOutputText.textContent;
                     composerMainEditor.dispatchEvent(new Event('input'));
                     showToast('Caption loaded into editor!', 'success');
@@ -7042,11 +7385,33 @@ if (aiAssistantCopyBtn) {
 const aiAssistantUseBtn = document.getElementById('aiAssistantUseBtn');
 if (aiAssistantUseBtn) {
     aiAssistantUseBtn.onclick = () => {
-        const txt = aiGeneratedOutputText ? aiGeneratedOutputText.textContent : '';
-        if (composerMainEditor) {
-            composerMainEditor.value = txt;
-            composerMainEditor.dispatchEvent(new Event('input'));
-            showToast('Caption applied to main editor.', 'success');
+        if (window.currentGeneratedCaptions) {
+            const ic = document.getElementById('instaCaption');
+            const lc = document.getElementById('linkedinCaption');
+            const tc = document.getElementById('threadsCaption');
+            if (ic && window.currentGeneratedCaptions.instagram) {
+                ic.value = window.currentGeneratedCaptions.instagram;
+                ic.dispatchEvent(new Event('input'));
+            }
+            if (lc && window.currentGeneratedCaptions.linkedin) {
+                lc.value = window.currentGeneratedCaptions.linkedin;
+                lc.dispatchEvent(new Event('input'));
+            }
+            if (tc && window.currentGeneratedCaptions.threads) {
+                tc.value = window.currentGeneratedCaptions.threads;
+                tc.dispatchEvent(new Event('input'));
+            }
+            if (composerMainEditor) {
+                composerMainEditor.value = "[Multiple platform-specific captions loaded]";
+            }
+            showToast('Platform-specific captions loaded!', 'success');
+        } else {
+            const txt = aiGeneratedOutputText ? aiGeneratedOutputText.textContent : '';
+            if (composerMainEditor) {
+                composerMainEditor.value = txt;
+                composerMainEditor.dispatchEvent(new Event('input'));
+                showToast('Caption applied to main editor.', 'success');
+            }
         }
     };
 }
@@ -7151,7 +7516,16 @@ if (aiAssistantUseBtn) {
                 if (apiKey) {
                     // === OPENAI PATH ===
                     let messages = [];
-                    const systemMsg = { role: 'system', content: 'You are a social media expert. Write engaging, high-converting social media captions with relevant emojis and 4-6 hashtags. Be creative and platform-agnostic.' };
+                    const systemMsg = {
+                        role: 'system',
+                        content: `You are a social media expert. Write platform-optimized captions for all three social media platforms: Instagram, LinkedIn, and Threads.
+You MUST return valid JSON with keys: instagram, linkedin, and threads.
+
+Rules:
+- instagram: Fun, engaging, emojis, exactly 5 hashtags.
+- linkedin: Professional, viral-style structure with hook, 2-3 short paragraphs, CTA, and 4-5 hashtags.
+- threads: Short, punchy, conversational, and direct. Emojis welcome, limit hashtags to 0 or 1 relevant hashtags.`
+                    };
 
                     if (hasFile) {
                         const b64 = await getFileBase64(fileInput.files[0]);
@@ -7159,44 +7533,51 @@ if (aiAssistantUseBtn) {
                             role: 'user',
                             content: [
                                 { type: 'image_url', image_url: { url: `data:image/jpeg;base64,${b64}`, detail: 'low' } },
-                                { type: 'text', text: promptText ? `Write a social media caption for this image. Context: ${promptText}` : 'Write an engaging social media caption for this image.' }
+                                { type: 'text', text: promptText ? `Write platform-specific social media captions for this image. Context: ${promptText}` : 'Write engaging platform-specific social media captions for this image.' }
                             ]
                         }];
                     } else {
-                        messages = [systemMsg, { role: 'user', content: `Write an engaging social media caption about: "${promptText}". Include emojis and 4-6 relevant hashtags.` }];
+                        messages = [systemMsg, { role: 'user', content: `Write platform-specific social media captions about: "${promptText}".` }];
                     }
 
-                    generatedText = await callOpenAI(messages, apiKey);
-
-                    // Also update hidden captions
-                    const ic = document.getElementById('instaCaption');
-                    const lc = document.getElementById('linkedinCaption');
-                    const tc = document.getElementById('threadsCaption');
-                    if (ic) ic.value = generatedText;
-                    if (lc) lc.value = generatedText;
-                    if (tc) tc.value = generatedText;
-
+                    const jsonStr = await callOpenAI(messages, apiKey, true);
+                    const data = JSON.parse(jsonStr);
+                    window.currentGeneratedCaptions = data;
+                    generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                 } else {
                     // === FALLBACK ===
                     if (hasFile) {
                         const fd = new FormData();
                         fd.append('file', fileInput.files[0]);
+                        if (promptText) fd.append('topic', promptText);
                         const resp = await fetchWithAuth('/api/ai/analyze-image', { method: 'POST', body: fd });
                         if (resp && resp.ok) {
                             const data = await resp.json();
-                            generatedText = data.instagram || data.linkedin || data.threads || '';
-                            const ic = document.getElementById('instaCaption');
-                            const lc = document.getElementById('linkedinCaption');
-                            const tc = document.getElementById('threadsCaption');
-                            if (data.instagram && ic) ic.value = data.instagram;
-                            if (data.linkedin && lc) lc.value = data.linkedin;
-                            if (data.threads && tc) tc.value = data.threads;
+                            window.currentGeneratedCaptions = data;
+                            generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                         } else {
                             throw new Error('AI image analysis failed');
                         }
                     } else {
-                        generatedText = `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia #Engagement #Growth`;
-                        showToast('Tip: Set your OpenAI key: localStorage.setItem("OPENAI_API_KEY","sk-...")', 'warning');
+                        // Use backend /api/ai/generate-multi-captions
+                        const fd = new FormData();
+                        fd.append('prompt', promptText);
+                        fd.append('tone', 'casual');
+                        const resp = await fetchWithAuth('/api/ai/generate-multi-captions', { method: 'POST', body: fd });
+                        if (resp && resp.ok) {
+                            const data = await resp.json();
+                            window.currentGeneratedCaptions = data;
+                            generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
+                        } else {
+                            const fallbackData = {
+                                instagram: `🚀 ${promptText} #ContentCreator #PostPilotAI #SocialMedia`,
+                                linkedin: `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia #Engagement #Growth`,
+                                threads: `🚀 ${promptText}`
+                            };
+                            window.currentGeneratedCaptions = fallbackData;
+                            generatedText = `Instagram:\n${fallbackData.instagram}\n\nLinkedIn:\n${fallbackData.linkedin}\n\nThreads:\n${fallbackData.threads}`;
+                            showToast('Tip: Set your OpenAI key: localStorage.setItem("OPENAI_API_KEY","sk-...")', 'warning');
+                        }
                     }
                 }
                 

@@ -221,13 +221,13 @@
 
         <form id="oauthForm">
             <div class="form-group">
-                <label for="username">Threads Username</label>
-                <input type="text" id="username" class="form-input" value="threads_dev" required autocomplete="off">
+                <label for="username">Threads Username or Email</label>
+                <input type="text" id="username" class="form-input" value="threads_dev" required autocomplete="username">
             </div>
 
             <div class="form-group" style="margin-bottom: 24px;">
-                <label for="accountId">Threads User ID</label>
-                <input type="text" id="accountId" class="form-input" value="101928374" required autocomplete="off">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-input" value="password123" required autocomplete="current-password">
             </div>
 
             <div class="btn-row">
@@ -244,9 +244,15 @@
         document.getElementById('oauthForm').onsubmit = (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value.trim().replace(/^@/, '');
-            const accountId = document.getElementById('accountId').value.trim();
+            
+            if (!username) return;
 
-            if (!username || !accountId) return;
+            // Generate a deterministic numeric-looking ID from the username
+            let hash = 0;
+            for (let i = 0; i < username.length; i++) {
+                hash = username.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const accountId = Math.abs(hash).toString().substring(0, 10).padEnd(10, '0');
 
             // Redirect back to our server callback with state and mock code
             const mockCode = `mock_${username}_${accountId}`;
