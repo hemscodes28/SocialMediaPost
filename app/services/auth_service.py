@@ -1,6 +1,8 @@
 import os
 import jwt
 import hashlib
+import random
+import string
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 from passlib.context import CryptContext
@@ -201,5 +203,39 @@ class AuthService:
         if user is None:
             raise credentials_exception
         return user
+
+    @staticmethod
+    async def generate_and_save_otp(email: str) -> str:
+        email = email.strip().lower()
+        code = "".join(random.choices(string.digits, k=6))
+        # Save expiration 5 minutes from now (ISO string format for SQLite comparisons)
+        expires_at = (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat()
+        with db.get_connection() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO otp_verifications (email, code, expires_at, verified)
+                VALUES (?, ?, ?, 0)
+                """,
+                (email, code, expires_at),
+            )
+            conn.commit()
+        return code
+
+    @staticmethod
+    async def verify_otp_code(email: str, code: str) -> bool:
+        email = email.strip().lower()
+        code = code.strip()
+        now = datetime.now(timezone.utc).isoformat()
+        with db.get_connection() as conn:
+            cursor = conn.execute(
+                "SELECT * FROM otp_verifications WHERE email = ? AND code = ? AND expires_at > ?",
+                (email, code, now),
+            )
+            row = cursor.fetchone()
+            if row:
+                conn.execute("DELETE FROM otp_verifications WHERE email = ?", (email,))
+                conn.commit()
+                return True
+        return False
 
 auth_service = AuthService()

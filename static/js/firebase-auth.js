@@ -132,12 +132,20 @@ export async function exchangeFirebaseSessionWithUser(user, fullName) {
     resp = await postFirebaseToken(idToken, fullName);
   }
 
-  const data = await resp.json();
+  let data = await resp.json();
   if (!resp.ok) {
     const err = new Error(data.detail || "Could not sign in to Post Pilot.");
     err.code = resp.status === 401 ? "auth/token-expired" : undefined;
     throw err;
   }
+  
+  if (data.otp_required) {
+    data = await showOtpVerificationModal(data.email, {
+      id_token: idToken,
+      full_name: fullName
+    });
+  }
+  
   return data;
 }
 
@@ -204,10 +212,17 @@ async function legacyEmailLogin(email, password) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  const data = await response.json();
+  let data = await response.json();
   if (!response.ok) {
     throw new Error(data.detail || "Sign in failed. Check your credentials.");
   }
+  
+  if (data.otp_required) {
+    data = await showOtpVerificationModal(data.email, {
+      password: password
+    });
+  }
+  
   return data;
 }
 
@@ -245,4 +260,393 @@ export async function signInWithGoogle() {
   await waitForAuthReady();
   const name = user.displayName || user.email?.split("@")[0] || "";
   return exchangeFirebaseSessionWithUser(user, name);
+}
+
+function showOtpVerificationModal(email, authParams) {
+  return new Promise((resolve, reject) => {
+    // 1. Inject Styles dynamically if not already injected
+    if (!document.getElementById("otpModalStyles")) {
+      const style = document.createElement("style");
+      style.id = "otpModalStyles";
+      style.textContent = `
+        .otp-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          z-index: 9999;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        .otp-modal-backdrop.open {
+          opacity: 1;
+        }
+        .otp-modal-card {
+          width: min(420px, 92vw);
+          background: var(--surface-dark, #fff);
+          border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+          border-radius: 24px;
+          padding: 36px 32px;
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+          text-align: center;
+          transform: translateY(20px) scale(0.96);
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+        }
+        .otp-modal-backdrop.open .otp-modal-card {
+          transform: translateY(0) scale(1);
+        }
+        .otp-close-btn {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+          background: none;
+          border: none;
+          font-size: 1.25rem;
+          color: var(--text-dim, #64748b);
+          cursor: pointer;
+          transition: var(--transition, all 0.2s);
+        }
+        .otp-close-btn:hover {
+          color: var(--text-main, #0f172a);
+        }
+        .otp-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 16px;
+          background: var(--accent-glow, rgba(37, 99, 235, 0.08));
+          color: var(--accent, #2563eb);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          margin: 0 auto 20px;
+        }
+        .otp-title {
+          font-size: 1.35rem;
+          font-weight: 800;
+          color: var(--text-main, #0f172a);
+          margin-bottom: 8px;
+          font-family: 'Outfit', sans-serif;
+        }
+        .otp-subtitle {
+          color: var(--text-dim, #64748b);
+          font-size: 0.9rem;
+          line-height: 1.5;
+          margin-bottom: 24px;
+        }
+        .otp-input-group {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .otp-input-group input {
+          width: 46px;
+          height: 52px;
+          text-align: center;
+          font-size: 1.35rem;
+          font-weight: 700;
+          border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+          border-radius: 12px;
+          background: var(--surface-lighter, #f3f4f6);
+          color: var(--text-main, #0f172a);
+          transition: var(--transition, all 0.2s);
+        }
+        .otp-input-group input:focus {
+          outline: none;
+          border-color: var(--accent, #2563eb);
+          background: #fff;
+          box-shadow: 0 0 0 4px var(--accent-glow, rgba(37, 99, 235, 0.08));
+        }
+        .otp-dev-badge {
+          display: block;
+          margin: 0 auto 20px;
+          padding: 8px 12px;
+          border-radius: 10px;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px dashed rgba(16, 185, 129, 0.25);
+          color: #059669;
+          font-size: 0.82rem;
+          font-weight: 600;
+          max-width: max-content;
+        }
+        .otp-btn {
+          width: 100%;
+          padding: 14px;
+          border-radius: 14px;
+          font-weight: 700;
+          font-size: 0.95rem;
+          border: none;
+          cursor: pointer;
+          background: linear-gradient(135deg, var(--primary, #000), var(--accent, #2563eb));
+          color: #fff;
+          box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+          transition: var(--transition, all 0.2s);
+          margin-bottom: 20px;
+        }
+        .otp-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
+        }
+        .otp-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+        .otp-resend {
+          font-size: 0.82rem;
+          color: var(--text-dim, #64748b);
+        }
+        .otp-resend-btn {
+          background: none;
+          border: none;
+          color: var(--accent, #2563eb);
+          font-weight: 600;
+          cursor: pointer;
+          padding: 0;
+          text-decoration: underline;
+        }
+        .otp-resend-btn:disabled {
+          color: var(--text-dim, #64748b);
+          text-decoration: none;
+          cursor: not-allowed;
+        }
+        .otp-status {
+          font-size: 0.82rem;
+          margin-bottom: 16px;
+          display: none;
+          padding: 10px 14px;
+          border-radius: 10px;
+          text-align: left;
+        }
+        .otp-status.error {
+          display: block;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.15);
+          color: var(--error, #ef4444);
+        }
+        .otp-status.success {
+          display: block;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          color: var(--success, #10b981);
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "otp-modal-backdrop";
+
+    backdrop.innerHTML = `
+      <div class="otp-modal-card">
+        <button type="button" class="otp-close-btn" id="otpCloseBtn" aria-label="Close modal">&times;</button>
+        <div class="otp-icon"><i class="fas fa-envelope-open-text"></i></div>
+        <h3 class="otp-title">Enter Verification Code</h3>
+        <p class="otp-subtitle">We have sent a 6-digit verification code to<br><strong style="color: var(--text-main); font-weight: 600;">${email}</strong></p>
+        
+        <div id="otpStatus" class="otp-status"></div>
+        
+        <div class="otp-input-group" id="otpInputGroup">
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+
+        <button type="button" class="otp-btn" id="otpSubmitBtn">Verify Code</button>
+        
+        <div class="otp-resend">
+          Didn't receive the email? 
+          <button type="button" class="otp-resend-btn" id="otpResendBtn" disabled>Resend in 60s</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(backdrop);
+
+    // Trigger reflow & open transition
+    setTimeout(() => backdrop.classList.add("open"), 10);
+
+    const inputs = backdrop.querySelectorAll(".otp-input-group input");
+    const closeBtn = backdrop.querySelector("#otpCloseBtn");
+    const submitBtn = backdrop.querySelector("#otpSubmitBtn");
+    const resendBtn = backdrop.querySelector("#otpResendBtn");
+    const statusEl = backdrop.querySelector("#otpStatus");
+
+    // Focus the first input box
+    setTimeout(() => inputs[0].focus(), 150);
+
+    // 3. Handle Input Focus jumping
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", (e) => {
+        // Replace non-numeric input
+        input.value = input.value.replace(/[^0-9]/g, "");
+        if (input.value && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+      
+      input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData("text").replace(/[^0-9]/g, "");
+        if (text.length >= 6) {
+          inputs.forEach((inp, idx) => {
+            inp.value = text[idx] || "";
+          });
+          inputs[inputs.length - 1].focus();
+        }
+      });
+    });
+
+    // 4. Timer logic for resending OTP
+    let cooldown = 60;
+    let timerId = setInterval(() => {
+      cooldown--;
+      if (cooldown <= 0) {
+        clearInterval(timerId);
+        resendBtn.disabled = false;
+        resendBtn.textContent = "Resend Code";
+      } else {
+        resendBtn.textContent = `Resend in ${cooldown}s`;
+      }
+    }, 1000);
+
+    // Cleanup helper
+    function cleanup() {
+      clearInterval(timerId);
+      backdrop.classList.remove("open");
+      setTimeout(() => {
+        backdrop.remove();
+      }, 300);
+    }
+
+    // Close logic
+    closeBtn.addEventListener("click", () => {
+      cleanup();
+      reject(new Error("Verification cancelled by user."));
+    });
+
+    // 5. Verification submit logic
+    async function handleVerify() {
+      const code = Array.from(inputs).map(inp => inp.value).join("");
+      if (code.length < 6) {
+        statusEl.textContent = "Please enter all 6 digits.";
+        statusEl.className = "otp-status error";
+        return;
+      }
+
+      statusEl.style.display = "none";
+      submitBtn.disabled = true;
+      inputs.forEach(inp => inp.disabled = true);
+
+      try {
+        const payload = {
+          email: email,
+          code: code,
+          id_token: authParams.id_token || undefined,
+          password: authParams.password || undefined,
+          full_name: authParams.full_name || undefined
+        };
+
+        const resp = await fetch("/api/auth/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.detail || "Verification failed. Try again.");
+        }
+
+        // Success!
+        statusEl.textContent = "Identity verified successfully!";
+        statusEl.className = "otp-status success";
+        setTimeout(() => {
+          cleanup();
+          resolve(data);
+        }, 800);
+
+      } catch (err) {
+        statusEl.textContent = err.message;
+        statusEl.className = "otp-status error";
+        submitBtn.disabled = false;
+        inputs.forEach(inp => inp.disabled = false);
+        inputs[0].focus();
+      }
+    }
+
+    submitBtn.addEventListener("click", handleVerify);
+
+    // Support Enter key submission
+    inputs.forEach(input => {
+      input.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          handleVerify();
+        }
+      });
+    });
+
+    // 6. Resend logic
+    resendBtn.addEventListener("click", async () => {
+      resendBtn.disabled = true;
+      statusEl.style.display = "none";
+
+      try {
+        const payload = {
+          email: email,
+          id_token: authParams.id_token || undefined,
+          password: authParams.password || undefined,
+          full_name: authParams.full_name || undefined
+        };
+
+        const resp = await fetch("/api/auth/resend-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          throw new Error(data.detail || "Failed to resend code.");
+        }
+
+        statusEl.textContent = "New verification code sent successfully!";
+        statusEl.className = "otp-status success";
+
+        // Restart timer
+        cooldown = 60;
+        timerId = setInterval(() => {
+          cooldown--;
+          if (cooldown <= 0) {
+            clearInterval(timerId);
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend Code";
+          } else {
+            resendBtn.textContent = `Resend in ${cooldown}s`;
+          }
+        }, 1000);
+
+      } catch (err) {
+        statusEl.textContent = err.message;
+        statusEl.className = "otp-status error";
+        resendBtn.disabled = false;
+      }
+    });
+  });
 }

@@ -31,6 +31,16 @@ class Database:
             """)
             self._migrate_users_auth_columns(conn)
 
+            # OTP Verifications table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS otp_verifications (
+                    email TEXT PRIMARY KEY,
+                    code TEXT NOT NULL,
+                    expires_at DATETIME NOT NULL,
+                    verified INTEGER DEFAULT 0
+                )
+            """)
+
             # LinkedIn accounts table (updated with user_id)
             conn.execute("""
                 CREATE TABLE IF NOT EXISTS linkedin_accounts (

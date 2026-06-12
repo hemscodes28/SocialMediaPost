@@ -38,6 +38,7 @@ from app.services.threads_service import threads_service
 from app.services.instagram_token_service import InstagramTokenService, InstagramReauthRequired
 from app.services.google_auth_service import verify_google_id_token, random_password_for_oauth_user
 from app.services.firebase_auth_service import verify_firebase_id_token, claims_to_profile
+from app.services.email_service import send_otp_email
 from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -181,13 +182,19 @@ async def signup(user: User):
         raise HTTPException(status_code=400, detail="Email already registered")
     return await auth_service.create_user(user)
 
-@app.post("/api/auth/login", response_model=Token)
+@app.post("/api/auth/login")
 async def login(user_data: UserLogin):
     user = await auth_service.get_user_by_email(user_data.email)
     if not user or not auth_service.verify_password(user_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    access_token = auth_service.create_access_token(data={"sub": user.email})
-    return {"access_token": access_token, "token_type": "bearer"}
+    
+    code = await auth_service.generate_and_save_otp(user.email)
+    send_otp_email(user.email, code)
+    
+    return {
+        "otp_required": True,
+        "email": user.email
+    }
 
 
 class GoogleAuthRequest(BaseModel):
@@ -240,9 +247,9 @@ class FirebaseAuthRequest(BaseModel):
     full_name: Optional[str] = None
 
 
-@app.post("/api/auth/firebase", response_model=FirebaseAuthResponse)
+@app.post("/api/auth/firebase")
 async def firebase_auth(body: FirebaseAuthRequest):
-    """Verify Firebase ID token, sync user into accounts.db, return app JWT."""
+    """Verify Firebase ID token, sync user into accounts.db, return OTP required."""
     try:
         claims = verify_firebase_id_token(body.id_token)
     except Exception as exc:
@@ -268,14 +275,106 @@ async def firebase_auth(body: FirebaseAuthRequest):
             detail="Could not save your account locally. Please try again.",
         )
 
-    access_token = auth_service.create_access_token(data={"sub": email})
-    print(f"[INFO] Firebase auth synced to accounts.db: email={email} created={created}")
+    code = await auth_service.generate_and_save_otp(email)
+    send_otp_email(email, code)
+
+    print(f"[INFO] Firebase credentials verified, OTP sent: email={email} created={created}")
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user": user,
-        "created": created,
-        "local_account_synced": True,
+        "otp_required": True,
+        "email": email,
+        "created": created
+    }
+
+
+class VerifyOTPRequest(BaseModel):
+    email: str
+    code: str
+    id_token: Optional[str] = None
+    password: Optional[str] = None
+    full_name: Optional[str] = None
+
+
+class ResendOTPRequest(BaseModel):
+    email: str
+    id_token: Optional[str] = None
+    password: Optional[str] = None
+    full_name: Optional[str] = None
+
+
+@app.post("/api/auth/verify-otp")
+async def verify_otp(body: VerifyOTPRequest):
+    """Verify OTP and return app JWT access token."""
+    # 1. Verify OTP code
+    otp_ok = await auth_service.verify_otp_code(body.email, body.code)
+    if not otp_ok:
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code.")
+
+    # 2. Re-verify credential for security
+    if body.id_token:
+        try:
+            claims = verify_firebase_id_token(body.id_token)
+        except Exception as exc:
+            raise HTTPException(status_code=401, detail="Invalid or expired credentials.")
+        
+        profile = claims_to_profile(claims, fallback_name=body.full_name)
+        if profile["email"] != body.email.strip().lower():
+            raise HTTPException(status_code=400, detail="Credential email mismatch.")
+        
+        user, created = await auth_service.ensure_local_user(
+            body.email,
+            profile["full_name"],
+            firebase_uid=profile.get("firebase_uid"),
+            auth_provider=profile.get("auth_provider") or "firebase",
+        )
+        access_token = auth_service.create_access_token(data={"sub": body.email})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": user,
+            "created": created,
+            "local_account_synced": True,
+        }
+        
+    elif body.password:
+        user = await auth_service.get_user_by_email(body.email)
+        if not user or not auth_service.verify_password(body.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid or expired credentials.")
+        
+        access_token = auth_service.create_access_token(data={"sub": body.email})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user": user,
+            "created": False,
+            "local_account_synced": True,
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Credentials required for verification.")
+
+
+@app.post("/api/auth/resend-otp")
+async def resend_otp(body: ResendOTPRequest):
+    """Resend OTP code after verifying credentials."""
+    if body.id_token:
+        try:
+            claims = verify_firebase_id_token(body.id_token)
+        except Exception as exc:
+            raise HTTPException(status_code=401, detail="Invalid credentials.")
+        profile = claims_to_profile(claims, fallback_name=body.full_name)
+        if profile["email"] != body.email.strip().lower():
+            raise HTTPException(status_code=400, detail="Credential email mismatch.")
+    elif body.password:
+        user = await auth_service.get_user_by_email(body.email)
+        if not user or not auth_service.verify_password(body.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid credentials.")
+    else:
+        raise HTTPException(status_code=400, detail="Credentials required to resend verification code.")
+        
+    code = await auth_service.generate_and_save_otp(body.email)
+    send_otp_email(body.email, code)
+    return {
+        "success": True,
+        "email": body.email
     }
 
 

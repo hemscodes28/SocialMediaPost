@@ -152,6 +152,13 @@ class Settings:
         "AIzaSyCuEgLqq1k8xBGHCKasFaYwPbcd44O7FGo",
     ).strip()
     
+    # SMTP / Email Configuration
+    SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER = os.getenv("SMTP_USER", "").strip()
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "").strip()
+    SMTP_SENDER = os.getenv("SMTP_SENDER", "").strip()
+    
     # X (Twitter) API
     X_CLIENT_ID = os.getenv("X_CLIENT_ID", "")
     X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET", "")
