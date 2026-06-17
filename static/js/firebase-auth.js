@@ -547,6 +547,7 @@ function showOtpVerificationModal(email, authParams) {
       if (code.length < 6) {
         statusEl.textContent = "Please enter all 6 digits.";
         statusEl.className = "otp-status error";
+        statusEl.style.display = "block";
         return;
       }
 
@@ -577,6 +578,7 @@ function showOtpVerificationModal(email, authParams) {
         // Success!
         statusEl.textContent = "Identity verified successfully!";
         statusEl.className = "otp-status success";
+        statusEl.style.display = "block";
         setTimeout(() => {
           cleanup();
           resolve(data);
@@ -585,6 +587,7 @@ function showOtpVerificationModal(email, authParams) {
       } catch (err) {
         statusEl.textContent = err.message;
         statusEl.className = "otp-status error";
+        statusEl.style.display = "block";
         submitBtn.disabled = false;
         inputs.forEach(inp => inp.disabled = false);
         inputs[0].focus();
@@ -628,6 +631,7 @@ function showOtpVerificationModal(email, authParams) {
 
         statusEl.textContent = "New verification code sent successfully!";
         statusEl.className = "otp-status success";
+        statusEl.style.display = "block";
 
         // Restart timer
         cooldown = 60;
@@ -645,6 +649,7 @@ function showOtpVerificationModal(email, authParams) {
       } catch (err) {
         statusEl.textContent = err.message;
         statusEl.className = "otp-status error";
+        statusEl.style.display = "block";
         resendBtn.disabled = false;
       }
     });

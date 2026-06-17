@@ -3046,7 +3046,7 @@
                             <i class="fas fa-magic" style="color: var(--primary);"></i> Spark of Inspiration
                         </span>
                     </div>
-                    <p
+                    <p id="dynamicQuote"
                         style="font-family: 'Outfit', sans-serif; font-style: italic; font-size: 1.05rem; color: var(--text-main); line-height: 1.5; margin: 0;">
                         "Great content isn't tomorrow's job — it's today's spark. Amplify your voice across the social
                         universe."
@@ -4371,9 +4371,37 @@
                 }
             });
 
+            const inspireQuotes = [
+                "Great content isn't tomorrow's job — it's today's spark. Amplify your voice across the social universe.",
+                "Consistent sharing beats sporadic genius. Show up, speak up, and scale your presence.",
+                "The secret to social media is putting the 'social' back in the media and the 'human' back in your content.",
+                "Your brand is what people say about you when you're not in the room. Let's give them something great to talk about.",
+                "AI can generate the ideas, but your unique voice brings them to life. Publish with passion.",
+                "Content is fire; social media is gasoline. Ignite your brand's reach today.",
+                "Don't just post to fill a slot. Post to make a connection, spark a dialogue, and build a community.",
+                "A scheduled post is a promise kept to your audience. Consistency builds trust; trust builds brands.",
+                "Marketing is no longer about the stuff that you make, but about the stories you tell.",
+                "The best marketing doesn't feel like marketing. It feels like a genuine conversation.",
+                "Your feed is your digital storefront. Keep it fresh, inspiring, and always ready for visitors.",
+                "Create once, publish everywhere. Empower your voice across platforms and watch your community grow.",
+                "Social media is not just an activity; it's an investment of valuable time and resources.",
+                "Stop counting the people you reach, start reaching the people who count.",
+                "Every post is an opportunity to teach, inspire, or entertain. What will you share today?"
+            ];
+
+            function selectRandomQuote() {
+                const quoteEl = document.getElementById('dynamicQuote');
+                if (quoteEl) {
+                    const randomIndex = Math.floor(Math.random() * inspireQuotes.length);
+                    quoteEl.textContent = `"${inspireQuotes[randomIndex]}"`;
+                }
+            }
+
             async function init() {
                 const token = checkAuth();
                 if (!token) return;
+
+                selectRandomQuote();
 
                 // Set Date
                 const now = new Date();
