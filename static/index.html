@@ -4397,6 +4397,40 @@
                 }
             }
 
+            function getOnboardingInstructions() {
+                let obInstructions = "";
+                try {
+                    const ob = JSON.parse(localStorage.getItem('pp_onboarding') || '{}');
+                    if (ob.role) {
+                        const roleLower = String(ob.role).toLowerCase();
+                        if (roleLower === 'student' || roleLower === 'student/learner' || roleLower.includes('student') || roleLower.includes('learner')) {
+                            obInstructions += "\n- Since the user is a Student / Learner, the tone of the captions must be funky, casual, energetic, modern, and youth-focused. Relate to students, learning, or general growth.";
+                        } else if (roleLower === 'business' || roleLower === 'business owner' || roleLower.includes('business') || roleLower.includes('owner')) {
+                            obInstructions += "\n- Since the user is a Business Owner, the tone of the captions must be formal, professional, business-focused, highlighting value propositions, professional motives, or corporate insights.";
+                        } else if (roleLower === 'creator' || roleLower === 'content creator' || roleLower.includes('creator') || roleLower.includes('brand')) {
+                            obInstructions += "\n- Since the user is a Content Creator, the tone of the captions must be engaging, personal, authentic, conversational, and community-driven, building a personal brand connection.";
+                        } else if (roleLower === 'marketer' || roleLower === 'marketer/agency' || roleLower.includes('marketer') || roleLower.includes('agency')) {
+                            obInstructions += "\n- Since the user is a Marketer / Agency, the tone of the captions must be strategic, persuasive, results-oriented, focused on metrics, and structured for conversion.";
+                        }
+                    }
+                    if (ob.goal) {
+                        const goalLower = String(ob.goal).toLowerCase();
+                        if (goalLower === 'grow' || goalLower.includes('grow')) {
+                            obInstructions += " Focus on virality, high reach, shareability, and attracting new followers/fans.";
+                        } else if (goalLower === 'engage' || goalLower.includes('engage')) {
+                            obInstructions += " Focus on high engagement, asking questions, prompting discussions, and getting comments/likes.";
+                        } else if (goalLower === 'leads' || goalLower.includes('leads')) {
+                            obInstructions += " Focus on strong Call to Actions (CTAs), conversion, driving clicks to a link, signups, or sales.";
+                        } else if (goalLower === 'time' || goalLower.includes('time')) {
+                            obInstructions += " Focus on clear, concise, direct, and straightforward messaging.";
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error reading onboarding info:", e);
+                }
+                return obInstructions;
+            }
+
             async function init() {
                 const token = checkAuth();
                 if (!token) return;
@@ -7232,6 +7266,7 @@
                     try {
                         let generatedText = '';
                         const apiKey = getOpenAIKey();
+                        const obInstructions = getOnboardingInstructions();
 
                         if (apiKey) {
                             // === OPENAI PATH ===
@@ -7242,6 +7277,7 @@
 You MUST return valid JSON with keys: instagram, linkedin, and threads.
 
 Tone: ${tone}
+${obInstructions}
 
 Rules:
 - instagram: Fun, engaging, emojis, exactly 5 hashtags.
@@ -7271,7 +7307,8 @@ Rules:
                                 // Use backend /api/ai/analyze-image
                                 const fd = new FormData();
                                 fd.append('file', fileInput.files[0]);
-                                if (promptText) fd.append('topic', promptText);
+                                if (promptText) fd.append('topic', promptText + obInstructions);
+                                else if (obInstructions) fd.append('topic', obInstructions);
                                 if (tone) fd.append('tone', tone);
 
                                 const resp = await fetchWithAuth('/api/ai/analyze-image', { method: 'POST', body: fd });
@@ -7285,7 +7322,7 @@ Rules:
                             } else {
                                 // Use backend /api/ai/generate-multi-captions
                                 const fd = new FormData();
-                                fd.append('prompt', promptText);
+                                fd.append('prompt', promptText + obInstructions);
                                 if (tone) fd.append('tone', tone);
 
                                 const resp = await fetchWithAuth('/api/ai/generate-multi-captions', { method: 'POST', body: fd });
@@ -7296,10 +7333,15 @@ Rules:
                                 } else {
                                     // Fallback to local template if backend fails or is offline
                                     const fallbackData = {};
-                                    if (tone === 'formal') {
+                                    const obLower = obInstructions.toLowerCase();
+                                    if (tone === 'formal' || obLower.includes('business') || obLower.includes('formal') || obLower.includes('marketer')) {
                                         fallbackData.instagram = `We are pleased to share: "${promptText}". 👔 #Professional #Innovation`;
                                         fallbackData.linkedin = `Dear Professionals,\n\nWe are pleased to share: "${promptText}". 👔\n\nThis represents a significant milestone in our ongoing efforts to deliver high-quality solutions.\n\nSincerely, Post Pilot\n\n#Professional #Innovation`;
                                         fallbackData.threads = `Pleased to share: "${promptText}".`;
+                                    } else if (obLower.includes('student') || obLower.includes('casual') || obLower.includes('funky')) {
+                                        fallbackData.instagram = `✨ Yo! Check this out: "${promptText}"! 🎓🙌 #StudentLife #PostPilot #Funky`;
+                                        fallbackData.linkedin = `Hey connections! 🙌 Sharing a quick look into "${promptText}".\n\nAlways learning and growing every single day. Let's make things happen! 🚀\n\n#StudentLife #Learning #PostPilot #Growth`;
+                                        fallbackData.threads = `✨ ${promptText} 🎓🙌`;
                                     } else {
                                         fallbackData.instagram = `🚀 ${promptText} #ContentCreator #PostPilotAI #SocialMedia`;
                                         fallbackData.linkedin = `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia`;
@@ -8564,6 +8606,7 @@ Rules:
                 try {
                     let generatedText = '';
                     const apiKey = getOpenAIKey();
+                    const obInstructions = getOnboardingInstructions();
 
                     if (apiKey) {
                         // === OPENAI PATH ===
@@ -8572,6 +8615,7 @@ Rules:
                             role: 'system',
                             content: `You are a social media expert. Write platform-optimized captions for all three social media platforms: Instagram, LinkedIn, and Threads.
 You MUST return valid JSON with keys: instagram, linkedin, and threads.
+${obInstructions}
 
 Rules:
 - instagram: Fun, engaging, emojis, exactly 5 hashtags.
@@ -8601,7 +8645,8 @@ Rules:
                         if (hasFile) {
                             const fd = new FormData();
                             fd.append('file', fileInput.files[0]);
-                            if (promptText) fd.append('topic', promptText);
+                            if (promptText) fd.append('topic', promptText + obInstructions);
+                            else if (obInstructions) fd.append('topic', obInstructions);
                             const resp = await fetchWithAuth('/api/ai/analyze-image', { method: 'POST', body: fd });
                             if (resp && resp.ok) {
                                 const data = await resp.json();
@@ -8613,7 +8658,7 @@ Rules:
                         } else {
                             // Use backend /api/ai/generate-multi-captions
                             const fd = new FormData();
-                            fd.append('prompt', promptText);
+                            fd.append('prompt', promptText + obInstructions);
                             fd.append('tone', 'casual');
                             const resp = await fetchWithAuth('/api/ai/generate-multi-captions', { method: 'POST', body: fd });
                             if (resp && resp.ok) {
@@ -8621,11 +8666,21 @@ Rules:
                                 window.currentGeneratedCaptions = data;
                                 generatedText = `Instagram:\n${data.instagram || ''}\n\nLinkedIn:\n${data.linkedin || ''}\n\nThreads:\n${data.threads || ''}`;
                             } else {
-                                const fallbackData = {
-                                    instagram: `🚀 ${promptText} #ContentCreator #PostPilotAI #SocialMedia`,
-                                    linkedin: `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia #Engagement #Growth`,
-                                    threads: `🚀 ${promptText}`
-                                };
+                                const fallbackData = {};
+                                const obLower = obInstructions.toLowerCase();
+                                if (obLower.includes('business') || obLower.includes('formal') || obLower.includes('marketer')) {
+                                    fallbackData.instagram = `We are pleased to share: "${promptText}". 👔 #Professional #Innovation`;
+                                    fallbackData.linkedin = `Dear Professionals,\n\nWe are pleased to share: "${promptText}". 👔\n\nThis represents a significant milestone in our ongoing efforts to deliver high-quality solutions.\n\nSincerely, Post Pilot\n\n#Professional #Innovation`;
+                                    fallbackData.threads = `Pleased to share: "${promptText}".`;
+                                } else if (obLower.includes('student') || obLower.includes('casual') || obLower.includes('funky')) {
+                                    fallbackData.instagram = `✨ Yo! Check this out: "${promptText}"! 🎓🙌 #StudentLife #PostPilot #Funky`;
+                                    fallbackData.linkedin = `Hey connections! 🙌 Sharing a quick look into "${promptText}".\n\nAlways learning and growing every single day. Let's make things happen! 🚀\n\n#StudentLife #Learning #PostPilot #Growth`;
+                                    fallbackData.threads = `✨ ${promptText} 🎓🙌`;
+                                } else {
+                                    fallbackData.instagram = `🚀 ${promptText} #ContentCreator #PostPilotAI #SocialMedia`;
+                                    fallbackData.linkedin = `🚀 ${promptText}\n\nThis is a moment worth sharing! Whether you're just getting started or leveling up, every step forward counts. Drop a comment below! 💬\n\n#ContentCreator #PostPilotAI #SocialMedia #Engagement #Growth`;
+                                    fallbackData.threads = `🚀 ${promptText}`;
+                                }
                                 window.currentGeneratedCaptions = fallbackData;
                                 generatedText = `Instagram:\n${fallbackData.instagram}\n\nLinkedIn:\n${fallbackData.linkedin}\n\nThreads:\n${fallbackData.threads}`;
                                 showToast('Tip: Set your OpenAI key: localStorage.setItem("OPENAI_API_KEY","sk-...")', 'warning');
