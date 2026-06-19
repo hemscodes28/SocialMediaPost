@@ -2857,12 +2857,10 @@
         .previews-column > div {
             flex: 1;
             min-height: 0;
-            height: auto !important;
         }
         #panelPreviews .preview-card-wrap {
             flex: 1;
             min-height: 0;
-            height: auto !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
         }
@@ -3515,22 +3513,59 @@
                                     image...✨</span>
                             </div>
 
-                            <!-- Styled output box (Spacious generated caption viewport) -->
                             <div id="aiMagicOutputContainer"
                                 style="display: none; flex-direction: column; gap: 10px; flex: 1; min-height: 0;">
-                                <label
-                                    style="font-size: 0.78rem; font-weight: 700; color: var(--text-main); margin-bottom: -4px;">✨
-                                    Generated Caption:</label>
+                                
+                                <!-- Platform Stepper / Tabs -->
+                                <div id="aiMagicTabs" style="display: flex; gap: 6px; margin-top: 4px;">
+                                    <button id="aiMagicTabInstagram" type="button" style="flex: 1; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface-lighter); color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #e1306c;">
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.838 3.838 0 110-7.676 3.838 3.838 0 010 7.676zm4.965-10.405a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                        </svg> Instagram
+                                    </button>
+                                    <button id="aiMagicTabLinkedin" type="button" style="flex: 1; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface-lighter); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #0077b5;">
+                                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                        </svg> LinkedIn
+                                    </button>
+                                    <button id="aiMagicTabThreads" type="button" style="flex: 1; padding: 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; border: 1px solid var(--border); background: var(--surface-lighter); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                                        <img src="/static/threads.png" style="width: 12px; height: 12px; object-fit: contain;" alt="Threads"> Threads
+                                    </button>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: -4px; margin-top: 2px;">
+                                    <label id="aiMagicPlatformLabel" style="font-size: 0.78rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+                                        ✨ Instagram Caption:
+                                    </label>
+                                    <span id="aiMagicStepIndicator" style="font-size: 0.72rem; font-weight: 600; color: var(--text-dim);">Step 1 of 3</span>
+                                </div>
+
                                 <div style="min-height: 180px; max-height: 260px; overflow-y: auto; background: var(--surface-lighter); border: 1px solid var(--border); border-radius: 10px; padding: 12px; font-size: 0.86rem; line-height: 1.6; color: var(--text-main); font-family: inherit; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);"
                                     id="aiMagicOutputText" contenteditable="true"></div>
-                                <div
-                                    style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 8px; margin-top: 2px;">
+                                
+                                <!-- Dynamic Wizard Buttons -->
+                                <div id="aiMagicWizardFooter" style="display: flex; gap: 8px; margin-top: 2px;">
+                                    <!-- Back button (hidden on Instagram step by default) -->
+                                    <button class="btn btn-glass" id="aiMagicBackBtn" type="button"
+                                        style="display: none; padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; flex: 1;">
+                                        <i class="fas fa-arrow-left"></i> Back
+                                    </button>
+                                    
+                                    <!-- Next button (shown on Instagram and LinkedIn steps) -->
+                                    <button class="btn btn-primary" id="aiMagicNextBtn" type="button"
+                                        style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: var(--accent); border: none; color: white; flex: 2; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <span>Next: LinkedIn Caption</span> <i class="fas fa-arrow-right"></i>
+                                    </button>
+
+                                    <!-- Threads Actions (hidden on Instagram and LinkedIn steps by default) -->
                                     <button class="btn btn-glass" id="aiMagicCopyBtn" type="button"
-                                        style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700;"><i
-                                            class="far fa-copy"></i> Copy</button>
+                                        style="display: none; padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; flex: 1;">
+                                        <i class="far fa-copy"></i> Copy
+                                    </button>
                                     <button class="btn btn-primary" id="aiMagicUseBtn" type="button"
-                                        style="padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: var(--accent); border: none; color: white;"><i
-                                            class="fas fa-check"></i> Use Caption</button>
+                                        style="display: none; padding: 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; background: var(--accent); border: none; color: white; flex: 1.2;">
+                                        <i class="fas fa-check"></i> Use Caption
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -5846,12 +5881,20 @@
                 let rawThreads = document.getElementById('threadsCaption').value || '';
 
                 // If captions are empty, fall back to AI Magic output if available
-                const aiMagicEl = document.getElementById('aiMagicOutputText');
-                const aiMagicText = aiMagicEl ? (aiMagicEl.textContent || '').trim() : '';
-                if (!rawInsta && !rawLinkedin && !rawThreads && aiMagicText) {
-                    rawInsta = aiMagicText;
-                    rawLinkedin = aiMagicText;
-                    rawThreads = aiMagicText;
+                if (!rawInsta && !rawLinkedin && !rawThreads) {
+                    if (window.currentGeneratedCaptions) {
+                        rawInsta = window.currentGeneratedCaptions.instagram || '';
+                        rawLinkedin = window.currentGeneratedCaptions.linkedin || '';
+                        rawThreads = window.currentGeneratedCaptions.threads || '';
+                    } else {
+                        const aiMagicEl = document.getElementById('aiMagicOutputText');
+                        const aiMagicText = aiMagicEl ? (aiMagicEl.textContent || '').trim() : '';
+                        if (aiMagicText) {
+                            rawInsta = aiMagicText;
+                            rawLinkedin = aiMagicText;
+                            rawThreads = aiMagicText;
+                        }
+                    }
                 }
 
                 draftInsta = rawInsta;
@@ -7355,7 +7398,8 @@ Rules:
                         }
 
                         if (generatedText) {
-                            if (aiMagicOutputText) aiMagicOutputText.textContent = generatedText;
+                            currentAiMagicPlatform = 'instagram';
+                            updateAiMagicOutputUI();
                             if (aiMagicOutputContainer) aiMagicOutputContainer.style.display = 'flex';
                         }
                     } catch (err) {
@@ -7368,6 +7412,181 @@ Rules:
                         aiMagicGenerateBtn.style.display = 'block';
                     }
                 };
+            }
+
+            // --- AI MAGIC CAPTION STEPPER WIZARD CONTROLLER ---
+            let currentAiMagicPlatform = 'instagram';
+
+            function updateAiMagicOutputUI() {
+                const steps = {
+                    instagram: { label: '✨ Instagram Caption:', desc: 'Step 1 of 3', next: 'LinkedIn' },
+                    linkedin: { label: '✨ LinkedIn Caption:', desc: 'Step 2 of 3', next: 'Threads' },
+                    threads: { label: '✨ Threads Caption:', desc: 'Step 3 of 3', next: 'Finish' }
+                };
+
+                const currentStepInfo = steps[currentAiMagicPlatform];
+
+                // Update text content
+                if (aiMagicOutputText) {
+                    aiMagicOutputText.textContent = (window.currentGeneratedCaptions && window.currentGeneratedCaptions[currentAiMagicPlatform]) || '';
+                }
+
+                // Update headers / labels
+                const platformLabel = document.getElementById('aiMagicPlatformLabel');
+                const stepIndicator = document.getElementById('aiMagicStepIndicator');
+                if (platformLabel) {
+                    let iconHtml = '';
+                    if (currentAiMagicPlatform === 'instagram') {
+                        iconHtml = `<svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #e1306c; display: inline-block; vertical-align: middle;">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zm0 10.162a3.838 3.838 0 110-7.676 3.838 3.838 0 010 7.676zm4.965-10.405a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                    </svg>`;
+                    } else if (currentAiMagicPlatform === 'linkedin') {
+                        iconHtml = `<svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: #0077b5; display: inline-block; vertical-align: middle;">
+                                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                    </svg>`;
+                    } else if (currentAiMagicPlatform === 'threads') {
+                        iconHtml = `<img src="/static/threads.png" style="width: 12px; height: 12px; object-fit: contain; display: inline-block; vertical-align: middle;" alt="Threads">`;
+                    }
+                    platformLabel.innerHTML = `✨ ${iconHtml} ${currentAiMagicPlatform.charAt(0).toUpperCase() + currentAiMagicPlatform.slice(1)} Caption:`;
+                }
+                if (stepIndicator) {
+                    stepIndicator.textContent = currentStepInfo.desc;
+                }
+
+                // Update active tab styling
+                const tabIg = document.getElementById('aiMagicTabInstagram');
+                const tabLi = document.getElementById('aiMagicTabLinkedin');
+                const tabTh = document.getElementById('aiMagicTabThreads');
+                
+                if (tabIg) {
+                    if (currentAiMagicPlatform === 'instagram') {
+                        tabIg.style.background = 'var(--surface-dark)';
+                        tabIg.style.borderColor = 'var(--accent)';
+                        tabIg.style.color = 'var(--text-main)';
+                        tabIg.style.boxShadow = '0 0 8px rgba(99, 102, 241, 0.2)';
+                    } else {
+                        tabIg.style.background = 'var(--surface-lighter)';
+                        tabIg.style.borderColor = 'var(--border)';
+                        tabIg.style.color = 'var(--text-dim)';
+                        tabIg.style.boxShadow = 'none';
+                    }
+                }
+                if (tabLi) {
+                    if (currentAiMagicPlatform === 'linkedin') {
+                        tabLi.style.background = 'var(--surface-dark)';
+                        tabLi.style.borderColor = 'var(--accent)';
+                        tabLi.style.color = 'var(--text-main)';
+                        tabLi.style.boxShadow = '0 0 8px rgba(99, 102, 241, 0.2)';
+                    } else {
+                        tabLi.style.background = 'var(--surface-lighter)';
+                        tabLi.style.borderColor = 'var(--border)';
+                        tabLi.style.color = 'var(--text-dim)';
+                        tabLi.style.boxShadow = 'none';
+                    }
+                }
+                if (tabTh) {
+                    if (currentAiMagicPlatform === 'threads') {
+                        tabTh.style.background = 'var(--surface-dark)';
+                        tabTh.style.borderColor = 'var(--accent)';
+                        tabTh.style.color = 'var(--text-main)';
+                        tabTh.style.boxShadow = '0 0 8px rgba(99, 102, 241, 0.2)';
+                    } else {
+                        tabTh.style.background = 'var(--surface-lighter)';
+                        tabTh.style.borderColor = 'var(--border)';
+                        tabTh.style.color = 'var(--text-dim)';
+                        tabTh.style.boxShadow = 'none';
+                    }
+                }
+
+                // Update Footer Buttons
+                const backBtn = document.getElementById('aiMagicBackBtn');
+                const nextBtn = document.getElementById('aiMagicNextBtn');
+                const copyBtn = document.getElementById('aiMagicCopyBtn');
+                const useBtn = document.getElementById('aiMagicUseBtn');
+
+                if (backBtn) {
+                    backBtn.style.display = (currentAiMagicPlatform === 'instagram') ? 'none' : 'block';
+                }
+
+                if (currentAiMagicPlatform === 'threads') {
+                    if (nextBtn) nextBtn.style.display = 'none';
+                    if (copyBtn) copyBtn.style.display = 'block';
+                    if (useBtn) useBtn.style.display = 'block';
+                } else {
+                    if (nextBtn) {
+                        nextBtn.style.display = 'flex';
+                        nextBtn.innerHTML = `<span>Next: ${currentStepInfo.next} Caption</span> <i class="fas fa-arrow-right"></i>`;
+                    }
+                    if (copyBtn) copyBtn.style.display = 'none';
+                    if (useBtn) useBtn.style.display = 'none';
+                }
+            }
+
+            const saveCurrentCaptionText = () => {
+                if (window.currentGeneratedCaptions && aiMagicOutputText) {
+                    window.currentGeneratedCaptions[currentAiMagicPlatform] = aiMagicOutputText.textContent;
+                }
+            };
+
+            // Register Stepper Tab Clicks
+            const tabInstagram = document.getElementById('aiMagicTabInstagram');
+            if (tabInstagram) {
+                tabInstagram.onclick = () => {
+                    saveCurrentCaptionText();
+                    currentAiMagicPlatform = 'instagram';
+                    updateAiMagicOutputUI();
+                };
+            }
+            const tabLinkedin = document.getElementById('aiMagicTabLinkedin');
+            if (tabLinkedin) {
+                tabLinkedin.onclick = () => {
+                    saveCurrentCaptionText();
+                    currentAiMagicPlatform = 'linkedin';
+                    updateAiMagicOutputUI();
+                };
+            }
+            const tabThreads = document.getElementById('aiMagicTabThreads');
+            if (tabThreads) {
+                tabThreads.onclick = () => {
+                    saveCurrentCaptionText();
+                    currentAiMagicPlatform = 'threads';
+                    updateAiMagicOutputUI();
+                };
+            }
+
+            // Register Next & Back Clicks
+            const aiMagicBackBtn = document.getElementById('aiMagicBackBtn');
+            if (aiMagicBackBtn) {
+                aiMagicBackBtn.onclick = () => {
+                    saveCurrentCaptionText();
+                    if (currentAiMagicPlatform === 'threads') {
+                        currentAiMagicPlatform = 'linkedin';
+                    } else if (currentAiMagicPlatform === 'linkedin') {
+                        currentAiMagicPlatform = 'instagram';
+                    }
+                    updateAiMagicOutputUI();
+                };
+            }
+            const aiMagicNextBtn = document.getElementById('aiMagicNextBtn');
+            if (aiMagicNextBtn) {
+                aiMagicNextBtn.onclick = () => {
+                    saveCurrentCaptionText();
+                    if (currentAiMagicPlatform === 'instagram') {
+                        currentAiMagicPlatform = 'linkedin';
+                    } else if (currentAiMagicPlatform === 'linkedin') {
+                        currentAiMagicPlatform = 'threads';
+                    }
+                    updateAiMagicOutputUI();
+                };
+            }
+
+            // Save caption on input edit
+            if (aiMagicOutputText) {
+                aiMagicOutputText.addEventListener('input', () => {
+                    if (window.currentGeneratedCaptions) {
+                        window.currentGeneratedCaptions[currentAiMagicPlatform] = aiMagicOutputText.textContent;
+                    }
+                });
             }
 
             if (aiMagicCopyBtn) {
